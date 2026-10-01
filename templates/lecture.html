@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>$title — Саратовцев Артём</title>
+<meta name="description" content="$subtitle">
+<link rel="stylesheet" href="../../assets/css/site.css">
+<link rel="stylesheet" href="../../assets/css/deck.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<script defer src="../../assets/js/widgets/sequence.js"></script>
+<script defer src="../../assets/js/widgets/registers.js"></script>
+<script defer src="../../assets/js/widgets/register-map.js"></script>
+<script defer src="../../assets/js/widgets/command-lab.js"></script>
+<script defer src="../../assets/js/widgets/syscall-explorer.js"></script>
+<script defer src="../../assets/js/widgets/endian.js"></script>
+<script defer src="../../assets/js/resources.js"></script>
+<script defer src="../../assets/js/deck.js"></script>
+</head>
+<body class="lecture">
+<div class="deck">
+<header class="deck-header"><a href="../../index.html" title="Вернуться к каталогу">↖ Сборник</a><span>$title</span></header>
+<main class="stage" aria-label="Слайды лекции">
+$slides
+</main>
+<footer class="deck-footer">
+<div class="nav-controls"><button data-prev aria-label="Предыдущий слайд">←</button><span id="counter" aria-live="polite">01 / $count</span><button data-next aria-label="Следующий слайд">→</button></div>
+<span id="interaction-hint">← → слайды</span>
+<div class="deck-tools"><button data-fullscreen title="Полный экран (F)">Экран <kbd>F</kbd></button><button data-dialog="help" aria-label="Клавиши управления">?</button></div>
+</footer>
+<div class="progress-track" aria-hidden="true"><div id="progress"></div></div>
+</div>
+<dialog id="help" aria-labelledby="help-title"><div class="dialog-top"><h2 id="help-title">Управление</h2><button data-close aria-label="Закрыть">×</button></div><dl class="key-list"><dt>← → / Page Up, Down</dt><dd>Предыдущий / следующий слайд</dd><dt>Пробел / Shift + пробел</dt><dd>Вперёд / назад внутри демонстрации</dd><dt>R</dt><dd>Сбросить демонстрацию</dd><dt>F</dt><dd>Полный экран</dd><dt>Esc</dt><dd>Закрыть панель</dd></dl></dialog>
+<noscript>Для переключения слайдов и демонстраций включите JavaScript.</noscript>
+</body>
+</html>

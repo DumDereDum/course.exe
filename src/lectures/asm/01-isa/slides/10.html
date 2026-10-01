@@ -1,0 +1,19 @@
+<!-- type: split -->
+<div class="tag">01 / размер операции</div>
+<h2>Имя регистра задаёт,<br><span class="accent">сколько бит участвует.</span></h2>
+<div class="widget" data-widget="command-lab" data-regs="rax">
+  <div class="command-lab-layout">
+    <div class="command-lab-examples" data-command-examples>
+      <button class="command-example" data-command="add al, 1" data-before='{"rax":"0x11223344556677FF"}' data-after='{"rax":"0x1122334455667700"}' data-flags-after='{"ZF":"1","CF":"1","SF":"0","OF":"0"}' data-bits="rax" data-explain="FF + 1 не помещается в 8 бит: AL стал 00, CF получил перенос."><code>add al, 1</code><small>8 бит</small></button>
+      <button class="command-example" data-command="add ax, 1" data-before='{"rax":"0x11223344556677FF"}' data-after='{"rax":"0x1122334455667800"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"0"}' data-bits="rax" data-explain="Сложение выполнено над младшими 16 битами AX."><code>add ax, 1</code><small>16 бит</small></button>
+      <button class="command-example" data-command="add eax, 1" data-before='{"rax":"0x11223344556677FF"}' data-after='{"rax":"0x0000000055667800"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"0"}' data-bits="rax" data-explain="Операция над EAX дала 55667800; верхние 32 бита RAX обнулились."><code>add eax, 1</code><small>32 бита</small></button>
+      <button class="command-example" data-command="add rax, 1" data-before='{"rax":"0x11223344556677FF"}' data-after='{"rax":"0x1122334455667800"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"0"}' data-bits="rax" data-explain="В сложении участвовали все 64 бита RAX."><code>add rax, 1</code><small>64 бита</small></button>
+    </div>
+    <div class="command-lab-state" data-command-state></div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Показ:</b> все четыре примера начинают с одного значения. Сравнить, какая часть результата изменилась.</p>
+  <p><b>AL:</b> FF + 1 даёт 100 в hex, но в 8 бит помещаются только 00; перенос отмечен CF. ZF относится к восьмибитному результату и поэтому равен 1.</p>
+  <p><b>EAX:</b> любое вычисление, записывающее результат в 32-битный регистр, обнуляет верхнюю половину соответствующего 64-битного регистра.</p>
+</aside>

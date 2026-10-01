@@ -1,0 +1,51 @@
+<!-- type: sequence -->
+<div class="tag">01 / путь программы</div>
+<h2>Во что превращается <span class="accent">исходный код?</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Шаг 1 из 4 · Начинаем с понятного человеку исходного кода.">
+      <div class="flow"><div class="flow-node active">Код на C<small>program.c</small></div><span class="flow-arrow">→</span><div class="flow-node">Ассемблер<small>program.s</small></div><span class="flow-arrow">→</span><div class="flow-node">Объектный файл<small>program.o</small></div><span class="flow-arrow">→</span><div class="flow-node">Программа<small>program</small></div></div>
+      <div class="columns">
+        <div class="panel"><div class="panel-label">Что это</div><p>Текст, который написал программист. Типы, переменные и выражения ещё сохранены.</p></div>
+        <div class="panel"><div class="panel-label">Пример содержимого</div><pre class="code"><code>long calc(long a, long b, long c) {
+    return (a + b) - c;
+}</code></pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Шаг 2 из 4 · Компилятор выбирает инструкции для целевого процессора.">
+      <div class="flow"><div class="flow-node">Код на C<small>program.c</small></div><span class="flow-arrow">→</span><div class="flow-node active">Ассемблер<small>program.s</small></div><span class="flow-arrow">→</span><div class="flow-node">Объектный файл<small>program.o</small></div><span class="flow-arrow">→</span><div class="flow-node">Программа<small>program</small></div></div>
+      <div class="columns">
+        <div class="panel"><div class="panel-label">Что изменилось</div><p>Переменные стали регистрами, а выражение — последовательностью инструкций x86-64.</p></div>
+        <div class="panel"><div class="panel-label">Пример содержимого</div><pre class="code"><code>mov rax, rdi
+add rax, rsi
+sub rax, rdx
+ret</code></pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Шаг 3 из 4 · Ассемблер кодирует инструкции в байты и сохраняет служебные данные.">
+      <div class="flow"><div class="flow-node">Код на C<small>program.c</small></div><span class="flow-arrow">→</span><div class="flow-node">Ассемблер<small>program.s</small></div><span class="flow-arrow">→</span><div class="flow-node active">Объектный файл<small>program.o</small></div><span class="flow-arrow">→</span><div class="flow-node">Программа<small>program</small></div></div>
+      <div class="columns">
+        <div class="panel"><div class="panel-label">Что изменилось</div><p>Инструкции уже записаны машинными байтами. Рядом хранятся секции, символы и ссылки для линковщика.</p></div>
+        <div class="panel"><div class="panel-label">Фрагмент .text · hex</div><pre class="code"><code>48 89 F8
+48 01 F0
+48 29 D0
+C3</code></pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Шаг 4 из 4 · Линковщик соединяет части и назначает им адреса.">
+      <div class="flow"><div class="flow-node">Код на C<small>program.c</small></div><span class="flow-arrow">→</span><div class="flow-node">Ассемблер<small>program.s</small></div><span class="flow-arrow">→</span><div class="flow-node">Объектный файл<small>program.o</small></div><span class="flow-arrow">→</span><div class="flow-node active">Программа<small>program</small></div></div>
+      <div class="columns">
+        <div class="panel"><div class="panel-label">Что изменилось</div><p>Код и данные получили адреса. Файл содержит всё необходимое загрузчику ОС для запуска.</p></div>
+        <div class="panel"><div class="panel-label">Фрагмент дизассемблера</div><pre class="code"><code>0000000000401000 &lt;calc&gt;:
+401000: 48 89 f8  mov rax,rdi
+401003: 48 01 f0  add rax,rsi
+401006: 48 29 d0  sub rax,rdx</code></pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Показ:</b> пробелом пройти четыре состояния. На каждом шаге сначала назвать преобразование, затем прочитать пример справа. Shift + пробел — назад, R — сначала.</p>
+  <p><b>Спросить:</b> на каком этапе инструкции впервые становятся байтами? <b>Ответ:</b> при создании объектного файла ассемблером.</p>
+  <p><b>Границы модели:</b> промежуточный .s не всегда сохраняется на диск. Адрес 0x401000 приведён как учебный пример и может отличаться в реальной сборке.</p>
+</aside>

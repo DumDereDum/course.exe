@@ -1,0 +1,35 @@
+<!-- type: content -->
+<div class="tag">01 / от 8086 к x86-64</div>
+<h2>x86-64 выросла<br><span class="accent">из 16-битной архитектуры.</span></h2>
+<div class="flow">
+  <div class="flow-node"><strong>1978 · 8086</strong><small>16 бит · AX, BX, CX, DX</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>1985 · 80386</strong><small>32 бита · EAX, EBX, ECX, EDX</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node active"><strong>2003 · AMD64</strong><small>64 бита · RAX и новые R8–R15</small></div>
+</div>
+<div class="columns">
+  <div class="panel">
+    <div class="panel-label">Один регистр рос вместе с архитектурой</div>
+    <pre class="ascii">RAX · 64 бита
+└── EAX · младшие 32 бита
+    └── AX · младшие 16 бит
+        ├── AH · старшие 8
+        └── AL · младшие 8</pre>
+  </div>
+  <div class="panel">
+    <div class="panel-label">Почему имена сохранились</div>
+    <ul class="bullets">
+      <li><code>EAX</code> — extended <code>AX</code>;</li>
+      <li>старые части регистра всё ещё доступны;</li>
+      <li>новые процессоры продолжают понимать старые кодировки.</li>
+    </ul>
+  </div>
+</div>
+<p class="takeaway">x86-64 расширила x86, сохранив её команды и исторические имена.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> 8086 дал архитектуре 16-битные AX, BX, CX и DX. 80386 расширил их до 32 бит и добавил к имени E — extended. AMD64 расширила регистры до 64 бит, добавила R8–R15 и была принята Intel в совместимом виде.</p>
+  <p><b>Про имена:</b> AX исторически был аккумулятором, BX — базовым регистром, CX — счётчиком, DX — регистром данных. В современном коде эти роли часто не обязательны, но отдельные инструкции и соглашения всё ещё используют некоторые регистры особым образом.</p>
+  <p><b>Спросить:</b> является ли EAX отдельным от RAX регистром? <b>Ответ:</b> нет, EAX обозначает младшие 32 бита RAX.</p>
+  <p><b>Граница:</b> совместимость зависит от режима работы процессора и ОС. Здесь важно происхождение архитектуры; режимы real, protected и long разберём отдельно только при необходимости.</p>
+</aside>

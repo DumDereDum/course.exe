@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Сборник лекций — Саратовцев Артём</title>
+<meta name="description" content="Сборник лекций Саратовцева Артёма: assembler и common.">
+<link rel="stylesheet" href="assets/css/site.css">
+<link rel="stylesheet" href="assets/css/home.css">
+<script defer src="assets/js/home.js"></script>
+</head>
+<body class="home">
+<main class="terminal">
+<header class="home-header">
+  <span class="system-name">C:\LECTURES</span>
+  <button id="home-fullscreen">Полный экран ↗</button>
+</header>
+<section class="home-title">
+  <h1>Сборник лекций<span class="cursor-block" aria-hidden="true"></span></h1>
+  <p>Саратовцев Артём</p>
+</section>
+<section class="file-browser" aria-label="Каталог лекций">
+  <div class="file-toolbar">
+    <button id="folder-up" aria-label="На уровень выше" title="Назад (←)">←</button>
+    <span id="fs-path">C:\LECTURES</span>
+  </div>
+  <div id="file-list" role="listbox" aria-label="Папки и лекции"></div>
+  <div class="file-actions">
+    <p id="folder-status" aria-live="polite"></p>
+    <a id="file-open" class="launch" href="#">Открыть папку ↵</a>
+  </div>
+</section>
+<footer class="home-footer">
+  <span><kbd>↑</kbd><kbd>↓</kbd> выбор &nbsp; <kbd>Enter</kbd> открыть &nbsp; <kbd>←</kbd> назад</span>
+  <span>Двойной клик открывает папку или лекцию</span>
+</footer>
+</main>
+<ul id="catalog-data" hidden><li data-kind="dir" data-name="assembler" data-code="assembler" data-desc="Ассемблер и архитектура компьютера"><ul><li data-kind="lecture" data-name="Ассемблер · Лекция 01" data-desc="Ассемблер — инструкции, регистры и машинный код" data-count="26" data-demos="16" data-href="lectures/asm/01-isa.html"></li></ul></li>
+<li data-kind="dir" data-name="common" data-code="common" data-desc="Общие темы и инструменты"><ul><li data-kind="dir" data-name="git" data-code="git" data-desc="Контроль версий"><ul><li data-kind="lecture" data-name="Git · Лекция 01" data-desc="Введение в Git" data-count="1" data-demos="0" data-href="lectures/git/01-intro.html"></li></ul></li></ul></li></ul>
+<noscript>Для каталога включите JavaScript. <a href="lectures/asm/01-isa.html">Открыть лекцию по ассемблеру</a>.</noscript>
+</body>
+</html>

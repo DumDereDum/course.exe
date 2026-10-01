@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 470" role="img" aria-labelledby="title desc">
+  <title id="title">Виртуальная память процесса и физическая RAM</title>
+  <desc id="desc">Слева знакомая карта виртуальной памяти со стеком, свободными адресами, кучей и образом программы. Две соседние страницы A и B из data через таблицу соответствий связаны с разными физическими блоками RAM: A с блоком 6, B с блоком 2.</desc>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10" fill="#89f9b0"/></marker></defs>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace">
+    <g fill="#91a99a" font-size="22" text-anchor="middle">
+      <text x="194" y="22">ВИРТУАЛЬНАЯ ПАМЯТЬ ПРОЦЕССА</text>
+      <text x="1205" y="22">ФИЗИЧЕСКАЯ RAM</text>
+    </g>
+    <g stroke="#40614b" stroke-width="2">
+      <rect x="24" y="52" width="340" height="84" fill="#102019"/>
+      <rect x="24" y="136" width="340" height="72" fill="#08100b" stroke-dasharray="7 6"/>
+      <rect x="24" y="208" width="340" height="52" fill="#102019"/>
+      <rect x="24" y="260" width="340" height="156" fill="#0c1510"/>
+      <path d="M24 292H364M24 324H364M24 388H364"/>
+    </g>
+    <g text-anchor="middle" fill="#91a99a" font-size="23">
+      <text x="194" y="103">СТЕК</text><text x="194" y="181">СВОБОДНО</text><text x="194" y="243">КУЧА</text>
+    </g>
+    <g fill="#91a99a" font-size="22">
+      <text x="48" y="284">.text</text><text x="48" y="316">.rodata</text><text x="48" y="410">.bss</text>
+    </g>
+    <rect x="25" y="324" width="338" height="64" fill="#153020" stroke="#89f9b0" stroke-width="2"/>
+    <text x="48" y="364" fill="#89f9b0" font-size="25">.data</text>
+    <rect x="220" y="325" width="143" height="31" fill="#102019" stroke="#89f9b0" stroke-width="2"/>
+    <rect x="220" y="357" width="143" height="30" fill="#102019" stroke="#89f9b0" stroke-width="2" stroke-dasharray="5 4"/>
+    <text x="291" y="348" fill="#89f9b0" font-size="21" text-anchor="middle">страница A</text>
+    <text x="291" y="379" fill="#89f9b0" font-size="21" text-anchor="middle">страница B</text>
+    <text x="194" y="447" fill="#91a99a" font-size="18" text-anchor="middle">Знакомая карта со слайдов 19–22</text>
+
+    <rect x="508" y="52" width="400" height="92" rx="4" fill="#0c1510" stroke="#40614b" stroke-width="2"/>
+    <g font-family="Inter, Arial, sans-serif" font-size="24" fill="#e4eee6" text-anchor="middle">
+      <text x="708" y="89">ОС задаёт соответствия.</text>
+      <text x="708" y="123">Процессор переводит адреса.</text>
+    </g>
+    <text x="708" y="182" fill="#91a99a" font-size="19" text-anchor="middle">ТАБЛИЦА СООТВЕТСТВИЙ</text>
+    <rect x="558" y="198" width="300" height="58" fill="#102019" stroke="#89f9b0" stroke-width="2"/>
+    <rect x="558" y="256" width="300" height="58" fill="#102019" stroke="#89f9b0" stroke-width="2" stroke-dasharray="5 4"/>
+    <g fill="#89f9b0" font-size="26" text-anchor="middle">
+      <text x="708" y="235">A → блок 6</text><text x="708" y="293">B → блок 2</text>
+    </g>
+    <g font-family="Inter, Arial, sans-serif" font-size="23" fill="#e4eee6" text-anchor="middle">
+      <text x="708" y="370">Страница — небольшой блок памяти,</text>
+      <text x="708" y="403">обычно 4 КБ.</text>
+    </g>
+    <g stroke="#89f9b0" stroke-width="2.5" fill="none" marker-end="url(#arrow)">
+      <path d="M364 340.5C440 340.5 478 227 556 227"/>
+      <path d="M858 227C952 227 948 294 1038 294"/>
+    </g>
+    <g stroke="#89f9b0" stroke-width="2.5" stroke-dasharray="5 4" fill="none" marker-end="url(#arrow)">
+      <path d="M364 372C450 372 478 285 556 285"/>
+      <path d="M858 285C970 285 918 118 1038 118"/>
+    </g>
+    <!-- Physical blocks have equal sizes; numbers are illustrative frame labels. -->
+    <rect x="1040" y="52" width="330" height="44" fill="#0c1510" stroke="#40614b" stroke-width="2"/>
+    <text x="1060" y="81" fill="#91a99a" font-size="19">01</text><text x="1115" y="81" fill="#91a99a" font-size="22">другой процесс</text>
+    <rect x="1040" y="96" width="330" height="44" fill="#153020" stroke="#89f9b0" stroke-width="2" stroke-dasharray="5 4"/>
+    <text x="1060" y="125" fill="#91a99a" font-size="19">02</text><text x="1115" y="125" fill="#89f9b0" font-size="22">страница B</text>
+    <rect x="1040" y="140" width="330" height="44" fill="#0c1510" stroke="#40614b" stroke-width="2"/>
+    <text x="1060" y="169" fill="#91a99a" font-size="19">03</text><text x="1115" y="169" fill="#91a99a" font-size="22">ядро ОС</text>
+    <rect x="1040" y="184" width="330" height="44" fill="#0c1510" stroke="#40614b" stroke-width="2"/>
+    <text x="1060" y="213" fill="#91a99a" font-size="19">04</text><text x="1115" y="213" fill="#91a99a" font-size="22">другой процесс</text>
+    <rect x="1040" y="228" width="330" height="44" fill="#0c1510" stroke="#40614b" stroke-width="2"/>
+    <text x="1060" y="257" fill="#91a99a" font-size="19">05</text><text x="1115" y="257" fill="#91a99a" font-size="22">свободно</text>
+    <rect x="1040" y="272" width="330" height="44" fill="#153020" stroke="#89f9b0" stroke-width="2"/>
+    <text x="1060" y="301" fill="#91a99a" font-size="19">06</text><text x="1115" y="301" fill="#89f9b0" font-size="22">страница A</text>
+    <rect x="1040" y="316" width="330" height="44" fill="#0c1510" stroke="#40614b" stroke-width="2"/>
+    <text x="1060" y="345" fill="#91a99a" font-size="19">07</text><text x="1115" y="345" fill="#91a99a" font-size="22">ядро ОС</text>
+    <rect x="1040" y="360" width="330" height="44" fill="#0c1510" stroke="#40614b" stroke-width="2"/>
+    <text x="1060" y="389" fill="#91a99a" font-size="19">08</text><text x="1115" y="389" fill="#91a99a" font-size="22">свободно</text>
+    <text x="1205" y="440" fill="#91a99a" font-size="18" text-anchor="middle">Показан фрагмент RAM компьютера.</text>
+  </g>
+</svg>

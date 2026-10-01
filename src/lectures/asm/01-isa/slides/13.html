@@ -1,0 +1,21 @@
+<!-- type: split -->
+<div class="tag">01 / арифметические флаги</div>
+<h2><code>RFLAGS</code> описывает,<br><span class="accent">что произошло с результатом.</span></h2>
+<div class="widget" data-widget="command-lab" data-regs="rax">
+  <div class="command-lab-layout">
+    <div class="command-lab-examples" data-command-examples>
+      <button class="command-example" data-command="add al, 1" data-before='{"rax":"0xFE"}' data-after='{"rax":"0xFF"}' data-flags-after='{"ZF":"0","CF":"0","SF":"1","OF":"0"}' data-bits="rax" data-explain="Результат FF имеет старший бит 1, поэтому SF=1. Переполнения не было."><code>add al, 1</code><small>FE + 1 → FF · знак</small></button>
+      <button class="command-example" data-command="add al, 1" data-before='{"rax":"0xFF"}' data-after='{"rax":"0x00"}' data-flags-after='{"ZF":"1","CF":"1","SF":"0","OF":"0"}' data-bits="rax" data-explain="Результат не поместился в 8 бит: AL стал 00, ZF=1 и перенос записан в CF."><code>add al, 1</code><small>FF + 1 → 00 · перенос</small></button>
+      <button class="command-example" data-command="add al, 1" data-before='{"rax":"0x7F"}' data-after='{"rax":"0x80"}' data-flags-after='{"ZF":"0","CF":"0","SF":"1","OF":"1"}' data-bits="rax" data-explain="Знаковое 127 превратилось в −128: установлен OF. Беззнакового переноса не было."><code>add al, 1</code><small>7F + 1 → 80 · переполнение</small></button>
+      <button class="command-example" data-command="sub al, 1" data-before='{"rax":"0x00"}' data-after='{"rax":"0xFF"}' data-flags-after='{"ZF":"0","CF":"1","SF":"1","OF":"0"}' data-bits="rax" data-explain="Для беззнакового 0 − 1 потребовался заём: CF=1. Получившийся старший бит установил SF."><code>sub al, 1</code><small>00 − 1 → FF · заём</small></button>
+      <button class="command-example" data-command="sub al, 1" data-before='{"rax":"0x80"}' data-after='{"rax":"0x7F"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"1"}' data-bits="rax" data-explain="Знаковое −128 − 1 не помещается в 8 бит и превращается в 127: OF=1."><code>sub al, 1</code><small>80 − 1 → 7F · переполнение</small></button>
+    </div>
+    <div class="command-lab-state" data-command-state></div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Почему AL:</b> на восьми битах границы видны сразу: unsigned 0…255, signed −128…127. Те же правила действуют для 16, 32 и 64 бит.</p>
+  <p><b>ZF:</b> результат равен нулю. <b>SF:</b> копия старшего бита результата. <b>CF:</b> перенос при сложении или заём при вычитании беззнаковых чисел. <b>OF:</b> знаковый результат вышел за диапазон.</p>
+  <p><b>Главное сравнение:</b> FF+1 устанавливает CF, но не OF; 7F+1 устанавливает OF, но не CF. Процессор вычисляет оба ответа одновременно, а программа выбирает нужный флаг по смыслу данных.</p>
+  <p><b>Граница:</b> в RFLAGS есть и другие биты. Для ближайших примеров с арифметикой и переходами достаточно ZF, CF, SF и OF.</p>
+</aside>

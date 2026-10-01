@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 450" role="img" aria-labelledby="title desc">
+<title id="title">Вывод строки через write — состояние 5</title>
+<desc id="desc">Syscall передал запрос ядру. В успешном примере выведены шесть байтов, поэтому результат RAX = 6. Слева пять инструкций и терминал, справа регистры RAX, RDI, RSI, RDX и шесть байтов строки Hello с переводом строки.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10" fill="#89f9b0"/></marker></defs>
+<g font-family="ui-monospace, SFMono-Regular, Menlo, monospace">
+<text x="28" y="23" fill="#91a99a" font-size="20">ИНСТРУКЦИИ · LINUX x86-64</text>
+<rect x="24" y="40" width="490" height="218" fill="#0c1510" stroke="#40614b" stroke-width="2"/>
+<text x="45" y="77" fill="#91a99a" font-size="20">1</text><text x="91" y="77" fill="#e4eee6" font-size="28">mov rax, 1</text>
+<text x="45" y="116" fill="#91a99a" font-size="20">2</text><text x="91" y="116" fill="#e4eee6" font-size="28">mov rdi, 1</text>
+<text x="45" y="155" fill="#91a99a" font-size="20">3</text><text x="91" y="155" fill="#e4eee6" font-size="28">mov rsi, message</text>
+<text x="45" y="194" fill="#91a99a" font-size="20">4</text><text x="91" y="194" fill="#e4eee6" font-size="28">mov rdx, 6</text>
+<rect x="25" y="206" width="488" height="37" fill="#153020"/><path d="M26 206V243" stroke="#89f9b0" stroke-width="4"/>
+<text x="45" y="233" fill="#91a99a" font-size="20">5</text><text x="91" y="233" fill="#89f9b0" font-size="28">syscall</text>
+<text x="28" y="292" fill="#89f9b0" font-size="25">write(1, message, 6);</text>
+<rect x="24" y="318" width="490" height="111" fill="#08100b" stroke="#40614b" stroke-width="2"/>
+<text x="44" y="347" fill="#91a99a" font-size="18">ТЕРМИНАЛ · СОХРАНЁННЫЙ ПРИМЕР</text>
+<text x="44" y="383" fill="#e4eee6" font-size="29">Hello</text><rect x="44" y="398" width="15" height="21" fill="#89f9b0"/>
+<text x="650" y="23" fill="#91a99a" font-size="20">РЕГИСТРЫ / АРГУМЕНТЫ write</text>
+<rect x="640" y="40" width="736" height="164" fill="#0c1510" stroke="#40614b" stroke-width="2"/>
+<rect x="641" y="41" width="734" height="40" fill="#153020"/>
+<text x="664" y="68" fill="#89f9b0" font-size="25">RAX</text><text x="800" y="68" fill="#e4eee6" font-size="25">6</text><text x="1030" y="68" fill="#91a99a" font-family="Inter, Arial, sans-serif" font-size="23">результат: записано байтов</text>
+<path d="M640 81H1376" stroke="#40614b" stroke-width="1"/>
+<text x="664" y="109" fill="#89f9b0" font-size="25">RDI</text><text x="800" y="109" fill="#e4eee6" font-size="25">1</text><text x="1030" y="109" fill="#91a99a" font-family="Inter, Arial, sans-serif" font-size="23">куда: стандартный вывод</text>
+<path d="M640 122H1376" stroke="#40614b" stroke-width="1"/>
+<text x="664" y="150" fill="#89f9b0" font-size="25">RSI</text><text x="800" y="150" fill="#e4eee6" font-size="25">0x600000</text><text x="1030" y="150" fill="#91a99a" font-family="Inter, Arial, sans-serif" font-size="23">откуда: адрес message</text>
+<path d="M640 163H1376" stroke="#40614b" stroke-width="1"/>
+<text x="664" y="191" fill="#89f9b0" font-size="25">RDX</text><text x="800" y="191" fill="#e4eee6" font-size="25">6</text><text x="1030" y="191" fill="#91a99a" font-family="Inter, Arial, sans-serif" font-size="23">сколько: байтов</text>
+<text x="650" y="235" fill="#91a99a" font-size="19">ПАМЯТЬ / ФРАГМЕНТ .rodata</text>
+<text x="650" y="267" fill="#e4eee6" font-size="26">message db "Hello", 10</text>
+<rect x="670" y="300" width="680" height="87" fill="#153020" stroke="#89f9b0" stroke-width="3"/>
+<text x="728" y="296" text-anchor="middle" fill="#91a99a" font-size="16">+0</text><rect x="678" y="307" width="100" height="72" fill="#102019" stroke="#40614b" stroke-width="2"/><text x="728" y="334" text-anchor="middle" fill="#e4eee6" font-size="25">H</text><text x="728" y="367" text-anchor="middle" fill="#89f9b0" font-size="25">48</text>
+<text x="840" y="296" text-anchor="middle" fill="#91a99a" font-size="16">+1</text><rect x="790" y="307" width="100" height="72" fill="#102019" stroke="#40614b" stroke-width="2"/><text x="840" y="334" text-anchor="middle" fill="#e4eee6" font-size="25">e</text><text x="840" y="367" text-anchor="middle" fill="#89f9b0" font-size="25">65</text>
+<text x="952" y="296" text-anchor="middle" fill="#91a99a" font-size="16">+2</text><rect x="902" y="307" width="100" height="72" fill="#102019" stroke="#40614b" stroke-width="2"/><text x="952" y="334" text-anchor="middle" fill="#e4eee6" font-size="25">l</text><text x="952" y="367" text-anchor="middle" fill="#89f9b0" font-size="25">6C</text>
+<text x="1064" y="296" text-anchor="middle" fill="#91a99a" font-size="16">+3</text><rect x="1014" y="307" width="100" height="72" fill="#102019" stroke="#40614b" stroke-width="2"/><text x="1064" y="334" text-anchor="middle" fill="#e4eee6" font-size="25">l</text><text x="1064" y="367" text-anchor="middle" fill="#89f9b0" font-size="25">6C</text>
+<text x="1176" y="296" text-anchor="middle" fill="#91a99a" font-size="16">+4</text><rect x="1126" y="307" width="100" height="72" fill="#102019" stroke="#40614b" stroke-width="2"/><text x="1176" y="334" text-anchor="middle" fill="#e4eee6" font-size="25">o</text><text x="1176" y="367" text-anchor="middle" fill="#89f9b0" font-size="25">6F</text>
+<text x="1288" y="296" text-anchor="middle" fill="#91a99a" font-size="16">+5</text><rect x="1238" y="307" width="100" height="72" fill="#102019" stroke="#40614b" stroke-width="2"/><text x="1288" y="334" text-anchor="middle" fill="#e4eee6" font-size="25">↵</text><text x="1288" y="367" text-anchor="middle" fill="#89f9b0" font-size="25">0A</text>
+<path d="M640 142.5H592V342H676" fill="none" stroke="#89f9b0" stroke-width="2.5" marker-end="url(#arrow)"/><text x="603" y="319" fill="#89f9b0" font-size="17">RSI</text>
+<text x="678" y="410" fill="#91a99a" font-size="20">начало: 0x600000</text>
+<text x="1010" y="410" fill="#91a99a" font-family="Inter, Arial, sans-serif" font-size="21">10 = 0x0A · перевод строки</text>
+</g>
+</svg>

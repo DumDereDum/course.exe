@@ -1,0 +1,117 @@
+/* Shared tokens and controls. Slide authors use templates, not this file. */
+:root{
+  --bg:#070b09;
+  --panel:#0c1510;
+  --green:#89f9b0;
+  --bright:#bdffd4;
+  --ink:#e4eee6;
+  --muted:#91a99a;
+  --line:#2b4434;
+  --soft:#152b1d;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",sans-serif
+}
+*{
+  box-sizing:border-box
+}
+html,body{
+  margin:0;
+  min-height:100%;
+  background:var(--bg);
+  color:var(--ink)
+}
+body{
+  font-family:var(--mono)
+}
+button,a,input{
+  -webkit-tap-highlight-color:transparent
+}
+button{
+  font:inherit;
+  cursor:pointer
+}
+a{
+  color:var(--green);
+  text-underline-offset:.2em
+}
+button{
+  background:transparent;
+  border:1px solid var(--line);
+  color:inherit
+}
+button:hover,a:hover{
+  color:var(--bright)
+}
+button:disabled{
+  opacity:.35;
+  cursor:default
+}
+button:focus-visible,a:focus-visible,summary:focus-visible{
+  outline:2px solid var(--bright);
+  outline-offset:4px
+}
+button:disabled:hover{
+  color:inherit
+}
+[hidden]{
+  display:none!important
+}
+kbd{
+  font-family:inherit;
+  font-size:.86em;
+  border:1px solid var(--line);
+  border-radius:2px;
+  padding:.1em .35em;
+  color:var(--green)
+}
+.muted,.mono-dim{
+  color:var(--muted)
+}
+.eyebrow{
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  font-size:12px;
+  color:var(--muted)
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:.65em;
+  padding:.7em 1em;
+  border:1px solid var(--line);
+  font:inherit;
+  font-size:.76em;
+  text-decoration:none;
+  line-height:1.3
+}
+.btn.primary{
+  color:var(--bg);
+  background:var(--green);
+  border-color:var(--green)
+}
+.btn:hover{
+  border-color:var(--green)
+}
+.btn.primary:hover{
+  background:var(--bright)
+}
+.cursor-block{
+  display:inline-block;
+  width:.65em;
+  height:1em;
+  background:var(--green);
+  animation:blink 1.2s steps(1) infinite
+}
+@keyframes blink{
+  50%{
+    opacity:0
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation:none!important;
+    transition:none!important;
+    scroll-behavior:auto!important
+  }
+}

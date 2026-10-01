@@ -1,0 +1,15 @@
+<!-- type: split -->
+<div class="tag">01 / выполнение программы</div>
+<h2>Исполняем инструкции<br><span class="accent">одну за другой.</span></h2>
+<div class="widget" data-widget="registers">
+  <div class="split">
+    <pre class="code program" data-program data-regs="rax,rdi"><span data-do='{"set":{"rax":"17"}}' data-explain="mov записал 17 в рабочий регистр RAX.">mov rax, 17</span><span data-do='{"add":{"rax":"25"}}' data-explain="add прибавил 25: теперь RAX = 42. Результат не нулевой, поэтому ZF = 0.">add rax, 25</span><span data-do='{"add":{"rax":"-9"}}' data-explain="sub вычел 9: в учебной модели это прибавление −9. Теперь результат RAX = 33.">sub rax, 9</span><span data-do='{"set":{"rdi":"rax"}}' data-explain="RDI получил копию результата 33. Для exit это первый аргумент — status.">mov rdi, rax</span><span data-do='{"set":{"rax":"60"}}' data-explain="RAX больше не нужен для результата: его копия уже в RDI. Записываем в RAX номер exit — 60.">mov rax, 60</span><span data-do='{}' data-explain="syscall передаёт управление ядру. RAX = 60 выбирает exit, а RDI = 33 передаёт status.">syscall</span></pre>
+    <div class="registers" data-registers></div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Перед каждым шагом:</b> попросить предсказать значения RAX и RDI. Пробел выполняет текущую инструкцию, Shift + пробел возвращает шаг, R сбрасывает регистры.</p>
+  <p><b>После третьей строки:</b> результат 33 находится в RAX. Перед подготовкой syscall копируем его в RDI — первый аргумент exit. Затем RAX можно занять номером вызова 60.</p>
+  <p><b>На syscall:</b> учебная модель не запускает ядро и не исчезает со слайда; последний шаг показывает момент передачи управления. В настоящей программе успешный exit не возвращается.</p>
+  <p><b>Граница:</b> счётчик шагов — не RIP. Модель показывает только RAX, RDI и ZF; команда sub подготовлена как изменение значения, остальные флаги здесь не моделируются.</p>
+</aside>

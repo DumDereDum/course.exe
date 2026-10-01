@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 300" role="img" aria-labelledby="title desc">
+<title id="title">От приложения к оборудованию</title><desc id="desc">Приложение использует интерфейс операционной системы; ОС управляет оборудованием.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10" fill="#89f9b0"/></marker></defs>
+<g fill="#0c1510" stroke="#40614b" stroke-width="2"><rect x="15" y="55" width="300" height="180" rx="3"/><rect x="400" y="55" width="300" height="180" rx="3"/><rect x="785" y="55" width="300" height="180" rx="3"/></g>
+<g stroke="#89f9b0" stroke-width="2" marker-end="url(#arrow)"><path d="M330 145H380"/><path d="M715 145H765"/></g>
+<g font-family="monospace" text-anchor="middle"><g fill="#89f9b0" font-size="16"><text x="165" y="92">01 / SOFTWARE</text><text x="550" y="92">02 / INTERFACE</text><text x="935" y="92">03 / HARDWARE</text></g><g fill="#e4eee6" font-size="27"><text x="165" y="150">Приложение</text><text x="550" y="150">ОС</text><text x="935" y="150">Оборудование</text></g><g fill="#91a99a" font-size="17"><text x="165" y="195">задача пользователя</text><text x="550" y="195">управление ресурсами</text><text x="935" y="195">процессор и память</text></g></g>
+</svg>

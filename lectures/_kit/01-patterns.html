@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Мастерская · Форматы слайдов — Саратовцев Артём</title>
+<meta name="description" content="Рабочие образцы для подготовки лекций">
+<link rel="stylesheet" href="../../assets/css/site.css">
+<link rel="stylesheet" href="../../assets/css/deck.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<script defer src="../../assets/js/widgets/sequence.js"></script>
+<script defer src="../../assets/js/widgets/registers.js"></script>
+<script defer src="../../assets/js/widgets/register-map.js"></script>
+<script defer src="../../assets/js/widgets/command-lab.js"></script>
+<script defer src="../../assets/js/widgets/syscall-explorer.js"></script>
+<script defer src="../../assets/js/widgets/endian.js"></script>
+<script defer src="../../assets/js/resources.js"></script>
+<script defer src="../../assets/js/deck.js"></script>
+</head>
+<body class="lecture">
+<div class="deck">
+<header class="deck-header"><a href="../../index.html" title="Вернуться к каталогу">↖ Сборник</a><span>Мастерская · Форматы слайдов</span></header>
+<main class="stage" aria-label="Слайды лекции">
+<section class="slide slide--title active" id="s-01" aria-label="Один слайд. Одна мысль.">
+<div class="tag">Мастерская / образцы для автора</div>
+<h1>Один слайд.<br><span class="accent">Одна мысль.</span></h1>
+<p class="lead">Готовые компоновки, схемы и демонстрации.<br>Выберите приём — наполните своим материалом.</p>
+<div class="title-line">Шаблоны в templates/slides · Правила в SLIDE_GUIDE.md</div>
+<span class="title-number" aria-hidden="true">Aa</span>
+<aside class="notes"><p>Это служебная коллекция для автора, не часть учебного курса. Сценарии подготовки хранятся в исходниках слайдов.</p></aside>
+</section>
+
+<section class="slide slide--content" id="s-02" aria-label="Заголовок выражает главную мысль." inert aria-hidden="true">
+<div class="tag">01 / одна мысль</div>
+<h2>Заголовок выражает<br><span class="accent">главную мысль.</span></h2>
+<div class="columns">
+  <div class="panel"><div class="panel-label">Наблюдение</div><p>Один конкретный пример из опыта студентов.</p></div>
+  <div class="panel"><div class="panel-label">Объяснение</div><p>Короткая связь между наблюдением и новым понятием.</p></div>
+</div>
+<p class="takeaway">Вывод, который студент должен унести со слайда.</p>
+<aside class="notes"><p><b>Сказать:</b> подробности для устного объяснения.</p><p><b>Спросить:</b> один проверочный вопрос. <b>Ответ:</b> ожидаемый ответ.</p></aside>
+</section>
+
+<section class="slide slide--sequence" id="s-03" aria-label="Один процесс. Несколько состояний." inert aria-hidden="true">
+<div class="tag">01 / пошаговая схема</div>
+<h2>Один процесс.<br><span class="accent">Несколько состояний.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Сначала подготовим входные данные.">
+      <div class="flow"><div class="flow-node active">Вход<small>данные</small></div><span class="flow-arrow">→</span><div class="flow-node">Обработка</div><span class="flow-arrow">→</span><div class="flow-node">Результат</div></div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Обработка превращает вход в результат по заданному правилу.">
+      <div class="flow"><div class="flow-node">Вход</div><span class="flow-arrow">→</span><div class="flow-node active">Обработка<small>правило</small></div><span class="flow-arrow">→</span><div class="flow-node">Результат</div></div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Теперь можно проверить, соответствует ли результат ожиданиям.">
+      <div class="flow"><div class="flow-node">Вход</div><span class="flow-arrow">→</span><div class="flow-node">Обработка</div><span class="flow-arrow">→</span><div class="flow-node active">Результат<small>проверка</small></div></div>
+    </div>
+  </div>
+</div>
+<aside class="notes"><p><b>Перед каждым шагом:</b> попросить предсказать следующее состояние. Пробел — вперёд, Shift + пробел — назад, R — сначала.</p></aside>
+</section>
+
+<section class="slide slide--external" id="s-04" aria-label="Сначала предскажем. Потом проверим." inert aria-hidden="true">
+<div class="tag">01 / внешняя демонстрация</div>
+<h2>Сначала предскажем.<br><span class="accent">Потом проверим.</span></h2>
+<div class="columns">
+  <div class="stack"><div class="panel-label">Сохранённый вход</div><pre class="code copy-source">int answer(void) {
+    return 6 * 7;
+}</pre><div class="resource-actions"><button class="btn" data-copy=".copy-source">Скопировать код</button><span class="copy-status" aria-live="polite"></span></div></div>
+  <div class="resource-card"><span class="resource-label">Ожидаемое наблюдение</span><p class="lead">Компилятор может вычислить константное выражение до запуска программы.</p><pre class="code small">mov eax, 42
+ret</pre><a href="https://godbolt.org/" target="_blank" rel="noopener">Открыть Compiler Explorer ↗</a></div>
+</div>
+<p class="caption">Сохранённая иллюстрация x86-64. Для точного повтора закрепите версию компилятора и ссылку Share.</p>
+<aside class="notes"><p><b>Цель:</b> увидеть вычисление константного выражения.</p><p><b>До занятия:</b> в Compiler Explorer выбрать C, x86-64 GCC, -O2 -masm=intel. Проверить код, записать версию и заменить ссылку на подготовленную Share-ссылку.</p><p><b>Показ:</b> спросить, нужна ли инструкция умножения, затем сравнить код и результат. <b>Без сети:</b> разобрать сохранённую иллюстрацию. Ничего не писать с нуля.</p></aside>
+</section>
+
+<section class="slide slide--media" id="s-05" aria-label="Сложность скрывается за интерфейсом." inert aria-hidden="true">
+<div class="tag">01 / схема из отдельного файла</div>
+<h2>Сложность скрывается<br><span class="accent">за интерфейсом.</span></h2>
+<figure class="media">
+  <img src="../../assets/diagrams/layers.svg" alt="Приложение обращается к ОС, которая управляет оборудованием.">
+  <figcaption>Упрощённая схема взаимодействия. Рисунок хранится отдельно от слайда.</figcaption>
+</figure>
+<p class="takeaway">Каждый уровень даёт следующему понятный способ взаимодействия.</p>
+<aside class="notes"><p>Попросить назвать пример операции: чтение файла. Провести её через три уровня. Для новой темы заменить картинку и описание alt.</p></aside>
+</section>
+
+<section class="slide slide--external" id="s-06" aria-label="Демонстрация внутри лекции." inert aria-hidden="true">
+<div class="tag">01 / отдельная интерактивная сцена</div>
+<h2>Демонстрация<br><span class="accent">внутри лекции.</span></h2>
+<div class="embed-box" data-embed data-src="../../assets/demos/pipeline.html" data-title="Учебная модель конвейера сборки">
+  <p>Подготовленный конвейер: сборка → тесты → публикация.</p>
+  <button class="btn primary" data-load-embed>Открыть локальный пример</button>
+</div>
+<p class="caption">Демо загружается по кнопке. <a href="../../assets/demos/pipeline.html" target="_blank" rel="noopener">Открыть отдельно ↗</a>. Резервный разбор: исходники → сборка → тесты → артефакт.</p>
+<aside class="notes"><p><b>Цель:</b> показать зависимость шагов. Встроенный пример работает офлайн и не запускает настоящую сборку.</p><p><b>Показ:</b> нажать «Следующий этап» три раза, обсудить появление результата после тестов. Сбросить.</p><p>Для Docker-демо заменить data-src и ссылку на проверенный адрес локального сервиса, записать команду запуска и ожидаемый результат здесь. Внешний сайт может запрещать встраивание; тогда открыть отдельно. После работы с iframe кликнуть вне него для клавиш слайдов.</p></aside>
+</section>
+
+<section class="slide slide--map" id="s-07" aria-label="Три шага к пониманию." inert aria-hidden="true">
+<div class="tag">01 / маршрут</div>
+<h2>Три шага<br><span class="accent">к пониманию.</span></h2>
+<div class="cards">
+  <div class="card"><span class="number">01</span><h3>Наблюдение</h3><p>Конкретный вопрос, который хочется объяснить.</p></div>
+  <div class="card"><span class="number">02</span><h3>Модель</h3><p>Минимальный набор понятий, нужных для ответа.</p></div>
+  <div class="card"><span class="number">03</span><h3>Проверка</h3><p>Подготовленный пример и вопрос аудитории.</p></div>
+</div>
+<aside class="notes"><p>Показать маршрут занятия. В конце вернуться к исходному вопросу.</p></aside>
+</section>
+
+<section class="slide slide--split" id="s-08" aria-label="Один регистр — несколько имён." inert aria-hidden="true">
+<div class="tag">08 / карта регистров</div>
+<h2>Один регистр —<span class="accent"> несколько имён.</span></h2>
+<div class="widget" data-widget="register-map" data-initial="0x1122334455667788"><div data-register-map></div></div>
+<aside class="notes"><p>Выбрать AL, AX и EAX; показать подготовленные записи. Обнуление верхней половины происходит только при записи 32-битной части. Карта работает по контракту docs/widgets/register-map.md.</p></aside>
+</section>
+
+<section class="slide slide--split" id="s-09" aria-label="Выбрать. Предсказать. Выполнить." inert aria-hidden="true">
+<div class="tag">09 / лаборатория команд</div>
+<h2>Выбрать. Предсказать. <span class="accent">Выполнить.</span></h2>
+<div class="widget" data-widget="command-lab" data-regs="rax,rbx,rcx,rdx">
+  <div class="command-lab-layout">
+    <div class="command-lab-examples" data-command-examples>
+      <button class="command-example" data-command="mov rax, 17" data-before='{"rax":"0"}' data-after='{"rax":"17"}' data-explain="В RAX скопировано значение 17."><code>mov rax, 17</code><small>константа → регистр</small></button>
+      <button class="command-example" data-command="add rax, rbx" data-before='{"rax":"10","rbx":"3"}' data-after='{"rax":"13"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"0"}' data-explain="Результат записан в первый операнд; RBX сохранился."><code>add rax, rbx</code><small>10 + 3 → 13</small></button>
+    </div>
+    <div class="command-lab-state" data-command-state></div>
+  </div>
+</div>
+<aside class="notes"><p>Подготовленные состояния, а не эмулятор. Контракт: docs/widgets/command-lab.md.</p></aside>
+</section>
+
+<section class="slide slide--split" id="s-10" aria-label="Выберите услугу ядра." inert aria-hidden="true">
+<div class="tag">10 / карта системных вызовов</div>
+<h2>Выберите услугу <span class="accent">ядра.</span></h2>
+<div class="widget" data-widget="syscall-explorer"><div data-syscall-explorer></div></div>
+<aside class="notes"><p>Фиксированный справочник Linux x86-64. Контракт: docs/widgets/syscall-explorer.md.</p></aside>
+</section>
+</main>
+<footer class="deck-footer">
+<div class="nav-controls"><button data-prev aria-label="Предыдущий слайд">←</button><span id="counter" aria-live="polite">01 / 10</span><button data-next aria-label="Следующий слайд">→</button></div>
+<span id="interaction-hint">← → слайды</span>
+<div class="deck-tools"><button data-fullscreen title="Полный экран (F)">Экран <kbd>F</kbd></button><button data-dialog="help" aria-label="Клавиши управления">?</button></div>
+</footer>
+<div class="progress-track" aria-hidden="true"><div id="progress"></div></div>
+</div>
+<dialog id="help" aria-labelledby="help-title"><div class="dialog-top"><h2 id="help-title">Управление</h2><button data-close aria-label="Закрыть">×</button></div><dl class="key-list"><dt>← → / Page Up, Down</dt><dd>Предыдущий / следующий слайд</dd><dt>Пробел / Shift + пробел</dt><dd>Вперёд / назад внутри демонстрации</dd><dt>R</dt><dd>Сбросить демонстрацию</dd><dt>F</dt><dd>Полный экран</dd><dt>Esc</dt><dd>Закрыть панель</dd></dl></dialog>
+<noscript>Для переключения слайдов и демонстраций включите JavaScript.</noscript>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 450" role="img" aria-labelledby="title desc">
+<title id="title">От исходника до запуска — этап 4</title>
+<desc id="desc">Запуск выводит Hello. Команда echo $? показывает 0 — код завершения, переданный в exit.</desc>
+<g font-family="ui-monospace, SFMono-Regular, Menlo, monospace">
+<rect x="24" y="4" width="260" height="72" fill="#0c1510" stroke="#40614b" stroke-width="2"/><text x="154" y="36" fill="#e4eee6" font-size="28" text-anchor="middle">hello.asm</text><text x="154" y="62" fill="#91a99a" font-size="18" text-anchor="middle">исходник</text>
+<text x="334" y="62" text-anchor="middle" fill="#89f9b0" font-size="32">→</text><text x="334" y="29" text-anchor="middle" fill="#91a99a" font-size="18">nasm</text>
+<rect x="385" y="4" width="260" height="72" fill="#0c1510" stroke="#40614b" stroke-width="2"/><text x="515" y="36" fill="#e4eee6" font-size="28" text-anchor="middle">hello.o</text><text x="515" y="62" fill="#91a99a" font-size="18" text-anchor="middle">объектный файл</text>
+<text x="695" y="62" text-anchor="middle" fill="#89f9b0" font-size="32">→</text><text x="695" y="29" text-anchor="middle" fill="#91a99a" font-size="18">ld</text>
+<rect x="746" y="4" width="260" height="72" fill="#0c1510" stroke="#40614b" stroke-width="2"/><text x="876" y="36" fill="#e4eee6" font-size="28" text-anchor="middle">hello</text><text x="876" y="62" fill="#91a99a" font-size="18" text-anchor="middle">исполняемый файл</text>
+<text x="1056" y="62" text-anchor="middle" fill="#89f9b0" font-size="32">→</text><text x="1056" y="29" text-anchor="middle" fill="#91a99a" font-size="18">запуск</text>
+<rect x="1107" y="4" width="260" height="72" fill="#153020" stroke="#89f9b0" stroke-width="2"/><text x="1237" y="36" fill="#89f9b0" font-size="28" text-anchor="middle">Hello</text><text x="1237" y="62" fill="#91a99a" font-size="18" text-anchor="middle">вывод в терминале</text>
+<text x="28" y="110" fill="#91a99a" font-size="20">ТЕРМИНАЛ / СОХРАНЁННЫЙ ПРИМЕР · LINUX x86-64</text>
+<rect x="24" y="124" width="866" height="304" fill="#08100b" stroke="#40614b" stroke-width="2"/>
+<rect x="936" y="124" width="440" height="304" fill="#0c1510" stroke="#40614b" stroke-width="2"/>
+<text x="48" y="178" fill="#89f9b0" font-size="29">$ ./hello</text>
+<text x="48" y="225" fill="#e4eee6" font-size="31">Hello</text>
+<text x="48" y="291" fill="#89f9b0" font-size="29">$ echo $?</text>
+<text x="48" y="338" fill="#e4eee6" font-size="31">0</text>
+<text x="958" y="164" fill="#91a99a" font-size="19" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">ДВА РАЗНЫХ РЕЗУЛЬТАТА</text>
+<text x="958" y="218" fill="#89f9b0" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">write → 6 байтов</text>
+<text x="958" y="250" fill="#e4eee6" font-size="22" font-family="Inter, Arial, sans-serif">выведены Hello и перевод строки</text>
+<text x="958" y="307" fill="#89f9b0" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">exit(0) → код 0</text>
+<text x="958" y="339" fill="#e4eee6" font-size="22" font-family="Inter, Arial, sans-serif">программа завершилась успешно</text>
+<text x="958" y="394" fill="#91a99a" font-size="22" font-family="Inter, Arial, sans-serif">$? — код последней команды</text>
+</g>
+</svg>

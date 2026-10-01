@@ -1,0 +1,34 @@
+<!-- type: split -->
+<div class="tag">01 / соглашение Linux x86-64</div>
+<h2>Номер выбирает операцию,<br><span class="accent">регистры передают аргументы.</span></h2>
+<div class="columns">
+  <div class="panel">
+    <div class="panel-label">Перед инструкцией syscall</div>
+    <pre class="ascii">RAX  номер вызова
+RDI  аргумент 1
+RSI  аргумент 2
+RDX  аргумент 3
+R10  аргумент 4
+R8   аргумент 5
+R9   аргумент 6</pre>
+  </div>
+  <div class="stack">
+    <div class="panel">
+      <div class="panel-label">Пример · exit(33)</div>
+      <pre class="code"><code>mov rax, 60
+mov rdi, 33
+syscall</code></pre>
+    </div>
+    <div class="panel">
+      <div class="panel-label">Несколько номеров</div>
+      <p><code>read = 0</code> · <code>write = 1</code> · <code>exit = 60</code></p>
+    </div>
+  </div>
+</div>
+<p class="takeaway">После возвращения результат обычно находится в RAX. Exit не возвращается.</p>
+<aside class="notes">
+  <p><b>Разбор exit:</b> RAX=60 выбирает системный вызов exit; RDI=33 передаёт его первый аргумент status. Syscall передаёт готовый запрос ядру.</p>
+  <p><b>Почему таблица длиннее примера:</b> read и write используют несколько аргументов. Сейчас достаточно увидеть общий порядок; работу с файлами разберём позже.</p>
+  <p><b>Спросить:</b> что изменится, если перед syscall оставить RAX=1? <b>Ответ:</b> ядро выберет write, а значения остальных регистров будет трактовать как его аргументы.</p>
+  <p><b>Граница:</b> номера и регистровое соглашение относятся к Linux x86-64. В другой ОС или архитектуре они могут отличаться. Номера берут из документации, а не учат наизусть. Прямой syscall использует R10 для четвёртого аргумента и изменяет RCX/R11; это понадобится позже.</p>
+</aside>

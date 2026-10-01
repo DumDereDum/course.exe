@@ -1,0 +1,43 @@
+<!-- type: sequence -->
+<div class="tag">01 / сборка и запуск · Linux x86-64</div>
+<h2>От исходника<br><span class="accent">до запуска.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Полный hello.asm: write выводит строку, затем exit(0) завершает процесс.">
+      <img class="diagram" src="@ASSETS@/diagrams/hello-build-0.svg" alt="Полный hello.asm: write выводит строку, затем exit(0) завершает процесс.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="NASM создаёт hello.o — объектный файл с машинным кодом, данными и ссылками для компоновки.">
+      <img class="diagram" src="@ASSETS@/diagrams/hello-build-1.svg" alt="NASM создаёт hello.o — объектный файл с машинным кодом, данными и ссылками для компоновки.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Компоновщик ld размещает код и данные, разрешает ссылки и создаёт исполняемый файл hello.">
+      <img class="diagram" src="@ASSETS@/diagrams/hello-build-2.svg" alt="Компоновщик ld размещает код и данные, разрешает ссылки и создаёт исполняемый файл hello.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Запуск выводит Hello. Команда echo $? показывает 0 — код завершения, переданный в exit.">
+      <img class="diagram" src="@ASSETS@/diagrams/hello-build-3.svg" alt="Запуск выводит Hello. Команда echo $? показывает 0 — код завершения, переданный в exit.">
+    </div>
+  </div>
+</div>
+<div class="resource-actions"><a class="btn" href="@ASSETS@/examples/asm/hello.asm" download="hello.asm" data-download="#hello-download-source">Скачать hello.asm</a><span class="caption">Готовый исходник для практики · NASM / Linux x86-64</span></div>
+<template id="hello-download-source">global _start
+section .text
+_start:
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, message
+    mov rdx, 6
+    syscall
+    mov rax, 60
+    mov rdi, 0
+    syscall
+section .rodata
+message db &quot;Hello&quot;, 10
+</template>
+<aside class="notes">
+  <p><b>Показ:</b> четыре состояния: полный исходник, NASM, ld, запуск. Пробел — следующий этап, Shift + пробел — предыдущий, R — исходник. Верхняя цепочка сохраняется и подсвечивает текущий результат.</p>
+  <p><b>Исходник:</b> две колонки продолжают один файл, это видно по номерам строк. Начало и вывод в строках 1–8, exit и данные — в строках 9–13. Первый syscall возвращается после write; поэтому следом стоит exit(0). Файл по ссылке и встроенный источник для скачивания содержат тот же исходник. Кнопка скачивает hello.asm через Blob и сохраняет открытый слайд; папку выбирает браузер.</p>
+  <p><b>Сборка:</b> в каталоге с hello.asm выполнить nasm -f elf64 hello.asm -o hello.o, затем ld -o hello hello.o. NASM создаёт объектный файл; GNU ld создаёт исполняемый файл, размещая секции и разрешая ссылку на message. Пример использует абсолютный адрес метки и обычный исполняемый файл без PIE.</p>
+  <p><b>Запуск:</b> ./hello запускает файл из текущего каталога. После запуска выполнить echo $? сразу, чтобы увидеть код именно этой программы. Здесь 0 передан в RDI для exit; это другой результат, чем 6 в RAX после write.</p>
+  <p><b>Спросить:</b> зачем нужен второй syscall? <b>Ответ:</b> первый выводит строку и возвращает управление, второй завершает процесс.</p>
+  <p><b>Граница:</b> терминал показывает сохранённый ожидаемый пример, команды не исполняются в браузере. Среда — Linux x86-64 с NASM и GNU ld; это не команды для непосредственного запуска программы в macOS или Windows. Установочная практика и единая учебная среда готовятся отдельно.</p>
+  <p><b>Источники:</b> https://www.nasm.us/doc/nasm02.html и https://sourceware.org/binutils/docs/ld/Invocation.html</p>
+</aside>

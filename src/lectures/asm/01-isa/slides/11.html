@@ -1,0 +1,19 @@
+<!-- type: split -->
+<div class="tag">01 / побитовые команды</div>
+<h2><code>and</code>, <code>or</code>, <code>xor</code><br><span class="accent">работают с каждым битом.</span></h2>
+<div class="widget" data-widget="command-lab" data-regs="rax,rbx">
+  <div class="command-lab-layout">
+    <div class="command-lab-examples" data-command-examples>
+      <button class="command-example" data-command="and rax, rbx" data-before='{"rax":"0xAC","rbx":"0x0F"}' data-after='{"rax":"0x0C"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"0"}' data-bits="rax,rbx" data-explain="AND оставил единицы только там, где единица была в обоих операндах."><code>and rax, rbx</code><small>оставить выбранные биты</small></button>
+      <button class="command-example" data-command="or rax, rbx" data-before='{"rax":"0xAC","rbx":"0x0F"}' data-after='{"rax":"0xAF"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"0"}' data-bits="rax,rbx" data-explain="OR установил бит, если единица была хотя бы в одном операнде."><code>or rax, rbx</code><small>установить выбранные биты</small></button>
+      <button class="command-example" data-command="xor rax, rbx" data-before='{"rax":"0xAC","rbx":"0x0F"}' data-after='{"rax":"0xA3"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"0"}' data-bits="rax,rbx" data-explain="XOR дал единицу там, где биты операндов различаются."><code>xor rax, rbx</code><small>переключить выбранные биты</small></button>
+      <button class="command-example" data-command="xor rax, rax" data-before='{"rax":"0xAC"}' data-after='{"rax":"0"}' data-flags-after='{"ZF":"1","CF":"0","SF":"0","OF":"0"}' data-bits="rax" data-explain="Каждый бит совпал сам с собой, поэтому результат равен нулю."><code>xor rax, rax</code><small>обнулить регистр</small></button>
+    </div>
+    <div class="command-lab-state" data-command-state></div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Читать по столбцам:</b> сравнивать соответствующие биты RAX и RBX справа. Десятичное значение здесь менее важно, чем двоичное.</p>
+  <p><b>Практика:</b> AND используют с маской для удаления битов, OR — для установки, XOR — для переключения. XOR регистра с самим собой — распространённый способ получить ноль.</p>
+  <p><b>Флаги:</b> логические операции сбрасывают CF и OF, обновляют ZF и SF по результату.</p>
+</aside>

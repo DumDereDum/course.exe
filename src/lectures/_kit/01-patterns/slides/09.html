@@ -1,0 +1,13 @@
+<!-- type: split -->
+<div class="tag">09 / лаборатория команд</div>
+<h2>Выбрать. Предсказать. <span class="accent">Выполнить.</span></h2>
+<div class="widget" data-widget="command-lab" data-regs="rax,rbx,rcx,rdx">
+  <div class="command-lab-layout">
+    <div class="command-lab-examples" data-command-examples>
+      <button class="command-example" data-command="mov rax, 17" data-before='{"rax":"0"}' data-after='{"rax":"17"}' data-explain="В RAX скопировано значение 17."><code>mov rax, 17</code><small>константа → регистр</small></button>
+      <button class="command-example" data-command="add rax, rbx" data-before='{"rax":"10","rbx":"3"}' data-after='{"rax":"13"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"0"}' data-explain="Результат записан в первый операнд; RBX сохранился."><code>add rax, rbx</code><small>10 + 3 → 13</small></button>
+    </div>
+    <div class="command-lab-state" data-command-state></div>
+  </div>
+</div>
+<aside class="notes"><p>Подготовленные состояния, а не эмулятор. Контракт: docs/widgets/command-lab.md.</p></aside>

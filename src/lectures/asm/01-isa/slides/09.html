@@ -1,0 +1,20 @@
+<!-- type: split -->
+<div class="tag">01 / арифметика</div>
+<h2><code>add</code> и <code>sub</code> меняют<br><span class="accent">первый операнд.</span></h2>
+<div class="widget" data-widget="command-lab" data-regs="rax,rbx,rcx,rdx">
+  <div class="command-lab-layout">
+    <div class="command-lab-examples" data-command-examples>
+      <button class="command-example" data-command="add rax, 5" data-before='{"rax":"10"}' data-after='{"rax":"15"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"0"}' data-explain="RAX = 10 + 5 = 15."><code>add rax, 5</code><small>прибавить константу</small></button>
+      <button class="command-example" data-command="add rax, rbx" data-before='{"rax":"10","rbx":"3"}' data-after='{"rax":"13"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"0"}' data-explain="Результат записан в RAX; RBX сохранил значение 3."><code>add rax, rbx</code><small>прибавить регистр</small></button>
+      <button class="command-example" data-command="sub rax, 4" data-before='{"rax":"10"}' data-after='{"rax":"6"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"0"}' data-explain="RAX = 10 − 4 = 6."><code>sub rax, 4</code><small>вычесть константу</small></button>
+      <button class="command-example" data-command="sub rax, rbx" data-before='{"rax":"10","rbx":"3"}' data-after='{"rax":"7"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"0"}' data-explain="Результат записан в RAX; RBX не изменился."><code>sub rax, rbx</code><small>вычесть регистр</small></button>
+      <button class="command-example" data-command="sub rax, rax" data-before='{"rax":"42"}' data-after='{"rax":"0"}' data-flags-after='{"ZF":"1","CF":"0","SF":"0","OF":"0"}' data-explain="Результат равен нулю, поэтому установлен ZF."><code>sub rax, rax</code><small>получить ноль</small></button>
+    </div>
+    <div class="command-lab-state" data-command-state></div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Формулы:</b> `add a, b` означает a = a + b; `sub a, b` означает a = a − b. Источник не изменяется.</p>
+  <p><b>Флаги:</b> сейчас показать только факт обновления RFLAGS. На последнем примере обратить внимание на ZF=1; подробные правила будут перед переходами.</p>
+  <p><b>Дополнение:</b> inc rax эквивалентно прибавлению единицы, dec rax — вычитанию единицы; отдельного слайда им не требуется.</p>
+</aside>

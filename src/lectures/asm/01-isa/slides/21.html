@@ -1,0 +1,24 @@
+<!-- type: split -->
+<div class="tag">01 / порядок байтов в памяти</div>
+<h2>Одно число.<br><span class="accent">Два порядка байтов.</span></h2>
+<div class="widget" data-widget="endian" data-width="64" data-value="0x1122334455667788">
+  <div class="memory-readout"><span>64 бита · 8 байтов</span><b data-readout>0x1122334455667788</b><span>две hex-цифры = один байт</span></div>
+  <div class="panel-label">Память · адреса увеличиваются слева направо →</div>
+  <div class="memory-row" data-memory></div>
+  <div class="endian-switch"><button class="btn" data-mode="le">Little-endian · x86-64</button><button class="btn" data-mode="be">Big-endian</button></div>
+  <p class="widget-status" data-endian-caption aria-live="polite"></p>
+</div>
+<div class="panel">
+  <div class="panel-label">Как проверить на своей машине? · Linux / macOS, нужен Python 3</div>
+  <pre class="code small">python3 -c "import sys; print(sys.byteorder)"</pre>
+</div>
+<p class="takeaway">Переставляются целые байты. Порядок битов внутри байта сохраняется.</p>
+<aside class="notes">
+  <p><b>Связать со слайдом 20:</b> counter содержит 0x1122334455667788 — восемь байтов. Каждая пара шестнадцатеричных цифр обозначает один байт. 11 — старший байт, 88 — младший. Старший и младший определяются вкладом в значение числа, а не его адресом.</p>
+  <p><b>Начать с little-endian:</b> по меньшему адресу лежит младший байт 88. Переключить на big-endian: по меньшему адресу теперь старший байт 11. Значение в readout не меняется: интерактив заново раскладывает то же число в память. Пробел и Shift + пробел переключают режим, R возвращает little-endian.</p>
+  <p><b>Спросить:</b> как определить порядок байтов без готового свойства системы? <b>Ответ:</b> записать многобайтовое число и прочитать первый байт через указатель на unsigned char.</p>
+  <p><b>Пример на C:</b> uint32_t value = 0x01020304; unsigned char *bytes = (unsigned char *)&amp;value; printf("%02x", (unsigned int)bytes[0]); Первый байт 04 означает little-endian, 01 — big-endian. Для полного примера нужны stdint.h и stdio.h.</p>
+  <p><b>Команда:</b> sys.byteorder выводит little или big — порядок байтов среды, в которой исполняется Python. Слайд не запускает команду автоматически.</p>
+  <p><b>Граница:</b> схема касается хранения одного многобайтового числа. Порядок символов строки и порядок битов внутри байта не переворачиваются. x86-64 использует little-endian.</p>
+  <p><b>Источник:</b> https://docs.python.org/3/library/struct.html</p>
+</aside>

@@ -1,0 +1,13 @@
+<!-- type: split -->
+<div class="tag">01 / лаборатория команд</div>
+<h2>Команда меняет <span class="accent">состояние.</span></h2>
+<div class="widget" data-widget="command-lab" data-regs="rax,rbx,rcx,rdx">
+  <div class="command-lab-layout">
+    <div class="command-lab-examples" data-command-examples>
+      <button class="command-example" data-command="mov rax, 17" data-before='{"rax":"0"}' data-after='{"rax":"17"}' data-prompt="Что изменится после mov?" data-explain="В RAX скопировано значение 17."><code>mov rax, 17</code><small>константа → регистр</small></button>
+      <button class="command-example" data-command="mov rbx, rax" data-before='{"rax":"17","rbx":"0"}' data-after='{"rbx":"17"}' data-explain="RBX получил копию; RAX не изменился."><code>mov rbx, rax</code><small>регистр → регистр</small></button>
+    </div>
+    <div class="command-lab-state" data-command-state></div>
+  </div>
+</div>
+<aside class="notes"><p>Клик подготавливает пример. Выполнить или пробел показывает подготовленное состояние после команды. Ещё один пробел выбирает следующий пример. Shift + пробел отменяет действие, R сбрасывает слайд.</p></aside>

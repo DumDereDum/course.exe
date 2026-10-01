@@ -1,0 +1,17 @@
+<!-- type: sequence -->
+<div class="tag">01 / пошаговая схема</div>
+<h2>Один процесс.<br><span class="accent">Несколько состояний.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Сначала подготовим входные данные.">
+      <div class="flow"><div class="flow-node active">Вход<small>данные</small></div><span class="flow-arrow">→</span><div class="flow-node">Обработка</div><span class="flow-arrow">→</span><div class="flow-node">Результат</div></div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Обработка превращает вход в результат по заданному правилу.">
+      <div class="flow"><div class="flow-node">Вход</div><span class="flow-arrow">→</span><div class="flow-node active">Обработка<small>правило</small></div><span class="flow-arrow">→</span><div class="flow-node">Результат</div></div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Теперь можно проверить, соответствует ли результат ожиданиям.">
+      <div class="flow"><div class="flow-node">Вход</div><span class="flow-arrow">→</span><div class="flow-node">Обработка</div><span class="flow-arrow">→</span><div class="flow-node active">Результат<small>проверка</small></div></div>
+    </div>
+  </div>
+</div>
+<aside class="notes"><p><b>Перед каждым шагом:</b> попросить предсказать следующее состояние. Пробел — вперёд, Shift + пробел — назад, R — сначала.</p></aside>

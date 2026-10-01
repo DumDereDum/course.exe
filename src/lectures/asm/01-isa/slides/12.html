@@ -1,0 +1,19 @@
+<!-- type: split -->
+<div class="tag">01 / сдвиги</div>
+<h2><code>shl</code> и <code>shr</code><br><span class="accent">сдвигают биты.</span></h2>
+<div class="widget" data-widget="command-lab" data-regs="rax">
+  <div class="command-lab-layout">
+    <div class="command-lab-examples" data-command-examples>
+      <button class="command-example" data-command="shl al, 1" data-before='{"rax":"0x81"}' data-after='{"rax":"0x02"}' data-flags-after='{"ZF":"0","CF":"1","SF":"0","OF":"1"}' data-bits="rax" data-explain="Биты ушли влево; старшая единица вытеснена в CF, справа добавлен ноль."><code>shl al, 1</code><small>сдвиг влево на 1</small></button>
+      <button class="command-example" data-command="shl al, 3" data-before='{"rax":"0x13"}' data-after='{"rax":"0x98"}' data-flags-after='{"ZF":"0","CF":"0","SF":"1","OF":"?"}' data-bits="rax" data-explain="0001 0011 превратилось в 1001 1000."><code>shl al, 3</code><small>сдвиг влево на 3</small></button>
+      <button class="command-example" data-command="shr al, 1" data-before='{"rax":"0x93"}' data-after='{"rax":"0x49"}' data-flags-after='{"ZF":"0","CF":"1","SF":"0","OF":"1"}' data-bits="rax" data-explain="Биты ушли вправо; младшая единица вытеснена в CF, слева добавлен ноль."><code>shr al, 1</code><small>сдвиг вправо на 1</small></button>
+      <button class="command-example" data-command="shr al, 3" data-before='{"rax":"0x98"}' data-after='{"rax":"0x13"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"?"}' data-bits="rax" data-explain="1001 1000 превратилось в 0001 0011."><code>shr al, 3</code><small>сдвиг вправо на 3</small></button>
+    </div>
+    <div class="command-lab-state" data-command-state></div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Показ:</b> следить за двоичной строкой. Освободившиеся позиции заполняются нулями, последний вытесненный бит попадает в CF.</p>
+  <p><b>Связь с арифметикой:</b> для подходящих беззнаковых значений сдвиг влево на n соответствует умножению на 2^n, вправо — целочисленному делению на 2^n. Переполнение отбрасывает старшие биты.</p>
+  <p><b>Граница:</b> для знаковых чисел существует sar, сохраняющий знаковый бит. OF после сдвига больше чем на один бит не определён, поэтому показан как ?.</p>
+</aside>

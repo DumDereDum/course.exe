@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ассемблер · Лекция 01 — Саратовцев Артём</title>
+<meta name="description" content="Ассемблер — инструкции, регистры и машинный код">
+<link rel="stylesheet" href="../../assets/css/site.css">
+<link rel="stylesheet" href="../../assets/css/deck.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<script defer src="../../assets/js/widgets/sequence.js"></script>
+<script defer src="../../assets/js/widgets/registers.js"></script>
+<script defer src="../../assets/js/widgets/register-map.js"></script>
+<script defer src="../../assets/js/widgets/command-lab.js"></script>
+<script defer src="../../assets/js/widgets/syscall-explorer.js"></script>
+<script defer src="../../assets/js/widgets/endian.js"></script>
+<script defer src="../../assets/js/resources.js"></script>
+<script defer src="../../assets/js/deck.js"></script>
+</head>
+<body class="lecture">
+<div class="deck">
+<header class="deck-header"><a href="../../index.html" title="Вернуться к каталогу">↖ Сборник</a><span>Ассемблер · Лекция 01</span></header>
+<main class="stage" aria-label="Слайды лекции">
+<section class="slide slide--title active" id="s-01" aria-label="Ассемблер">
+<div class="tag">x86-64 · Linux · NASM</div>
+<h1>Ассемблер</h1>
+<p class="lead">Инструкции, регистры и машинный код.</p>
+<p class="takeaway">Что происходит с программой после компиляции?</p>
+<div class="title-line">Саратовцев Артём · ВШЭ НН</div>
+<span class="title-number" aria-hidden="true">01</span>
+<aside class="notes">
+  <p><b>Сказать:</b> мы уже умеем писать выражения и функции на C. Теперь проследим, как вычисление становится машинными инструкциями и как увидеть их исполнение.</p>
+  <p><b>Спросить:</b> получает ли процессор исходный текст программы на C? <b>Ответ:</b> процессор исполняет машинный код; исходный текст сначала обрабатывают инструменты сборки.</p>
+  <p><b>Показ:</b> собрать предположения аудитории и перейти к знакомому выражению. Время: 1–2 минуты.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-02" aria-label="Во что превращается исходный код?" inert aria-hidden="true">
+<div class="tag">01 / путь программы</div>
+<h2>Во что превращается <span class="accent">исходный код?</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Шаг 1 из 4 · Начинаем с понятного человеку исходного кода.">
+      <div class="flow"><div class="flow-node active">Код на C<small>program.c</small></div><span class="flow-arrow">→</span><div class="flow-node">Ассемблер<small>program.s</small></div><span class="flow-arrow">→</span><div class="flow-node">Объектный файл<small>program.o</small></div><span class="flow-arrow">→</span><div class="flow-node">Программа<small>program</small></div></div>
+      <div class="columns">
+        <div class="panel"><div class="panel-label">Что это</div><p>Текст, который написал программист. Типы, переменные и выражения ещё сохранены.</p></div>
+        <div class="panel"><div class="panel-label">Пример содержимого</div><pre class="code"><code>long calc(long a, long b, long c) {
+    return (a + b) - c;
+}</code></pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Шаг 2 из 4 · Компилятор выбирает инструкции для целевого процессора.">
+      <div class="flow"><div class="flow-node">Код на C<small>program.c</small></div><span class="flow-arrow">→</span><div class="flow-node active">Ассемблер<small>program.s</small></div><span class="flow-arrow">→</span><div class="flow-node">Объектный файл<small>program.o</small></div><span class="flow-arrow">→</span><div class="flow-node">Программа<small>program</small></div></div>
+      <div class="columns">
+        <div class="panel"><div class="panel-label">Что изменилось</div><p>Переменные стали регистрами, а выражение — последовательностью инструкций x86-64.</p></div>
+        <div class="panel"><div class="panel-label">Пример содержимого</div><pre class="code"><code>mov rax, rdi
+add rax, rsi
+sub rax, rdx
+ret</code></pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Шаг 3 из 4 · Ассемблер кодирует инструкции в байты и сохраняет служебные данные.">
+      <div class="flow"><div class="flow-node">Код на C<small>program.c</small></div><span class="flow-arrow">→</span><div class="flow-node">Ассемблер<small>program.s</small></div><span class="flow-arrow">→</span><div class="flow-node active">Объектный файл<small>program.o</small></div><span class="flow-arrow">→</span><div class="flow-node">Программа<small>program</small></div></div>
+      <div class="columns">
+        <div class="panel"><div class="panel-label">Что изменилось</div><p>Инструкции уже записаны машинными байтами. Рядом хранятся секции, символы и ссылки для линковщика.</p></div>
+        <div class="panel"><div class="panel-label">Фрагмент .text · hex</div><pre class="code"><code>48 89 F8
+48 01 F0
+48 29 D0
+C3</code></pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Шаг 4 из 4 · Линковщик соединяет части и назначает им адреса.">
+      <div class="flow"><div class="flow-node">Код на C<small>program.c</small></div><span class="flow-arrow">→</span><div class="flow-node">Ассемблер<small>program.s</small></div><span class="flow-arrow">→</span><div class="flow-node">Объектный файл<small>program.o</small></div><span class="flow-arrow">→</span><div class="flow-node active">Программа<small>program</small></div></div>
+      <div class="columns">
+        <div class="panel"><div class="panel-label">Что изменилось</div><p>Код и данные получили адреса. Файл содержит всё необходимое загрузчику ОС для запуска.</p></div>
+        <div class="panel"><div class="panel-label">Фрагмент дизассемблера</div><pre class="code"><code>0000000000401000 &lt;calc&gt;:
+401000: 48 89 f8  mov rax,rdi
+401003: 48 01 f0  add rax,rsi
+401006: 48 29 d0  sub rax,rdx</code></pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Показ:</b> пробелом пройти четыре состояния. На каждом шаге сначала назвать преобразование, затем прочитать пример справа. Shift + пробел — назад, R — сначала.</p>
+  <p><b>Спросить:</b> на каком этапе инструкции впервые становятся байтами? <b>Ответ:</b> при создании объектного файла ассемблером.</p>
+  <p><b>Границы модели:</b> промежуточный .s не всегда сохраняется на диск. Адрес 0x401000 приведён как учебный пример и может отличаться в реальной сборке.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-03" aria-label="ISA — договор между программой и процессором." inert aria-hidden="true">
+<div class="tag">ISA · Instruction Set Architecture · архитектура набора команд</div>
+<h2>ISA — договор между<br><span class="accent">программой и процессором.</span></h2>
+<div class="cards">
+  <div class="card">
+    <div class="panel-label">Инструкции</div>
+    <h3>Что можно сделать</h3>
+    <p><code>mov</code>, <code>add</code>, <code>jmp</code> и правила записи их операндов.</p>
+  </div>
+  <div class="card">
+    <div class="panel-label">Регистры</div>
+    <h3>С чем работает код</h3>
+    <p>Какие регистры видит программа, каковы их размеры и назначение.</p>
+  </div>
+  <div class="card">
+    <div class="panel-label">Поведение</div>
+    <h3>Что гарантировано</h3>
+    <p>Как инструкция меняет результат, флаги и состояние процессора.</p>
+  </div>
+</div>
+<div class="panel">
+  <div class="panel-label">Один договор — разные реализации</div>
+  <p><strong>Intel Core</strong> и <strong>AMD Ryzen</strong> могут исполнять одну программу x86-64, хотя внутри устроены по-разному.</p>
+</div>
+<p class="takeaway">ISA описывает видимое поведение. Микроархитектура определяет, как процессор его реализует.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> программа опирается на обещания ISA: доступные инструкции и регистры, форматы данных и точный результат каждой операции. Производитель может менять внутреннее устройство процессора, сохраняя этот договор.</p>
+  <p><b>Пример:</b> одна инструкция <code>add</code> может внутри разбиваться на несколько операций и проходить через конвейер. Для программы важен гарантированный итог, а не внутренний маршрут.</p>
+  <p><b>Спросить:</b> обязаны ли два процессора x86-64 иметь одинаковое внутреннее устройство? <b>Ответ:</b> нет; они обязаны одинаково выполнять поддерживаемые инструкции с точки зрения программы.</p>
+  <p><b>Граница:</b> ABI и системные вызовы тоже задают договоры, но они относятся к взаимодействию программ и ОС, а не являются самой ISA.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-04" aria-label="CISC и RISC — два подхода к устройству набора команд." inert aria-hidden="true">
+<div class="tag">ISA · Instruction Set Architecture</div>
+<h2><span class="accent">CISC и RISC</span> — два подхода<br>к устройству набора команд.</h2>
+<div class="columns">
+  <div class="panel">
+    <div class="panel-label">CISC · x86-64</div>
+    <h3>Complex Instruction Set Computer</h3>
+    <p>Компьютер со сложным набором команд.</p>
+    <pre class="code"><code>; sum += *ptr
+add rax, [rdi]</code></pre>
+    <p>Одна инструкция читает память и выполняет сложение.</p>
+  </div>
+  <div class="panel">
+    <div class="panel-label">RISC · ARM64 и RISC-V</div>
+    <h3>Reduced Instruction Set Computer</h3>
+    <p>Компьютер с сокращённым набором команд.</p>
+    <pre class="code"><code>; ARM64
+ldr x2, [x0]
+add x1, x1, x2
+; RISC-V
+ld  t0, 0(a0)
+add a1, a1, t0</code></pre>
+    <p>Сначала загрузка из памяти, затем вычисление в регистрах.</p>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Сказать:</b> CISC и RISC описывают стиль ISA. x86-64 допускает инструкции с операндами в памяти. ARM64 и RISC-V следуют load/store-подходу: арифметика работает с регистрами, а память обслуживают отдельные команды.</p>
+  <p><b>Уточнить:</b> слово Reduced исторически означает упрощённые и регулярные форматы, а не обязательно маленький современный набор команд.</p>
+  <p><b>Спросить:</b> можно ли по одной строке x86 и двум строкам ARM заключить, что x86 быстрее? <b>Ответ:</b> нет. Важны микроархитектура, кэш, память, компилятор и конкретная программа.</p>
+  <p><b>Граница примера:</b> регистры в трёх фрагментах выбраны по-разному, но выражают одну операцию: прибавить к sum значение по адресу ptr.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-05" aria-label="x86-64 выросла из 16-битной архитектуры." inert aria-hidden="true">
+<div class="tag">01 / от 8086 к x86-64</div>
+<h2>x86-64 выросла<br><span class="accent">из 16-битной архитектуры.</span></h2>
+<div class="flow">
+  <div class="flow-node"><strong>1978 · 8086</strong><small>16 бит · AX, BX, CX, DX</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>1985 · 80386</strong><small>32 бита · EAX, EBX, ECX, EDX</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node active"><strong>2003 · AMD64</strong><small>64 бита · RAX и новые R8–R15</small></div>
+</div>
+<div class="columns">
+  <div class="panel">
+    <div class="panel-label">Один регистр рос вместе с архитектурой</div>
+    <pre class="ascii">RAX · 64 бита
+└── EAX · младшие 32 бита
+    └── AX · младшие 16 бит
+        ├── AH · старшие 8
+        └── AL · младшие 8</pre>
+  </div>
+  <div class="panel">
+    <div class="panel-label">Почему имена сохранились</div>
+    <ul class="bullets">
+      <li><code>EAX</code> — extended <code>AX</code>;</li>
+      <li>старые части регистра всё ещё доступны;</li>
+      <li>новые процессоры продолжают понимать старые кодировки.</li>
+    </ul>
+  </div>
+</div>
+<p class="takeaway">x86-64 расширила x86, сохранив её команды и исторические имена.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> 8086 дал архитектуре 16-битные AX, BX, CX и DX. 80386 расширил их до 32 бит и добавил к имени E — extended. AMD64 расширила регистры до 64 бит, добавила R8–R15 и была принята Intel в совместимом виде.</p>
+  <p><b>Про имена:</b> AX исторически был аккумулятором, BX — базовым регистром, CX — счётчиком, DX — регистром данных. В современном коде эти роли часто не обязательны, но отдельные инструкции и соглашения всё ещё используют некоторые регистры особым образом.</p>
+  <p><b>Спросить:</b> является ли EAX отдельным от RAX регистром? <b>Ответ:</b> нет, EAX обозначает младшие 32 бита RAX.</p>
+  <p><b>Граница:</b> совместимость зависит от режима работы процессора и ОС. Здесь важно происхождение архитектуры; режимы real, protected и long разберём отдельно только при необходимости.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-06" aria-label="Не все регистры играют одинаковую роль." inert aria-hidden="true">
+<div class="tag">01 / роли регистров</div>
+<h2>Не все регистры<br><span class="accent">играют одинаковую роль.</span></h2>
+<div class="cards">
+  <div class="card">
+    <div class="panel-label">Выполнение программы</div>
+    <h3><code>RIP</code> и <code>RFLAGS</code></h3>
+    <p><code>RIP</code> показывает следующую инструкцию. <code>RFLAGS</code> запоминает свойства результата: получился ли ноль, перенос или переполнение.</p>
+  </div>
+  <div class="card">
+    <div class="panel-label">Работа с последовательностями</div>
+    <h3><code>RSI</code> и <code>RDI</code></h3>
+    <p>Source Index и Destination Index. Могут хранить адрес текущего элемента источника и места, куда записывается результат.</p>
+  </div>
+  <div class="card">
+    <div class="panel-label">Стек</div>
+    <h3><code>RSP</code> и <code>RBP</code></h3>
+    <p><code>RSP</code> указывает на верхний элемент стека. <code>RBP</code> может быть постоянной точкой отсчёта, пока функция работает со стеком.</p>
+  </div>
+</div>
+<div class="panel">
+  <div class="panel-label">Дополнительные регистры x86-64</div>
+  <p><code>R8–R15</code> добавили, чтобы у программы было больше места для чисел и адресов. Это обычные рабочие регистры; их части называются последовательно: <code>R8D</code>, <code>R8W</code>, <code>R8B</code>.</p>
+</div>
+<aside class="notes">
+  <p><b>RIP:</b> процессор берёт инструкцию по адресу из RIP, после чего переходит к следующей. Переход или вызов функции меняет этот путь.</p>
+  <p><b>RFLAGS:</b> пока достаточно идеи «короткие ответы о результате». Названия ZF, CF, SF и OF подробно появятся перед условными переходами.</p>
+  <p><b>RSI/RDI:</b> показать мысленно два массива: RSI указывает, откуда читаем очередной элемент, RDI — куда записываем. В обычном коде эти регистры могут хранить и другие значения.</p>
+  <p><b>Стек:</b> представить как стопку временных данных в памяти. RSP показывает верх стопки. RBP иногда сохраняют как неподвижный ориентир, потому что RSP двигается; устройство функций разберём в отдельной лекции.</p>
+  <p><b>R8–R15:</b> появились в x86-64 как дополнительные рабочие регистры. Сейчас достаточно знать их регулярные имена и отсутствие старых исторических ролей.</p>
+  <p><b>Спросить:</b> какой регистр меняется почти после каждой инструкции? <b>Ответ:</b> RIP, потому что выполнение переходит к следующей инструкции.</p>
+</aside>
+</section>
+
+<section class="slide slide--split" id="s-07" aria-label="Карта регистров x86-64." inert aria-hidden="true">
+<div class="tag">01 / регистры и их части</div>
+<h2>Карта регистров <span class="accent">x86-64.</span></h2>
+<div class="widget" data-widget="register-map" data-initial="0x1122334455667788">
+  <div data-register-map></div>
+</div>
+<aside class="notes">
+  <p><b>Показ:</b> выбрать RAX, затем AL: подсветится младший байт. Выполнить запись AA. Выбрать AX, записать BBBB; остальные байты сохранены. Выбрать EAX и записать CCCCDDDD: верхние 32 бита обнулятся. Назад восстанавливает прежний шаг, сброс возвращает исходное состояние.</p>
+  <p><b>Карта:</b> показать RBX и его BH/BL, затем RSI с SIL и R8 с R8D/R8W/R8B. У последних двух нет отдельного имени для старшего байта. RIP и RFLAGS показывают состояние выполнения, обычной mov их не записывают.</p>
+  <p><b>Спросить:</b> EAX и RAX хранят два независимых значения? <b>Ответ:</b> нет, это части одного регистра. Что произойдёт с верхней половиной при записи в EAX? Она обнулится.</p>
+  <p><b>Управление:</b> клик выбирает регистр и часть; Выполнить делает показанную запись. Пробел проходит подготовленные записи в младшие 8, 16, 32 и все 64 бита; на последней останавливается. Shift + пробел возвращает предыдущее действие, R сбрасывает всю карту.</p>
+  <p><b>Границы модели:</b> учебные значения, не настоящий процессор. Байты показаны от старших разрядов к младшим, а не как раскладка памяти. Исторические роли и ABI не ограничивают все применения регистров. Записи в RSP демонстрируют только биты, без моделирования стека. Запрет AH/BH/CH/DH вместе с префиксом REX обсудить позже. Векторные и системные регистры в карту не включены.</p>
+</aside>
+</section>
+
+<section class="slide slide--split" id="s-08" aria-label="mov копирует значение." inert aria-hidden="true">
+<div class="tag">01 / команда mov</div>
+<h2><code>mov</code> <span class="accent">копирует значение.</span></h2>
+<div class="widget" data-widget="command-lab" data-regs="rax,rbx,rcx,rdx">
+  <div class="command-lab-layout">
+    <div class="command-lab-examples" data-command-examples>
+      <button class="command-example" data-command="mov rax, 17" data-before='{"rax":"0"}' data-after='{"rax":"17"}' data-prompt="Куда будет записано число 17?" data-explain="Константа 17 записана в RAX."><code>mov rax, 17</code><small>константа → регистр</small></button>
+      <button class="command-example" data-command="mov rbx, rax" data-before='{"rax":"17","rbx":"0"}' data-after='{"rbx":"17"}' data-prompt="Изменится ли RAX после копирования?" data-explain="RBX получил копию значения. RAX не изменился."><code>mov rbx, rax</code><small>регистр → регистр</small></button>
+      <button class="command-example" data-command="mov al, 0xAA" data-before='{"rax":"0x1122334455667788"}' data-after='{"rax":"0x11223344556677AA"}' data-prompt="Какая часть RAX изменится?" data-explain="Изменился только младший байт AL; остальные биты сохранены."><code>mov al, 0xAA</code><small>запись младшего байта</small></button>
+      <button class="command-example" data-command="mov eax, 1" data-before='{"rax":"0x1122334455667788"}' data-after='{"rax":"1"}' data-prompt="Что произойдёт с верхними 32 битами RAX?" data-explain="EAX получил 1, а верхние 32 бита RAX обнулились."><code>mov eax, 1</code><small>запись младших 32 бит</small></button>
+    </div>
+    <div class="command-lab-state" data-command-state></div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Формула:</b> в Intel-синтаксисе `mov назначение, источник`. Команда копирует значение и не связывает регистры.</p>
+  <p><b>Показ:</b> во втором примере после копирования мысленно заменить RAX — RBX останется равен 17. Затем закрепить части регистра примерами AL и EAX.</p>
+  <p><b>Спросить:</b> изменяет ли mov арифметические флаги? <b>Ответ:</b> нет.</p>
+</aside>
+</section>
+
+<section class="slide slide--split" id="s-09" aria-label="add и sub меняют первый операнд." inert aria-hidden="true">
+<div class="tag">01 / арифметика</div>
+<h2><code>add</code> и <code>sub</code> меняют<br><span class="accent">первый операнд.</span></h2>
+<div class="widget" data-widget="command-lab" data-regs="rax,rbx,rcx,rdx">
+  <div class="command-lab-layout">
+    <div class="command-lab-examples" data-command-examples>
+      <button class="command-example" data-command="add rax, 5" data-before='{"rax":"10"}' data-after='{"rax":"15"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"0"}' data-explain="RAX = 10 + 5 = 15."><code>add rax, 5</code><small>прибавить константу</small></button>
+      <button class="command-example" data-command="add rax, rbx" data-before='{"rax":"10","rbx":"3"}' data-after='{"rax":"13"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"0"}' data-explain="Результат записан в RAX; RBX сохранил значение 3."><code>add rax, rbx</code><small>прибавить регистр</small></button>
+      <button class="command-example" data-command="sub rax, 4" data-before='{"rax":"10"}' data-after='{"rax":"6"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"0"}' data-explain="RAX = 10 − 4 = 6."><code>sub rax, 4</code><small>вычесть константу</small></button>
+      <button class="command-example" data-command="sub rax, rbx" data-before='{"rax":"10","rbx":"3"}' data-after='{"rax":"7"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"0"}' data-explain="Результат записан в RAX; RBX не изменился."><code>sub rax, rbx</code><small>вычесть регистр</small></button>
+      <button class="command-example" data-command="sub rax, rax" data-before='{"rax":"42"}' data-after='{"rax":"0"}' data-flags-after='{"ZF":"1","CF":"0","SF":"0","OF":"0"}' data-explain="Результат равен нулю, поэтому установлен ZF."><code>sub rax, rax</code><small>получить ноль</small></button>
+    </div>
+    <div class="command-lab-state" data-command-state></div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Формулы:</b> `add a, b` означает a = a + b; `sub a, b` означает a = a − b. Источник не изменяется.</p>
+  <p><b>Флаги:</b> сейчас показать только факт обновления RFLAGS. На последнем примере обратить внимание на ZF=1; подробные правила будут перед переходами.</p>
+  <p><b>Дополнение:</b> inc rax эквивалентно прибавлению единицы, dec rax — вычитанию единицы; отдельного слайда им не требуется.</p>
+</aside>
+</section>
+
+<section class="slide slide--split" id="s-10" aria-label="Имя регистра задаёт, сколько бит участвует." inert aria-hidden="true">
+<div class="tag">01 / размер операции</div>
+<h2>Имя регистра задаёт,<br><span class="accent">сколько бит участвует.</span></h2>
+<div class="widget" data-widget="command-lab" data-regs="rax">
+  <div class="command-lab-layout">
+    <div class="command-lab-examples" data-command-examples>
+      <button class="command-example" data-command="add al, 1" data-before='{"rax":"0x11223344556677FF"}' data-after='{"rax":"0x1122334455667700"}' data-flags-after='{"ZF":"1","CF":"1","SF":"0","OF":"0"}' data-bits="rax" data-explain="FF + 1 не помещается в 8 бит: AL стал 00, CF получил перенос."><code>add al, 1</code><small>8 бит</small></button>
+      <button class="command-example" data-command="add ax, 1" data-before='{"rax":"0x11223344556677FF"}' data-after='{"rax":"0x1122334455667800"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"0"}' data-bits="rax" data-explain="Сложение выполнено над младшими 16 битами AX."><code>add ax, 1</code><small>16 бит</small></button>
+      <button class="command-example" data-command="add eax, 1" data-before='{"rax":"0x11223344556677FF"}' data-after='{"rax":"0x0000000055667800"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"0"}' data-bits="rax" data-explain="Операция над EAX дала 55667800; верхние 32 бита RAX обнулились."><code>add eax, 1</code><small>32 бита</small></button>
+      <button class="command-example" data-command="add rax, 1" data-before='{"rax":"0x11223344556677FF"}' data-after='{"rax":"0x1122334455667800"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"0"}' data-bits="rax" data-explain="В сложении участвовали все 64 бита RAX."><code>add rax, 1</code><small>64 бита</small></button>
+    </div>
+    <div class="command-lab-state" data-command-state></div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Показ:</b> все четыре примера начинают с одного значения. Сравнить, какая часть результата изменилась.</p>
+  <p><b>AL:</b> FF + 1 даёт 100 в hex, но в 8 бит помещаются только 00; перенос отмечен CF. ZF относится к восьмибитному результату и поэтому равен 1.</p>
+  <p><b>EAX:</b> любое вычисление, записывающее результат в 32-битный регистр, обнуляет верхнюю половину соответствующего 64-битного регистра.</p>
+</aside>
+</section>
+
+<section class="slide slide--split" id="s-11" aria-label="and, or, xor работают с каждым битом." inert aria-hidden="true">
+<div class="tag">01 / побитовые команды</div>
+<h2><code>and</code>, <code>or</code>, <code>xor</code><br><span class="accent">работают с каждым битом.</span></h2>
+<div class="widget" data-widget="command-lab" data-regs="rax,rbx">
+  <div class="command-lab-layout">
+    <div class="command-lab-examples" data-command-examples>
+      <button class="command-example" data-command="and rax, rbx" data-before='{"rax":"0xAC","rbx":"0x0F"}' data-after='{"rax":"0x0C"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"0"}' data-bits="rax,rbx" data-explain="AND оставил единицы только там, где единица была в обоих операндах."><code>and rax, rbx</code><small>оставить выбранные биты</small></button>
+      <button class="command-example" data-command="or rax, rbx" data-before='{"rax":"0xAC","rbx":"0x0F"}' data-after='{"rax":"0xAF"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"0"}' data-bits="rax,rbx" data-explain="OR установил бит, если единица была хотя бы в одном операнде."><code>or rax, rbx</code><small>установить выбранные биты</small></button>
+      <button class="command-example" data-command="xor rax, rbx" data-before='{"rax":"0xAC","rbx":"0x0F"}' data-after='{"rax":"0xA3"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"0"}' data-bits="rax,rbx" data-explain="XOR дал единицу там, где биты операндов различаются."><code>xor rax, rbx</code><small>переключить выбранные биты</small></button>
+      <button class="command-example" data-command="xor rax, rax" data-before='{"rax":"0xAC"}' data-after='{"rax":"0"}' data-flags-after='{"ZF":"1","CF":"0","SF":"0","OF":"0"}' data-bits="rax" data-explain="Каждый бит совпал сам с собой, поэтому результат равен нулю."><code>xor rax, rax</code><small>обнулить регистр</small></button>
+    </div>
+    <div class="command-lab-state" data-command-state></div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Читать по столбцам:</b> сравнивать соответствующие биты RAX и RBX справа. Десятичное значение здесь менее важно, чем двоичное.</p>
+  <p><b>Практика:</b> AND используют с маской для удаления битов, OR — для установки, XOR — для переключения. XOR регистра с самим собой — распространённый способ получить ноль.</p>
+  <p><b>Флаги:</b> логические операции сбрасывают CF и OF, обновляют ZF и SF по результату.</p>
+</aside>
+</section>
+
+<section class="slide slide--split" id="s-12" aria-label="shl и shr сдвигают биты." inert aria-hidden="true">
+<div class="tag">01 / сдвиги</div>
+<h2><code>shl</code> и <code>shr</code><br><span class="accent">сдвигают биты.</span></h2>
+<div class="widget" data-widget="command-lab" data-regs="rax">
+  <div class="command-lab-layout">
+    <div class="command-lab-examples" data-command-examples>
+      <button class="command-example" data-command="shl al, 1" data-before='{"rax":"0x81"}' data-after='{"rax":"0x02"}' data-flags-after='{"ZF":"0","CF":"1","SF":"0","OF":"1"}' data-bits="rax" data-explain="Биты ушли влево; старшая единица вытеснена в CF, справа добавлен ноль."><code>shl al, 1</code><small>сдвиг влево на 1</small></button>
+      <button class="command-example" data-command="shl al, 3" data-before='{"rax":"0x13"}' data-after='{"rax":"0x98"}' data-flags-after='{"ZF":"0","CF":"0","SF":"1","OF":"?"}' data-bits="rax" data-explain="0001 0011 превратилось в 1001 1000."><code>shl al, 3</code><small>сдвиг влево на 3</small></button>
+      <button class="command-example" data-command="shr al, 1" data-before='{"rax":"0x93"}' data-after='{"rax":"0x49"}' data-flags-after='{"ZF":"0","CF":"1","SF":"0","OF":"1"}' data-bits="rax" data-explain="Биты ушли вправо; младшая единица вытеснена в CF, слева добавлен ноль."><code>shr al, 1</code><small>сдвиг вправо на 1</small></button>
+      <button class="command-example" data-command="shr al, 3" data-before='{"rax":"0x98"}' data-after='{"rax":"0x13"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"?"}' data-bits="rax" data-explain="1001 1000 превратилось в 0001 0011."><code>shr al, 3</code><small>сдвиг вправо на 3</small></button>
+    </div>
+    <div class="command-lab-state" data-command-state></div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Показ:</b> следить за двоичной строкой. Освободившиеся позиции заполняются нулями, последний вытесненный бит попадает в CF.</p>
+  <p><b>Связь с арифметикой:</b> для подходящих беззнаковых значений сдвиг влево на n соответствует умножению на 2^n, вправо — целочисленному делению на 2^n. Переполнение отбрасывает старшие биты.</p>
+  <p><b>Граница:</b> для знаковых чисел существует sar, сохраняющий знаковый бит. OF после сдвига больше чем на один бит не определён, поэтому показан как ?.</p>
+</aside>
+</section>
+
+<section class="slide slide--split" id="s-13" aria-label="RFLAGS описывает, что произошло с результатом." inert aria-hidden="true">
+<div class="tag">01 / арифметические флаги</div>
+<h2><code>RFLAGS</code> описывает,<br><span class="accent">что произошло с результатом.</span></h2>
+<div class="widget" data-widget="command-lab" data-regs="rax">
+  <div class="command-lab-layout">
+    <div class="command-lab-examples" data-command-examples>
+      <button class="command-example" data-command="add al, 1" data-before='{"rax":"0xFE"}' data-after='{"rax":"0xFF"}' data-flags-after='{"ZF":"0","CF":"0","SF":"1","OF":"0"}' data-bits="rax" data-explain="Результат FF имеет старший бит 1, поэтому SF=1. Переполнения не было."><code>add al, 1</code><small>FE + 1 → FF · знак</small></button>
+      <button class="command-example" data-command="add al, 1" data-before='{"rax":"0xFF"}' data-after='{"rax":"0x00"}' data-flags-after='{"ZF":"1","CF":"1","SF":"0","OF":"0"}' data-bits="rax" data-explain="Результат не поместился в 8 бит: AL стал 00, ZF=1 и перенос записан в CF."><code>add al, 1</code><small>FF + 1 → 00 · перенос</small></button>
+      <button class="command-example" data-command="add al, 1" data-before='{"rax":"0x7F"}' data-after='{"rax":"0x80"}' data-flags-after='{"ZF":"0","CF":"0","SF":"1","OF":"1"}' data-bits="rax" data-explain="Знаковое 127 превратилось в −128: установлен OF. Беззнакового переноса не было."><code>add al, 1</code><small>7F + 1 → 80 · переполнение</small></button>
+      <button class="command-example" data-command="sub al, 1" data-before='{"rax":"0x00"}' data-after='{"rax":"0xFF"}' data-flags-after='{"ZF":"0","CF":"1","SF":"1","OF":"0"}' data-bits="rax" data-explain="Для беззнакового 0 − 1 потребовался заём: CF=1. Получившийся старший бит установил SF."><code>sub al, 1</code><small>00 − 1 → FF · заём</small></button>
+      <button class="command-example" data-command="sub al, 1" data-before='{"rax":"0x80"}' data-after='{"rax":"0x7F"}' data-flags-after='{"ZF":"0","CF":"0","SF":"0","OF":"1"}' data-bits="rax" data-explain="Знаковое −128 − 1 не помещается в 8 бит и превращается в 127: OF=1."><code>sub al, 1</code><small>80 − 1 → 7F · переполнение</small></button>
+    </div>
+    <div class="command-lab-state" data-command-state></div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Почему AL:</b> на восьми битах границы видны сразу: unsigned 0…255, signed −128…127. Те же правила действуют для 16, 32 и 64 бит.</p>
+  <p><b>ZF:</b> результат равен нулю. <b>SF:</b> копия старшего бита результата. <b>CF:</b> перенос при сложении или заём при вычитании беззнаковых чисел. <b>OF:</b> знаковый результат вышел за диапазон.</p>
+  <p><b>Главное сравнение:</b> FF+1 устанавливает CF, но не OF; 7F+1 устанавливает OF, но не CF. Процессор вычисляет оба ответа одновременно, а программа выбирает нужный флаг по смыслу данных.</p>
+  <p><b>Граница:</b> в RFLAGS есть и другие биты. Для ближайших примеров с арифметикой и переходами достаточно ZF, CF, SF и OF.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-14" aria-label="Из фрагмента — в исполняемую программу." inert aria-hidden="true">
+<div class="tag">01 / первая программа</div>
+<h2>Из фрагмента —<br><span class="accent">в исполняемую программу.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Шаг 1 из 3 · Вычисление готово, но программа ещё не знает, откуда начать и как завершиться.">
+      <div class="columns">
+        <pre class="code"><code>mov rax, 17
+add rax, 25
+sub rax, 9</code></pre>
+        <div class="panel">
+          <div class="panel-label">Что уже происходит</div>
+          <p><code>RAX</code> меняется: 17 → 42 → 33.</p>
+          <p>Это работающий фрагмент инструкций, но ещё не самостоятельная программа.</p>
+        </div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Шаг 2 из 3 · Добавляем секцию с кодом и метку первой инструкции.">
+      <div class="columns">
+        <pre class="code"><code>global _start
+section .text
+_start:
+    mov rax, 17
+    add rax, 25
+    sub rax, 9</code></pre>
+        <div class="panel">
+          <div class="panel-label">Где начинается код</div>
+          <p><code>.text</code> содержит инструкции.</p>
+          <p><code>_start</code> — имя адреса, с которого начнётся выполнение.</p>
+        </div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Шаг 3 из 3 · Полная программа готова. Дальше разберём, что именно делает syscall.">
+      <div class="columns">
+        <pre class="code small"><code>global _start
+section .text
+_start:
+    mov rax, 17
+    add rax, 25
+    sub rax, 9
+    mov rdi, rax
+    mov rax, 60
+    syscall</code></pre>
+        <div class="panel">
+          <div class="panel-label">Как программа завершается</div>
+          <p><code>mov rdi, rax</code> передаёт результат 33 как аргумент <code>exit</code>.</p>
+          <p>После копирования <code>RAX = 60</code> выбирает системный вызов.</p>
+          <p>Сначала разберём переход в ядро, затем исполним программу построчно.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Шаг 1:</b> попросить вычислить RAX после каждой инструкции. Подчеркнуть: процессор умеет выполнить фрагмент, но загрузчику пока не сообщено, где вход.</p>
+  <p><b>Шаг 2:</b> global и section нужны ассемблеру и линковщику; `_start:` создаёт имя адреса. Эти строки не являются инструкциями процессора.</p>
+  <p><b>Шаг 3:</b> результат сначала лежит в рабочем RAX. Копируем его в RDI — первый аргумент системного вызова. Теперь RAX можно переиспользовать для номера exit, не потеряв статус 33.</p>
+  <p><b>Спросить:</b> какая строка печатает 33 в терминал? <b>Ответ:</b> никакая; программа только возвращает статус завершения. Посмотрим его после запуска через `$?`.</p>
+  <p><b>Управление:</b> пробел — следующий этап, Shift + пробел — предыдущий, R — исходный фрагмент.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-15" aria-label="syscall передаёт запрос ядру Linux." inert aria-hidden="true">
+<div class="tag">01 / системный вызов</div>
+<h2><code>syscall</code> передаёт запрос<br><span class="accent">ядру Linux.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Шаг 1 из 4 · Обычный код работает в пользовательском режиме с ограниченными правами.">
+      <div class="flow">
+        <div class="flow-node active">Программа<small>user mode</small></div><span class="flow-arrow">→</span>
+        <div class="flow-node">Регистры<small>запрос ещё не подготовлен</small></div><span class="flow-arrow">→</span>
+        <div class="flow-node">Ядро Linux<small>kernel mode</small></div>
+      </div>
+      <p class="lead">Программа считает сама, но процессами, файлами и устройствами управляет ядро.</p>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Шаг 2 из 4 · Программа помещает номер операции и аргументы в регистры.">
+      <div class="flow">
+        <div class="flow-node">Программа<small>готовит запрос</small></div><span class="flow-arrow">→</span>
+        <div class="flow-node active">Регистры<small>RAX = номер · RDI… = аргументы</small></div><span class="flow-arrow">→</span>
+        <div class="flow-node">Ядро Linux<small>ещё не выполняется</small></div>
+      </div>
+      <p class="lead">Регистры работают как короткая форма запроса к операционной системе.</p>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Шаг 3 из 4 · Инструкция syscall безопасно переключает процессор в код ядра.">
+      <div class="flow">
+        <div class="flow-node">Программа<small>user mode</small></div><span class="flow-arrow active">→</span>
+        <div class="flow-node active"><code>syscall</code><small>контролируемый переход</small></div><span class="flow-arrow active">→</span>
+        <div class="flow-node">Ядро Linux<small>проверяет запрос</small></div>
+      </div>
+      <p class="lead">Системный вызов — услуга ядра. <code>syscall</code> — инструкция входа в ядро.</p>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Шаг 4 из 4 · Ядро выбирает услугу по номеру, проверяет аргументы и выполняет операцию.">
+      <div class="flow">
+        <div class="flow-node">Программа<small>ждёт результат</small></div><span class="flow-arrow">←</span>
+        <div class="flow-node">Результат<small>обычно возвращается в RAX</small></div><span class="flow-arrow">←</span>
+        <div class="flow-node active">Ядро Linux<small>exit завершает процесс</small></div>
+      </div>
+      <p class="lead">Большинство вызовов возвращает результат. <code>exit</code> завершает процесс и назад не возвращается.</p>
+    </div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Модель:</b> user mode защищает систему от произвольного доступа программы к памяти ядра и устройствам. Syscall — предусмотренная архитектурой точка перехода, где ядро получает и проверяет запрос.</p>
+  <p><b>Развести термины:</b> системный вызов — операция вроде read, write или exit. syscall — конкретная инструкция x86-64, которая передаёт управление ядру.</p>
+  <p><b>Спросить:</b> почему нельзя завершить процесс обычной арифметической инструкцией? <b>Ответ:</b> жизненным циклом процессов управляет ОС; программа должна попросить ядро.</p>
+  <p><b>Граница:</b> кольца защиты, sysret и внутренний обработчик ядра здесь не разбираем.</p>
+</aside>
+</section>
+
+<section class="slide slide--split" id="s-16" aria-label="Номер выбирает операцию, регистры передают аргументы." inert aria-hidden="true">
+<div class="tag">01 / соглашение Linux x86-64</div>
+<h2>Номер выбирает операцию,<br><span class="accent">регистры передают аргументы.</span></h2>
+<div class="columns">
+  <div class="panel">
+    <div class="panel-label">Перед инструкцией syscall</div>
+    <pre class="ascii">RAX  номер вызова
+RDI  аргумент 1
+RSI  аргумент 2
+RDX  аргумент 3
+R10  аргумент 4
+R8   аргумент 5
+R9   аргумент 6</pre>
+  </div>
+  <div class="stack">
+    <div class="panel">
+      <div class="panel-label">Пример · exit(33)</div>
+      <pre class="code"><code>mov rax, 60
+mov rdi, 33
+syscall</code></pre>
+    </div>
+    <div class="panel">
+      <div class="panel-label">Несколько номеров</div>
+      <p><code>read = 0</code> · <code>write = 1</code> · <code>exit = 60</code></p>
+    </div>
+  </div>
+</div>
+<p class="takeaway">После возвращения результат обычно находится в RAX. Exit не возвращается.</p>
+<aside class="notes">
+  <p><b>Разбор exit:</b> RAX=60 выбирает системный вызов exit; RDI=33 передаёт его первый аргумент status. Syscall передаёт готовый запрос ядру.</p>
+  <p><b>Почему таблица длиннее примера:</b> read и write используют несколько аргументов. Сейчас достаточно увидеть общий порядок; работу с файлами разберём позже.</p>
+  <p><b>Спросить:</b> что изменится, если перед syscall оставить RAX=1? <b>Ответ:</b> ядро выберет write, а значения остальных регистров будет трактовать как его аргументы.</p>
+  <p><b>Граница:</b> номера и регистровое соглашение относятся к Linux x86-64. В другой ОС или архитектуре они могут отличаться. Номера берут из документации, а не учат наизусть. Прямой syscall использует R10 для четвёртого аргумента и изменяет RCX/R11; это понадобится позже.</p>
+</aside>
+</section>
+
+<section class="slide slide--split" id="s-17" aria-label="Исполняем инструкции одну за другой." inert aria-hidden="true">
+<div class="tag">01 / выполнение программы</div>
+<h2>Исполняем инструкции<br><span class="accent">одну за другой.</span></h2>
+<div class="widget" data-widget="registers">
+  <div class="split">
+    <pre class="code program" data-program data-regs="rax,rdi"><span data-do='{"set":{"rax":"17"}}' data-explain="mov записал 17 в рабочий регистр RAX.">mov rax, 17</span><span data-do='{"add":{"rax":"25"}}' data-explain="add прибавил 25: теперь RAX = 42. Результат не нулевой, поэтому ZF = 0.">add rax, 25</span><span data-do='{"add":{"rax":"-9"}}' data-explain="sub вычел 9: в учебной модели это прибавление −9. Теперь результат RAX = 33.">sub rax, 9</span><span data-do='{"set":{"rdi":"rax"}}' data-explain="RDI получил копию результата 33. Для exit это первый аргумент — status.">mov rdi, rax</span><span data-do='{"set":{"rax":"60"}}' data-explain="RAX больше не нужен для результата: его копия уже в RDI. Записываем в RAX номер exit — 60.">mov rax, 60</span><span data-do='{}' data-explain="syscall передаёт управление ядру. RAX = 60 выбирает exit, а RDI = 33 передаёт status.">syscall</span></pre>
+    <div class="registers" data-registers></div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Перед каждым шагом:</b> попросить предсказать значения RAX и RDI. Пробел выполняет текущую инструкцию, Shift + пробел возвращает шаг, R сбрасывает регистры.</p>
+  <p><b>После третьей строки:</b> результат 33 находится в RAX. Перед подготовкой syscall копируем его в RDI — первый аргумент exit. Затем RAX можно занять номером вызова 60.</p>
+  <p><b>На syscall:</b> учебная модель не запускает ядро и не исчезает со слайда; последний шаг показывает момент передачи управления. В настоящей программе успешный exit не возвращается.</p>
+  <p><b>Граница:</b> счётчик шагов — не RIP. Модель показывает только RAX, RDI и ZF; команда sub подготовлена как изменение значения, остальные флаги здесь не моделируются.</p>
+</aside>
+</section>
+
+<section class="slide slide--split" id="s-18" aria-label="Одна инструкция syscall — много услуг ядра." inert aria-hidden="true">
+<div class="tag">01 / системные вызовы Linux x86-64</div>
+<h2>Одна инструкция <code>syscall</code> —<br><span class="accent">много услуг ядра.</span></h2>
+<div class="widget" data-widget="syscall-explorer"><div data-syscall-explorer></div></div>
+<aside class="notes">
+  <p><b>Начать с write:</b> RAX выбирает услугу, остальные регистры становятся её аргументами. После возврата RAX получает результат или отрицательный код ошибки.</p>
+  <p><b>Маршрут:</b> сравнить read/write, затем getpid/exit. После этого кратко показать, что те же правила используются для памяти, процессов и сети.</p>
+  <p><b>Не заучивать:</b> номера приведены, чтобы машинный интерфейс был конкретным. На практике их берут из заголовочных файлов и документации.</p>
+  <p><b>Граница:</b> каталог подготовлен для Linux x86-64 и не выполняет настоящие вызовы. Высокоуровневые программы обычно обращаются к библиотечным обёрткам.</p>
+</aside>
+</section>
+
+<section class="slide slide--media" id="s-19" aria-label="Где программа хранит команды и данные?" inert aria-hidden="true">
+<div class="tag">01 / память процесса</div>
+<h2>Где программа хранит<br><span class="accent">команды и данные?</span></h2>
+<figure class="media">
+  <img class="diagram" src="../../assets/diagrams/process-memory-map.svg" alt="Четыре горизонтальные стрелки связывают пояснения со стеком, свободными адресами, кучей и образом программы.">
+  <figcaption>Процесс — запущенная программа. Это упрощённая карта её памяти: адреса и размеры выбирает система.</figcaption>
+</figure>
+<aside class="notes">
+  <p><b>Сказать:</b> процесс видит собственное адресное пространство. Адрес — номер места в этом пространстве, а области отличаются назначением и правилами использования.</p>
+  <p><b>Пройти снизу вверх:</b> образ программы содержит загруженные команды и данные; из кучи можно получить память для массива через знакомый malloc; свободные адреса ещё не отображены на память; стек хранит временные данные при вызовах функций.</p>
+  <p><b>Спросить:</b> где искать инструкции, которые процессор выполняет? <b>Ответ:</b> в образе программы; на следующем слайде он будет разобран на секции.</p>
+  <p><b>Граница:</b> расположение и направление роста показаны как учебная модель Linux x86-64. Другие отображения, библиотеки и промежутки опущены; malloc может получать память и отдельными отображениями. Равные высоты блоков не отражают их реальные размеры.</p>
+</aside>
+</section>
+
+<section class="slide slide--media" id="s-20" aria-label="section задаёт назначение содержимого." inert aria-hidden="true">
+<div class="tag">01 / секции программы</div>
+<h2><code>section</code> задаёт<br><span class="accent">назначение содержимого.</span></h2>
+<figure class="media">
+  <img class="diagram" src="../../assets/diagrams/program-sections.svg" alt="Инструкции и определения данных связаны с секциями text, rodata, data и bss.">
+  <figcaption>Справа сохранена карта со слайда 19: секции находятся внутри образа программы.</figcaption>
+</figure>
+<aside class="notes">
+  <p><b>Сказать:</b> section — директива для ассемблера, а не выполняемая процессором инструкция. Она сообщает, к какой части объектного файла отнести следующие байты.</p>
+  <p><b>Разобрать:</b> .text содержит инструкции; .rodata — неизменяемые данные; .data — изменяемые данные с начальным значением; .bss хранит размер области, которую загрузчик заполнит нулями.</p>
+  <p><b>Спросить:</b> попадут ли 64 нулевых байта buffer в исполняемый файл? <b>Ответ:</b> нет, в .bss сохраняется требуемый размер; память создаётся и обнуляется при загрузке.</p>
+  <p><b>Термины:</b> секции принадлежат формату объектного файла. Загрузчик группирует их в сегменты, исходя из прав чтения, записи и выполнения.</p>
+</aside>
+</section>
+
+<section class="slide slide--split" id="s-21" aria-label="Одно число. Два порядка байтов." inert aria-hidden="true">
+<div class="tag">01 / порядок байтов в памяти</div>
+<h2>Одно число.<br><span class="accent">Два порядка байтов.</span></h2>
+<div class="widget" data-widget="endian" data-width="64" data-value="0x1122334455667788">
+  <div class="memory-readout"><span>64 бита · 8 байтов</span><b data-readout>0x1122334455667788</b><span>две hex-цифры = один байт</span></div>
+  <div class="panel-label">Память · адреса увеличиваются слева направо →</div>
+  <div class="memory-row" data-memory></div>
+  <div class="endian-switch"><button class="btn" data-mode="le">Little-endian · x86-64</button><button class="btn" data-mode="be">Big-endian</button></div>
+  <p class="widget-status" data-endian-caption aria-live="polite"></p>
+</div>
+<div class="panel">
+  <div class="panel-label">Как проверить на своей машине? · Linux / macOS, нужен Python 3</div>
+  <pre class="code small">python3 -c "import sys; print(sys.byteorder)"</pre>
+</div>
+<p class="takeaway">Переставляются целые байты. Порядок битов внутри байта сохраняется.</p>
+<aside class="notes">
+  <p><b>Связать со слайдом 20:</b> counter содержит 0x1122334455667788 — восемь байтов. Каждая пара шестнадцатеричных цифр обозначает один байт. 11 — старший байт, 88 — младший. Старший и младший определяются вкладом в значение числа, а не его адресом.</p>
+  <p><b>Начать с little-endian:</b> по меньшему адресу лежит младший байт 88. Переключить на big-endian: по меньшему адресу теперь старший байт 11. Значение в readout не меняется: интерактив заново раскладывает то же число в память. Пробел и Shift + пробел переключают режим, R возвращает little-endian.</p>
+  <p><b>Спросить:</b> как определить порядок байтов без готового свойства системы? <b>Ответ:</b> записать многобайтовое число и прочитать первый байт через указатель на unsigned char.</p>
+  <p><b>Пример на C:</b> uint32_t value = 0x01020304; unsigned char *bytes = (unsigned char *)&amp;value; printf("%02x", (unsigned int)bytes[0]); Первый байт 04 означает little-endian, 01 — big-endian. Для полного примера нужны stdint.h и stdio.h.</p>
+  <p><b>Команда:</b> sys.byteorder выводит little или big — порядок байтов среды, в которой исполняется Python. Слайд не запускает команду автоматически.</p>
+  <p><b>Граница:</b> схема касается хранения одного многобайтового числа. Порядок символов строки и порядок битов внутри байта не переворачиваются. x86-64 использует little-endian.</p>
+  <p><b>Источник:</b> https://docs.python.org/3/library/struct.html</p>
+</aside>
+</section>
+
+<section class="slide slide--media" id="s-22" aria-label="Адрес указывает где. Память хранит что." inert aria-hidden="true">
+<div class="tag">01 / адрес и значение</div>
+<h2>Адрес указывает <span class="accent">где</span>.<br>Память хранит <span class="accent">что</span>.</h2>
+<figure class="media">
+  <img class="diagram" src="../../assets/diagrams/address-and-value.svg" alt="MOV без скобок копирует адрес первого байта counter. MOV со скобками читает все восемь байтов переменной и получает 0x1122334455667788.">
+  <figcaption>В <code>mov rax, [counter]</code> скобки задают чтение памяти, а <code>RAX</code> — размер: 64 бита, или 8 байт.</figcaption>
+</figure>
+<aside class="notes">
+  <p><b>Связать со слайдом 20:</b> counter dq 0x1122334455667788 — та же переменная из .data. dq задаёт восьмибайтовое значение. В памяти это восемь отдельных байтов: 88, 77, 66, 55, 44, 33, 22, 11; counter обозначает адрес первого.</p>
+  <p><b>Сравнить:</b> обе строки используют знакомый mov. Без скобок копируется адрес, со скобками процессор читает память по этому адресу. Размер чтения определяется 64-битным регистром RAX.</p>
+  <p><b>Линии:</b> верхняя указывает ровно на строку первого байта 0x600000; нижняя — на скобу, охватывающую все восемь байтов от 0x600000 до 0x600007. Пунктир соединяет границы выделенных областей при увеличении.</p>
+  <p><b>Спросить:</b> изменится ли адрес counter, если записать в него другое число? <b>Ответ:</b> нет, изменится содержимое тех же ячеек.</p>
+  <p><b>Граница:</b> адреса условные. Показан NASM для обычного исполняемого файла с абсолютным адресом метки; относительную адресацию и lea разберём позже. x86-64 хранит младший байт первым.</p>
+</aside>
+</section>
+
+<section class="slide slide--media" id="s-23" aria-label="Программа видит свои адреса. Где её данные в RAM?" inert aria-hidden="true">
+<div class="tag">01 / виртуальная и физическая память</div>
+<h2>Программа видит свои адреса.<br><span class="accent">Где её данные в RAM?</span></h2>
+<figure class="media">
+  <img class="diagram" src="../../assets/diagrams/virtual-to-physical.svg" alt="Две соседние виртуальные страницы A и B из секции data отображены на разные физические блоки RAM: 6 и 2.">
+  <figcaption>Соседние страницы виртуальной памяти могут находиться в разных местах RAM.</figcaption>
+</figure>
+<aside class="notes">
+  <p><b>Связать со слайдом 22:</b> знакомая карта теперь находится слева. Это виртуальное адресное пространство процесса, а не вся оперативная память компьютера и не один её непрерывный участок.</p>
+  <p><b>Показать:</b> две соседние страницы A и B внутри .data. Сплошная линия ведёт от A через таблицу к физическому блоку 6; пунктирная — от B к блоку 2. Пересечение линий не означает соединения. Номера блоков условные.</p>
+  <p><b>Объяснить:</b> ОС настраивает таблицы страниц, процессор использует их для перевода виртуального адреса в физический при обращении к памяти. Программа продолжает использовать виртуальные адреса. Страница обычно занимает 4 КБ; существуют другие размеры.</p>
+  <p><b>Спросить:</b> если два адреса соседние для программы, обязательно ли они соседние в RAM? <b>Ответ:</b> внутри одной страницы сохраняется смещение; разные соседние страницы могут отображаться на несоседние физические блоки.</p>
+  <p><b>Граница:</b> размеры областей слева условные, карта упрощена. RAM одновременно используется разными процессами и ядром. Свободным виртуальным адресам блок RAM не назначен. Общие страницы, отложенное выделение и подкачка здесь не показаны. Секции, сегменты загрузки ELF и страницы — разные понятия.</p>
+  <p><b>Источник:</b> https://docs.kernel.org/mm/page_tables.html</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-24" aria-label="Выводим строку через write." inert aria-hidden="true">
+<div class="tag">01 / вывод строки</div>
+<h2>Выводим строку<br><span class="accent">через write.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Исходное состояние: строка уже лежит в .rodata, аргументы write ещё не подготовлены.">
+      <img class="diagram" src="../../assets/diagrams/write-step-0.svg" alt="Исходное состояние: строка уже лежит в .rodata, аргументы write ещё не подготовлены.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Два mov подготовили запрос: RAX = 1 выбирает write, RDI = 1 выбирает стандартный вывод.">
+      <img class="diagram" src="../../assets/diagrams/write-step-1.svg" alt="Два mov подготовили запрос: RAX = 1 выбирает write, RDI = 1 выбирает стандартный вывод.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="RSI получает адрес первого байта message. Саму строку в регистр не копируем.">
+      <img class="diagram" src="../../assets/diagrams/write-step-2.svg" alt="RSI получает адрес первого байта message. Саму строку в регистр не копируем.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="RDX = 6 задаёт длину: пять букв Hello и один байт перевода строки.">
+      <img class="diagram" src="../../assets/diagrams/write-step-3.svg" alt="RDX = 6 задаёт длину: пять букв Hello и один байт перевода строки.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Syscall передал запрос ядру. В успешном примере выведены шесть байтов, поэтому результат RAX = 6.">
+      <img class="diagram" src="../../assets/diagrams/write-step-4.svg" alt="Syscall передал запрос ядру. В успешном примере выведены шесть байтов, поэтому результат RAX = 6.">
+    </div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Показ:</b> пять подготовленных состояний. Сначала строка уже размещена в .rodata; первый переход выполняет два mov для RAX и RDI. Затем отдельно показываем mov rsi, message, mov rdx, 6 и syscall. Пробел — вперёд, Shift + пробел — назад, R — исходное состояние.</p>
+  <p><b>Данные:</b> db задаёт последовательность байтов. Пять букв Hello занимают пять байтов; десятичное 10 — шестой байт 0x0A, перевод строки. Нулевого терминатора здесь нет и write он не нужен.</p>
+  <p><b>Спросить:</b> почему RAX и RDI сначала равны 1? <b>Ответ:</b> одинаковые числа имеют разные роли: RAX выбирает write, RDI выбирает стандартный вывод, файловый дескриптор 1.</p>
+  <p><b>Указатель:</b> адрес строки копируется в RSI, а стрелка идёт от строки регистра RSI к первой ячейке H. После записи RDX рамка охватывает ровно шесть ячеек, включая перевод строки. Адрес 0x600000 условный, это виртуальный адрес процесса.</p>
+  <p><b>Результат:</b> показан успешный write, который записал все шесть байтов и вернул 6 в RAX. В общем случае write может записать меньше запрошенного или вернуть ошибку. Стандартный вывод здесь подключён к терминалу, но может быть перенаправлен.</p>
+  <p><b>Граница:</b> это подготовленная демонстрация, syscall не выполняется в браузере. Исходные значения регистров не заданы и обозначены прочерками. RCX, R11 и флаги не показаны; модель иллюстрирует только аргументы и результат write. Для полной программы ещё нужны точка входа, секции и exit.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-25" aria-label="От исходника до запуска." inert aria-hidden="true">
+<div class="tag">01 / сборка и запуск · Linux x86-64</div>
+<h2>От исходника<br><span class="accent">до запуска.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Полный hello.asm: write выводит строку, затем exit(0) завершает процесс.">
+      <img class="diagram" src="../../assets/diagrams/hello-build-0.svg" alt="Полный hello.asm: write выводит строку, затем exit(0) завершает процесс.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="NASM создаёт hello.o — объектный файл с машинным кодом, данными и ссылками для компоновки.">
+      <img class="diagram" src="../../assets/diagrams/hello-build-1.svg" alt="NASM создаёт hello.o — объектный файл с машинным кодом, данными и ссылками для компоновки.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Компоновщик ld размещает код и данные, разрешает ссылки и создаёт исполняемый файл hello.">
+      <img class="diagram" src="../../assets/diagrams/hello-build-2.svg" alt="Компоновщик ld размещает код и данные, разрешает ссылки и создаёт исполняемый файл hello.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Запуск выводит Hello. Команда echo $? показывает 0 — код завершения, переданный в exit.">
+      <img class="diagram" src="../../assets/diagrams/hello-build-3.svg" alt="Запуск выводит Hello. Команда echo $? показывает 0 — код завершения, переданный в exit.">
+    </div>
+  </div>
+</div>
+<div class="resource-actions"><a class="btn" href="../../assets/examples/asm/hello.asm" download="hello.asm" data-download="#hello-download-source">Скачать hello.asm</a><span class="caption">Готовый исходник для практики · NASM / Linux x86-64</span></div>
+<template id="hello-download-source">global _start
+section .text
+_start:
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, message
+    mov rdx, 6
+    syscall
+    mov rax, 60
+    mov rdi, 0
+    syscall
+section .rodata
+message db &quot;Hello&quot;, 10
+</template>
+<aside class="notes">
+  <p><b>Показ:</b> четыре состояния: полный исходник, NASM, ld, запуск. Пробел — следующий этап, Shift + пробел — предыдущий, R — исходник. Верхняя цепочка сохраняется и подсвечивает текущий результат.</p>
+  <p><b>Исходник:</b> две колонки продолжают один файл, это видно по номерам строк. Начало и вывод в строках 1–8, exit и данные — в строках 9–13. Первый syscall возвращается после write; поэтому следом стоит exit(0). Файл по ссылке и встроенный источник для скачивания содержат тот же исходник. Кнопка скачивает hello.asm через Blob и сохраняет открытый слайд; папку выбирает браузер.</p>
+  <p><b>Сборка:</b> в каталоге с hello.asm выполнить nasm -f elf64 hello.asm -o hello.o, затем ld -o hello hello.o. NASM создаёт объектный файл; GNU ld создаёт исполняемый файл, размещая секции и разрешая ссылку на message. Пример использует абсолютный адрес метки и обычный исполняемый файл без PIE.</p>
+  <p><b>Запуск:</b> ./hello запускает файл из текущего каталога. После запуска выполнить echo $? сразу, чтобы увидеть код именно этой программы. Здесь 0 передан в RDI для exit; это другой результат, чем 6 в RAX после write.</p>
+  <p><b>Спросить:</b> зачем нужен второй syscall? <b>Ответ:</b> первый выводит строку и возвращает управление, второй завершает процесс.</p>
+  <p><b>Граница:</b> терминал показывает сохранённый ожидаемый пример, команды не исполняются в браузере. Среда — Linux x86-64 с NASM и GNU ld; это не команды для непосредственного запуска программы в macOS или Windows. Установочная практика и единая учебная среда готовятся отдельно.</p>
+  <p><b>Источники:</b> https://www.nasm.us/doc/nasm02.html и https://sourceware.org/binutils/docs/ld/Invocation.html</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-26" aria-label="Одна среда для всей группы." inert aria-hidden="true">
+<div class="tag">01 / подготовка к практике · Windows / macOS / Linux</div>
+<h2>Одна среда<br><span class="accent">для всей группы.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Подготовка: установите Docker, скачайте два файла и откройте терминал в папке с ними.">
+      <div class="cards">
+        <div class="card"><h3>1 · Установить Docker</h3><p>Установите и запустите Docker Desktop. На Windows используйте Linux-контейнеры.</p><div class="resource-actions"><a href="https://docs.docker.com/desktop/setup/install/mac-install/" target="_blank" rel="noopener">Mac ↗</a><a href="https://docs.docker.com/desktop/setup/install/windows-install/" target="_blank" rel="noopener">Windows ↗</a><a href="https://docs.docker.com/engine/install/" target="_blank" rel="noopener">Linux ↗</a></div></div>
+        <div class="card"><h3>2 · Скачать файлы</h3><p>Положите оба файла в отдельную папку <code>asm-practice</code>. В Dockerfile уже описана установка NASM и компоновщика.</p><div class="stack"><a class="btn" href="../../assets/examples/asm/Dockerfile" download="Dockerfile" data-download="#practice-dockerfile">Скачать Dockerfile</a><a class="btn" href="../../assets/examples/asm/hello.asm" download="hello.asm" data-download="#practice-hello">Скачать hello.asm</a></div></div>
+        <div class="card"><h3>3 · Открыть терминал</h3><p>Откройте терминал в папке <code>asm-practice</code>: PowerShell на Windows, Terminal на Mac или терминал Linux.</p><p>Далее: нажмите ⧉, вставьте команду в терминал и нажмите Enter.</p></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Выполните на компьютере. Для первой сборки нужен интернет.">
+      <div class="panel-label">1 / Собрать образ · терминал компьютера · папка asm-practice</div>
+      <pre class="code command-wrap practice-build">docker build --platform linux/amd64 -t asm-course .</pre>
+      <div class="resource-actions"><button class="btn" data-copy=".practice-build"><span aria-hidden="true">⧉</span> Копировать</button><span class="copy-status" aria-live="polite"></span></div>
+      <p class="lead">Docker скачает Linux x86-64 и установит NASM и GNU ld.</p>
+      <p class="caption">Готовый образ <code>asm-course</code> сохраняется на компьютере. Этот шаг выполняется один раз.</p>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Команда для PowerShell и терминалов macOS/Linux. После неё вы внутри Linux.">
+      <div class="panel-label">2 / Открыть среду · терминал компьютера · та же папка</div>
+      <pre class="code command-wrap practice-open">docker run --rm -it --platform linux/amd64 -v "${PWD}:/work" -w /work asm-course</pre>
+      <div class="resource-actions"><button class="btn" data-copy=".practice-open"><span aria-hidden="true">⧉</span> Копировать</button><span class="copy-status" aria-live="polite"></span></div>
+      <p class="lead">Папка <code>asm-practice</code> доступна в Linux как <code>/work</code>.</p>
+      <p class="caption">Программы собираются и запускаются внутри Linux. Исходники и результаты сборки остаются в вашей папке.</p>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Скопируйте сборку; ./hello введите сами. Ожидаемый вывод: Hello.">
+      <div class="panel-label">3 / Собрать программу · теперь в терминале Linux</div>
+      <pre class="code command-wrap practice-assemble">nasm -f elf64 hello.asm -o hello.o
+ld -o hello hello.o</pre>
+      <div class="resource-actions"><button class="btn" data-copy=".practice-assemble"><span aria-hidden="true">⧉</span> Копировать</button><span class="copy-status" aria-live="polite"></span></div>
+      <p class="lead">Теперь введите сами: <code>./hello</code></p>
+      <p class="caption">Выход — <code>exit</code>. На следующем занятии повторите команду открытия среды.</p>
+    </div>
+  </div>
+</div>
+<template id="practice-dockerfile">FROM debian:bookworm-slim
+RUN apt-get update \
+    &amp;&amp; apt-get install -y --no-install-recommends nasm binutils \
+    &amp;&amp; rm -rf /var/lib/apt/lists/*
+WORKDIR /work
+CMD [&quot;bash&quot;]
+</template>
+<template id="practice-hello">global _start
+section .text
+_start:
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, message
+    mov rdx, 6
+    syscall
+    mov rax, 60
+    mov rdi, 0
+    syscall
+section .rodata
+message db &quot;Hello&quot;, 10
+</template>
+<aside class="notes">
+  <p>⧉ копирует команды, студент вставляет их в терминал и нажимает Enter. На Windows нужен PowerShell. ./hello вводится вручную.</p>
+  <p>После exit контейнер удаляется, образ и файлы остаются. Повторный вход — docker run. На Linux ARM нужна эмуляция. Реальная сборка образа здесь не проверялась.</p>
+</aside>
+</section>
+</main>
+<footer class="deck-footer">
+<div class="nav-controls"><button data-prev aria-label="Предыдущий слайд">←</button><span id="counter" aria-live="polite">01 / 26</span><button data-next aria-label="Следующий слайд">→</button></div>
+<span id="interaction-hint">← → слайды</span>
+<div class="deck-tools"><button data-fullscreen title="Полный экран (F)">Экран <kbd>F</kbd></button><button data-dialog="help" aria-label="Клавиши управления">?</button></div>
+</footer>
+<div class="progress-track" aria-hidden="true"><div id="progress"></div></div>
+</div>
+<dialog id="help" aria-labelledby="help-title"><div class="dialog-top"><h2 id="help-title">Управление</h2><button data-close aria-label="Закрыть">×</button></div><dl class="key-list"><dt>← → / Page Up, Down</dt><dd>Предыдущий / следующий слайд</dd><dt>Пробел / Shift + пробел</dt><dd>Вперёд / назад внутри демонстрации</dd><dt>R</dt><dd>Сбросить демонстрацию</dd><dt>F</dt><dd>Полный экран</dd><dt>Esc</dt><dd>Закрыть панель</dd></dl></dialog>
+<noscript>Для переключения слайдов и демонстраций включите JavaScript.</noscript>
+</body>
+</html>

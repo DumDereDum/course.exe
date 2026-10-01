@@ -1,0 +1,45 @@
+<!-- type: sequence -->
+<div class="tag">01 / системный вызов</div>
+<h2><code>syscall</code> передаёт запрос<br><span class="accent">ядру Linux.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Шаг 1 из 4 · Обычный код работает в пользовательском режиме с ограниченными правами.">
+      <div class="flow">
+        <div class="flow-node active">Программа<small>user mode</small></div><span class="flow-arrow">→</span>
+        <div class="flow-node">Регистры<small>запрос ещё не подготовлен</small></div><span class="flow-arrow">→</span>
+        <div class="flow-node">Ядро Linux<small>kernel mode</small></div>
+      </div>
+      <p class="lead">Программа считает сама, но процессами, файлами и устройствами управляет ядро.</p>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Шаг 2 из 4 · Программа помещает номер операции и аргументы в регистры.">
+      <div class="flow">
+        <div class="flow-node">Программа<small>готовит запрос</small></div><span class="flow-arrow">→</span>
+        <div class="flow-node active">Регистры<small>RAX = номер · RDI… = аргументы</small></div><span class="flow-arrow">→</span>
+        <div class="flow-node">Ядро Linux<small>ещё не выполняется</small></div>
+      </div>
+      <p class="lead">Регистры работают как короткая форма запроса к операционной системе.</p>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Шаг 3 из 4 · Инструкция syscall безопасно переключает процессор в код ядра.">
+      <div class="flow">
+        <div class="flow-node">Программа<small>user mode</small></div><span class="flow-arrow active">→</span>
+        <div class="flow-node active"><code>syscall</code><small>контролируемый переход</small></div><span class="flow-arrow active">→</span>
+        <div class="flow-node">Ядро Linux<small>проверяет запрос</small></div>
+      </div>
+      <p class="lead">Системный вызов — услуга ядра. <code>syscall</code> — инструкция входа в ядро.</p>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Шаг 4 из 4 · Ядро выбирает услугу по номеру, проверяет аргументы и выполняет операцию.">
+      <div class="flow">
+        <div class="flow-node">Программа<small>ждёт результат</small></div><span class="flow-arrow">←</span>
+        <div class="flow-node">Результат<small>обычно возвращается в RAX</small></div><span class="flow-arrow">←</span>
+        <div class="flow-node active">Ядро Linux<small>exit завершает процесс</small></div>
+      </div>
+      <p class="lead">Большинство вызовов возвращает результат. <code>exit</code> завершает процесс и назад не возвращается.</p>
+    </div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Модель:</b> user mode защищает систему от произвольного доступа программы к памяти ядра и устройствам. Syscall — предусмотренная архитектурой точка перехода, где ядро получает и проверяет запрос.</p>
+  <p><b>Развести термины:</b> системный вызов — операция вроде read, write или exit. syscall — конкретная инструкция x86-64, которая передаёт управление ядру.</p>
+  <p><b>Спросить:</b> почему нельзя завершить процесс обычной арифметической инструкцией? <b>Ответ:</b> жизненным циклом процессов управляет ОС; программа должна попросить ядро.</p>
+  <p><b>Граница:</b> кольца защиты, sysret и внутренний обработчик ядра здесь не разбираем.</p>
+</aside>

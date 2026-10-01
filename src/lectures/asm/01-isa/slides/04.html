@@ -1,0 +1,31 @@
+<!-- type: content -->
+<div class="tag">ISA · Instruction Set Architecture</div>
+<h2><span class="accent">CISC и RISC</span> — два подхода<br>к устройству набора команд.</h2>
+<div class="columns">
+  <div class="panel">
+    <div class="panel-label">CISC · x86-64</div>
+    <h3>Complex Instruction Set Computer</h3>
+    <p>Компьютер со сложным набором команд.</p>
+    <pre class="code"><code>; sum += *ptr
+add rax, [rdi]</code></pre>
+    <p>Одна инструкция читает память и выполняет сложение.</p>
+  </div>
+  <div class="panel">
+    <div class="panel-label">RISC · ARM64 и RISC-V</div>
+    <h3>Reduced Instruction Set Computer</h3>
+    <p>Компьютер с сокращённым набором команд.</p>
+    <pre class="code"><code>; ARM64
+ldr x2, [x0]
+add x1, x1, x2
+; RISC-V
+ld  t0, 0(a0)
+add a1, a1, t0</code></pre>
+    <p>Сначала загрузка из памяти, затем вычисление в регистрах.</p>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Сказать:</b> CISC и RISC описывают стиль ISA. x86-64 допускает инструкции с операндами в памяти. ARM64 и RISC-V следуют load/store-подходу: арифметика работает с регистрами, а память обслуживают отдельные команды.</p>
+  <p><b>Уточнить:</b> слово Reduced исторически означает упрощённые и регулярные форматы, а не обязательно маленький современный набор команд.</p>
+  <p><b>Спросить:</b> можно ли по одной строке x86 и двум строкам ARM заключить, что x86 быстрее? <b>Ответ:</b> нет. Важны микроархитектура, кэш, память, компилятор и конкретная программа.</p>
+  <p><b>Граница примера:</b> регистры в трёх фрагментах выбраны по-разному, но выражают одну операцию: прибавить к sum значение по адресу ptr.</p>
+</aside>

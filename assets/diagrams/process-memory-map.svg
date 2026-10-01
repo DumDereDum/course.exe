@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 470" role="img" aria-labelledby="title desc">
+  <title id="title">Для чего нужны области памяти процесса</title>
+  <desc id="desc">Пояснения слева расположены в том же порядке, что области справа: стек, свободные адреса, куча и образ программы. Каждая горизонтальная стрелка ведёт к центру соответствующей области.</desc>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10" fill="#89f9b0"/></marker></defs>
+  <g font-family="Inter, Arial, sans-serif">
+    <g fill="#0c1510" stroke="#40614b" stroke-width="2">
+      <rect x="24" y="42" width="720" height="92" rx="4"/>
+      <rect x="24" y="146" width="720" height="92" rx="4"/>
+      <rect x="24" y="250" width="720" height="92" rx="4"/>
+      <rect x="24" y="354" width="720" height="92" rx="4"/>
+    </g>
+    <g fill="#89f9b0" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="22">
+      <text x="48" y="76">СТЕК / ВРЕМЕННЫЕ ДАННЫЕ</text>
+      <text x="48" y="180">СВОБОДНЫЕ АДРЕСА / ЗАПАС ПРОСТРАНСТВА</text>
+      <text x="48" y="284">КУЧА / ПАМЯТЬ ПО ЗАПРОСУ</text>
+      <text x="48" y="388">ОБРАЗ ПРОГРАММЫ / КОД И ДАННЫЕ</text>
+    </g>
+    <g fill="#e4eee6" font-size="24">
+      <text x="48" y="111">Значения, которые нужны во время вызова функции.</text>
+      <text x="48" y="215">Адреса, для которых память ещё не выделена.</text>
+      <text x="48" y="319">Например, массив, для которого вызвали malloc.</text>
+      <text x="48" y="423">Команды, строки и переменные из файла программы.</text>
+    </g>
+    <g stroke="#89f9b0" stroke-width="2.5" fill="none" marker-end="url(#arrow)">
+      <path d="M744 88H980"/><path d="M744 192H980"/><path d="M744 296H980"/><path d="M744 400H980"/>
+    </g>
+    <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace">
+      <text x="1139" y="21" fill="#91a99a" font-size="18" text-anchor="middle">ВИРТУАЛЬНАЯ ПАМЯТЬ ПРОЦЕССА</text>
+      <g stroke="#40614b" stroke-width="2">
+        <rect x="980" y="36" width="318" height="104" fill="#102019"/>
+        <rect x="980" y="140" width="318" height="104" fill="#08100b" stroke-dasharray="8 7"/>
+        <rect x="980" y="244" width="318" height="104" fill="#102019"/>
+        <rect x="980" y="348" width="318" height="104" fill="#102019"/>
+      </g>
+      <g text-anchor="middle">
+        <text x="1139" y="83" fill="#89f9b0" font-size="28">СТЕК</text>
+        <text x="1139" y="113" fill="#91a99a" font-size="18">растёт вниз ↓</text>
+        <text x="1139" y="201" fill="#91a99a" font-size="24">СВОБОДНО</text>
+        <text x="1139" y="291" fill="#89f9b0" font-size="28">КУЧА</text>
+        <text x="1139" y="321" fill="#91a99a" font-size="18">может расти вверх ↑</text>
+        <text x="1139" y="395" fill="#89f9b0" font-size="24">ОБРАЗ ПРОГРАММЫ</text>
+        <text x="1139" y="425" fill="#91a99a" font-size="18">разберём на слайде 20</text>
+      </g>
+      <g fill="#91a99a" font-size="17" text-anchor="middle">
+        <text x="1350" y="57">выше</text><text x="1350" y="436">ниже</text>
+        <text x="1350" y="215" transform="rotate(-90 1350 215)">ЧИСЛОВЫЕ АДРЕСА</text>
+      </g>
+      <path d="M1320 394V90" fill="none" stroke="#40614b" stroke-width="2"/>
+    </g>
+  </g>
+</svg>

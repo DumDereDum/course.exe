@@ -1,0 +1,19 @@
+<!-- type: split -->
+<div class="tag">01 / команда mov</div>
+<h2><code>mov</code> <span class="accent">копирует значение.</span></h2>
+<div class="widget" data-widget="command-lab" data-regs="rax,rbx,rcx,rdx">
+  <div class="command-lab-layout">
+    <div class="command-lab-examples" data-command-examples>
+      <button class="command-example" data-command="mov rax, 17" data-before='{"rax":"0"}' data-after='{"rax":"17"}' data-prompt="Куда будет записано число 17?" data-explain="Константа 17 записана в RAX."><code>mov rax, 17</code><small>константа → регистр</small></button>
+      <button class="command-example" data-command="mov rbx, rax" data-before='{"rax":"17","rbx":"0"}' data-after='{"rbx":"17"}' data-prompt="Изменится ли RAX после копирования?" data-explain="RBX получил копию значения. RAX не изменился."><code>mov rbx, rax</code><small>регистр → регистр</small></button>
+      <button class="command-example" data-command="mov al, 0xAA" data-before='{"rax":"0x1122334455667788"}' data-after='{"rax":"0x11223344556677AA"}' data-prompt="Какая часть RAX изменится?" data-explain="Изменился только младший байт AL; остальные биты сохранены."><code>mov al, 0xAA</code><small>запись младшего байта</small></button>
+      <button class="command-example" data-command="mov eax, 1" data-before='{"rax":"0x1122334455667788"}' data-after='{"rax":"1"}' data-prompt="Что произойдёт с верхними 32 битами RAX?" data-explain="EAX получил 1, а верхние 32 бита RAX обнулились."><code>mov eax, 1</code><small>запись младших 32 бит</small></button>
+    </div>
+    <div class="command-lab-state" data-command-state></div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Формула:</b> в Intel-синтаксисе `mov назначение, источник`. Команда копирует значение и не связывает регистры.</p>
+  <p><b>Показ:</b> во втором примере после копирования мысленно заменить RAX — RBX останется равен 17. Затем закрепить части регистра примерами AL и EAX.</p>
+  <p><b>Спросить:</b> изменяет ли mov арифметические флаги? <b>Ответ:</b> нет.</p>
+</aside>

@@ -1,0 +1,11 @@
+<!-- type: split -->
+<div class="tag">03 / данные в памяти</div>
+<h2>Одно число.<br><span class="accent">Два порядка байтов.</span></h2>
+<div class="widget" data-widget="endian" data-value="0x12345678">
+  <div class="memory-readout"><span>32-битное число</span><b data-readout>0x12345678</b><span>адреса растут слева направо →</span></div>
+  <div class="memory-row" data-memory></div>
+  <div class="endian-switch"><button class="btn" data-mode="le">Little-endian · x86</button><button class="btn" data-mode="be">Big-endian</button></div>
+  <p class="widget-status" data-endian-caption aria-live="polite"></p>
+</div>
+<p class="takeaway">Меняется расположение байтов. Значение числа остаётся тем же,<br>если читать его с соответствующим порядком байтов.</p>
+<aside class="notes"><p>Начать с little-endian. Спросить: где окажется 78? Переключить кнопкой или пробелом. Уточнить: переключатель заново укладывает одно число в память, а не переинтерпретирует неизменные байты.</p><p>Дополнительный вопрос: какое число получим, если байты 78 56 34 12 прочитать как big-endian? Ответ: 0x78563412.</p></aside>

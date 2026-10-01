@@ -1,0 +1,61 @@
+<!-- type: sequence -->
+<div class="tag">01 / подготовка к практике · Windows / macOS / Linux</div>
+<h2>Одна среда<br><span class="accent">для всей группы.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Подготовка: установите Docker, скачайте два файла и откройте терминал в папке с ними.">
+      <div class="cards">
+        <div class="card"><h3>1 · Установить Docker</h3><p>Установите и запустите Docker Desktop. На Windows используйте Linux-контейнеры.</p><div class="resource-actions"><a href="https://docs.docker.com/desktop/setup/install/mac-install/" target="_blank" rel="noopener">Mac ↗</a><a href="https://docs.docker.com/desktop/setup/install/windows-install/" target="_blank" rel="noopener">Windows ↗</a><a href="https://docs.docker.com/engine/install/" target="_blank" rel="noopener">Linux ↗</a></div></div>
+        <div class="card"><h3>2 · Скачать файлы</h3><p>Положите оба файла в отдельную папку <code>asm-practice</code>. В Dockerfile уже описана установка NASM и компоновщика.</p><div class="stack"><a class="btn" href="@ASSETS@/examples/asm/Dockerfile" download="Dockerfile" data-download="#practice-dockerfile">Скачать Dockerfile</a><a class="btn" href="@ASSETS@/examples/asm/hello.asm" download="hello.asm" data-download="#practice-hello">Скачать hello.asm</a></div></div>
+        <div class="card"><h3>3 · Открыть терминал</h3><p>Откройте терминал в папке <code>asm-practice</code>: PowerShell на Windows, Terminal на Mac или терминал Linux.</p><p>Далее: нажмите ⧉, вставьте команду в терминал и нажмите Enter.</p></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Выполните на компьютере. Для первой сборки нужен интернет.">
+      <div class="panel-label">1 / Собрать образ · терминал компьютера · папка asm-practice</div>
+      <pre class="code command-wrap practice-build">docker build --platform linux/amd64 -t asm-course .</pre>
+      <div class="resource-actions"><button class="btn" data-copy=".practice-build"><span aria-hidden="true">⧉</span> Копировать</button><span class="copy-status" aria-live="polite"></span></div>
+      <p class="lead">Docker скачает Linux x86-64 и установит NASM и GNU ld.</p>
+      <p class="caption">Готовый образ <code>asm-course</code> сохраняется на компьютере. Этот шаг выполняется один раз.</p>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Команда для PowerShell и терминалов macOS/Linux. После неё вы внутри Linux.">
+      <div class="panel-label">2 / Открыть среду · терминал компьютера · та же папка</div>
+      <pre class="code command-wrap practice-open">docker run --rm -it --platform linux/amd64 -v "${PWD}:/work" -w /work asm-course</pre>
+      <div class="resource-actions"><button class="btn" data-copy=".practice-open"><span aria-hidden="true">⧉</span> Копировать</button><span class="copy-status" aria-live="polite"></span></div>
+      <p class="lead">Папка <code>asm-practice</code> доступна в Linux как <code>/work</code>.</p>
+      <p class="caption">Программы собираются и запускаются внутри Linux. Исходники и результаты сборки остаются в вашей папке.</p>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Скопируйте сборку; ./hello введите сами. Ожидаемый вывод: Hello.">
+      <div class="panel-label">3 / Собрать программу · теперь в терминале Linux</div>
+      <pre class="code command-wrap practice-assemble">nasm -f elf64 hello.asm -o hello.o
+ld -o hello hello.o</pre>
+      <div class="resource-actions"><button class="btn" data-copy=".practice-assemble"><span aria-hidden="true">⧉</span> Копировать</button><span class="copy-status" aria-live="polite"></span></div>
+      <p class="lead">Теперь введите сами: <code>./hello</code></p>
+      <p class="caption">Выход — <code>exit</code>. На следующем занятии повторите команду открытия среды.</p>
+    </div>
+  </div>
+</div>
+<template id="practice-dockerfile">FROM debian:bookworm-slim
+RUN apt-get update \
+    &amp;&amp; apt-get install -y --no-install-recommends nasm binutils \
+    &amp;&amp; rm -rf /var/lib/apt/lists/*
+WORKDIR /work
+CMD [&quot;bash&quot;]
+</template>
+<template id="practice-hello">global _start
+section .text
+_start:
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, message
+    mov rdx, 6
+    syscall
+    mov rax, 60
+    mov rdi, 0
+    syscall
+section .rodata
+message db &quot;Hello&quot;, 10
+</template>
+<aside class="notes">
+  <p>⧉ копирует команды, студент вставляет их в терминал и нажимает Enter. На Windows нужен PowerShell. ./hello вводится вручную.</p>
+  <p>После exit контейнер удаляется, образ и файлы остаются. Повторный вход — docker run. На Linux ARM нужна эмуляция. Реальная сборка образа здесь не проверялась.</p>
+</aside>

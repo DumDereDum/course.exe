@@ -1,0 +1,10 @@
+<!-- type: split -->
+<div class="tag">02 / управляемая демонстрация</div>
+<h2>Пять команд.<br><span class="accent">Всё состояние — перед нами.</span></h2>
+<div class="widget" data-widget="registers">
+  <div class="split">
+    <pre class="code program" data-program data-regs="rax,rbx,rcx,rdx"><span data-do='{"set":{"rax":"10"}}' data-explain="mov записывает 10 в rax. В шестнадцатеричной записи это 0A.">mov rax, 10</span><span data-do='{"set":{"rbx":"20"}}' data-explain="Теперь rbx = 20 (0x14). Значение rax осталось прежним.">mov rbx, 20</span><span data-do='{"add":{"rax":"rbx"}}' data-explain="add складывает 10 и 20. Результат 30 (0x1E) записан в rax; rbx не изменился.">add rax, rbx</span><span data-do='{"inc":"rcx"}' data-explain="inc увеличивает rcx на единицу: 0 → 1. Результат не нулевой, ZF = 0.">inc rcx</span><span data-do='{"xor":{"rdx":"rdx"}}' data-explain="xor регистра с самим собой даёт ноль. ZF = 1: результат последней операции нулевой.">xor rdx, rdx</span></pre>
+    <div class="registers" data-registers></div>
+  </div>
+</div>
+<aside class="notes"><p><b>Перед add:</b> спросить, изменится ли rbx. Выполнить шаг и сравнить. Подсвечиваются только изменившиеся регистры.</p><p><b>Перед xor:</b> спросить, изменится ли значение rdx. Оно уже равно нулю, зато изменится ZF. Модель показывает только четыре 64-битных регистра и ZF; это не эмулятор x86.</p><p>Shift + пробел возвращает предыдущий шаг. R сбрасывает пример. Стрелка вправо всегда переходит к следующему слайду.</p></aside>

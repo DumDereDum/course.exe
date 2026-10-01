@@ -1,0 +1,60 @@
+<!-- type: sequence -->
+<div class="tag">01 / первая программа</div>
+<h2>Из фрагмента —<br><span class="accent">в исполняемую программу.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Шаг 1 из 3 · Вычисление готово, но программа ещё не знает, откуда начать и как завершиться.">
+      <div class="columns">
+        <pre class="code"><code>mov rax, 17
+add rax, 25
+sub rax, 9</code></pre>
+        <div class="panel">
+          <div class="panel-label">Что уже происходит</div>
+          <p><code>RAX</code> меняется: 17 → 42 → 33.</p>
+          <p>Это работающий фрагмент инструкций, но ещё не самостоятельная программа.</p>
+        </div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Шаг 2 из 3 · Добавляем секцию с кодом и метку первой инструкции.">
+      <div class="columns">
+        <pre class="code"><code>global _start
+section .text
+_start:
+    mov rax, 17
+    add rax, 25
+    sub rax, 9</code></pre>
+        <div class="panel">
+          <div class="panel-label">Где начинается код</div>
+          <p><code>.text</code> содержит инструкции.</p>
+          <p><code>_start</code> — имя адреса, с которого начнётся выполнение.</p>
+        </div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Шаг 3 из 3 · Полная программа готова. Дальше разберём, что именно делает syscall.">
+      <div class="columns">
+        <pre class="code small"><code>global _start
+section .text
+_start:
+    mov rax, 17
+    add rax, 25
+    sub rax, 9
+    mov rdi, rax
+    mov rax, 60
+    syscall</code></pre>
+        <div class="panel">
+          <div class="panel-label">Как программа завершается</div>
+          <p><code>mov rdi, rax</code> передаёт результат 33 как аргумент <code>exit</code>.</p>
+          <p>После копирования <code>RAX = 60</code> выбирает системный вызов.</p>
+          <p>Сначала разберём переход в ядро, затем исполним программу построчно.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Шаг 1:</b> попросить вычислить RAX после каждой инструкции. Подчеркнуть: процессор умеет выполнить фрагмент, но загрузчику пока не сообщено, где вход.</p>
+  <p><b>Шаг 2:</b> global и section нужны ассемблеру и линковщику; `_start:` создаёт имя адреса. Эти строки не являются инструкциями процессора.</p>
+  <p><b>Шаг 3:</b> результат сначала лежит в рабочем RAX. Копируем его в RDI — первый аргумент системного вызова. Теперь RAX можно переиспользовать для номера exit, не потеряв статус 33.</p>
+  <p><b>Спросить:</b> какая строка печатает 33 в терминал? <b>Ответ:</b> никакая; программа только возвращает статус завершения. Посмотрим его после запуска через `$?`.</p>
+  <p><b>Управление:</b> пробел — следующий этап, Shift + пробел — предыдущий, R — исходный фрагмент.</p>
+</aside>

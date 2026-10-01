@@ -1,0 +1,12 @@
+<!-- type: external -->
+<div class="tag">01 / внешняя демонстрация</div>
+<h2>Сначала предскажем.<br><span class="accent">Потом проверим.</span></h2>
+<div class="columns">
+  <div class="stack"><div class="panel-label">Сохранённый вход</div><pre class="code copy-source">int answer(void) {
+    return 6 * 7;
+}</pre><div class="resource-actions"><button class="btn" data-copy=".copy-source">Скопировать код</button><span class="copy-status" aria-live="polite"></span></div></div>
+  <div class="resource-card"><span class="resource-label">Ожидаемое наблюдение</span><p class="lead">Компилятор может вычислить константное выражение до запуска программы.</p><pre class="code small">mov eax, 42
+ret</pre><a href="https://godbolt.org/" target="_blank" rel="noopener">Открыть Compiler Explorer ↗</a></div>
+</div>
+<p class="caption">Сохранённая иллюстрация x86-64. Для точного повтора закрепите версию компилятора и ссылку Share.</p>
+<aside class="notes"><p><b>Цель:</b> увидеть вычисление константного выражения.</p><p><b>До занятия:</b> в Compiler Explorer выбрать C, x86-64 GCC, -O2 -masm=intel. Проверить код, записать версию и заменить ссылку на подготовленную Share-ссылку.</p><p><b>Показ:</b> спросить, нужна ли инструкция умножения, затем сравнить код и результат. <b>Без сети:</b> разобрать сохранённую иллюстрацию. Ничего не писать с нуля.</p></aside>

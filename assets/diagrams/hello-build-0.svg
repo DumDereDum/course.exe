@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 450" role="img" aria-labelledby="title desc">
+<title id="title">От исходника до запуска — этап 1</title>
+<desc id="desc">Полный hello.asm: write выводит строку, затем exit(0) завершает процесс.</desc>
+<g font-family="ui-monospace, SFMono-Regular, Menlo, monospace">
+<rect x="24" y="4" width="260" height="72" fill="#153020" stroke="#89f9b0" stroke-width="2"/><text x="154" y="36" fill="#89f9b0" font-size="28" text-anchor="middle">hello.asm</text><text x="154" y="62" fill="#91a99a" font-size="18" text-anchor="middle">исходник</text>
+<text x="334" y="62" text-anchor="middle" fill="#89f9b0" font-size="32">→</text><text x="334" y="29" text-anchor="middle" fill="#91a99a" font-size="18">nasm</text>
+<rect x="385" y="4" width="260" height="72" fill="#0c1510" stroke="#40614b" stroke-width="2"/><text x="515" y="36" fill="#e4eee6" font-size="28" text-anchor="middle">hello.o</text><text x="515" y="62" fill="#91a99a" font-size="18" text-anchor="middle">объектный файл</text>
+<text x="695" y="62" text-anchor="middle" fill="#89f9b0" font-size="32">→</text><text x="695" y="29" text-anchor="middle" fill="#91a99a" font-size="18">ld</text>
+<rect x="746" y="4" width="260" height="72" fill="#0c1510" stroke="#40614b" stroke-width="2"/><text x="876" y="36" fill="#e4eee6" font-size="28" text-anchor="middle">hello</text><text x="876" y="62" fill="#91a99a" font-size="18" text-anchor="middle">исполняемый файл</text>
+<text x="1056" y="62" text-anchor="middle" fill="#89f9b0" font-size="32">→</text><text x="1056" y="29" text-anchor="middle" fill="#91a99a" font-size="18">запуск</text>
+<rect x="1107" y="4" width="260" height="72" fill="#0c1510" stroke="#40614b" stroke-width="2"/><text x="1237" y="36" fill="#e4eee6" font-size="28" text-anchor="middle">Hello</text><text x="1237" y="62" fill="#91a99a" font-size="18" text-anchor="middle">вывод в терминале</text>
+<text x="28" y="110" fill="#91a99a" font-size="20">hello.asm / НАЧАЛО И ВЫВОД</text>
+<text x="748" y="110" fill="#91a99a" font-size="20">ТОТ ЖЕ ФАЙЛ / ЗАВЕРШЕНИЕ И ДАННЫЕ</text>
+<rect x="24" y="124" width="640" height="304" fill="#0c1510" stroke="#40614b" stroke-width="2"/>
+<rect x="744" y="124" width="632" height="304" fill="#0c1510" stroke="#40614b" stroke-width="2"/>
+<text x="44" y="153" fill="#91a99a" font-size="18">01</text><text x="95" y="153" fill="#e4eee6" font-size="27" xml:space="preserve">global _start</text>
+<text x="44" y="188" fill="#91a99a" font-size="18">02</text><text x="95" y="188" fill="#e4eee6" font-size="27" xml:space="preserve">section .text</text>
+<text x="44" y="223" fill="#91a99a" font-size="18">03</text><text x="95" y="223" fill="#e4eee6" font-size="27" xml:space="preserve">_start:</text>
+<text x="44" y="258" fill="#91a99a" font-size="18">04</text><text x="95" y="258" fill="#89f9b0" font-size="27" xml:space="preserve">  mov rax, 1</text>
+<text x="44" y="293" fill="#91a99a" font-size="18">05</text><text x="95" y="293" fill="#89f9b0" font-size="27" xml:space="preserve">  mov rdi, 1</text>
+<text x="44" y="328" fill="#91a99a" font-size="18">06</text><text x="95" y="328" fill="#89f9b0" font-size="27" xml:space="preserve">  mov rsi, message</text>
+<text x="44" y="363" fill="#91a99a" font-size="18">07</text><text x="95" y="363" fill="#89f9b0" font-size="27" xml:space="preserve">  mov rdx, 6</text>
+<text x="44" y="398" fill="#91a99a" font-size="18">08</text><text x="95" y="398" fill="#89f9b0" font-size="27" xml:space="preserve">  syscall</text>
+<text x="764" y="153" fill="#91a99a" font-size="18">09</text><text x="815" y="153" fill="#89f9b0" font-size="27" xml:space="preserve">  mov rax, 60</text>
+<text x="764" y="188" fill="#91a99a" font-size="18">10</text><text x="815" y="188" fill="#89f9b0" font-size="27" xml:space="preserve">  mov rdi, 0</text>
+<text x="764" y="223" fill="#91a99a" font-size="18">11</text><text x="815" y="223" fill="#89f9b0" font-size="27" xml:space="preserve">  syscall</text>
+<text x="764" y="293" fill="#91a99a" font-size="18">12</text><text x="815" y="293" fill="#e4eee6" font-size="27" xml:space="preserve">section .rodata</text>
+<text x="764" y="328" fill="#91a99a" font-size="18">13</text><text x="815" y="328" fill="#e4eee6" font-size="27" xml:space="preserve">message db &quot;Hello&quot;, 10</text>
+<text x="772" y="390" fill="#91a99a" font-family="Inter, Arial, sans-serif" font-size="24">Первый syscall выводит. Второй завершает.</text>
+</g>
+</svg>

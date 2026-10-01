@@ -1,0 +1,20 @@
+{
+  "topics": [
+    {
+      "name": "assembler",
+      "description": "Ассемблер и архитектура компьютера",
+      "sections": ["asm"]
+    },
+    {
+      "name": "common",
+      "description": "Общие темы и инструменты",
+      "folders": [
+        {
+          "name": "git",
+          "description": "Контроль версий",
+          "sections": ["git"]
+        }
+      ]
+    }
+  ]
+}
