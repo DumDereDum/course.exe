@@ -1,0 +1,19 @@
+<!-- type: content -->
+<div class="tag">KVM / 03 · выполнение</div>
+<h2>vCPU получает время<br><span class="accent">на реальном процессоре.</span></h2>
+<div class="flow">
+  <div class="flow-node"><strong>vCPU гостя</strong><small>виден гостевой ОС</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>Поток QEMU</strong><small>один на vCPU</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>KVM_RUN</strong><small>вход в гостевой режим</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node active"><strong>Физический CPU</strong><small>выполняет код гостя</small></div>
+</div>
+<div class="panel"><div class="panel-label">Кто распределяет время</div><p>Linux планирует потоки QEMU вместе с остальными процессами хоста.</p></div>
+<p class="takeaway">vCPU — не отдельный чип: его код исполняется на общем физическом CPU.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> гостевая ОС считает, что у неё есть собственный процессор. В обычной конфигурации QEMU каждому vCPU соответствует поток хоста. Поток вызывает KVM_RUN, и гостевые инструкции выполняются физическим CPU с аппаратной поддержкой виртуализации. Планировщик Linux решает, когда поток получает время.</p>
+  <p><b>Пример:</b> если ВМ получила два vCPU, это не резервирует для неё два физических ядра: потоки конкурируют за время с другими задачами хоста.</p>
+  <p><b>Спросить:</b> сможет ли Linux на хосте выполнять другие процессы, пока работает ВМ? <b>Ответ:</b> да; он планирует потоки ВМ вместе с остальными.</p>
+</aside>

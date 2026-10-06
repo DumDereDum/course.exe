@@ -1,0 +1,17 @@
+<!-- type: content -->
+<div class="tag">KVM / 06 · WSL2</div>
+<h2>WSL2 даёт Linux-среду<br><span class="accent">внутри Windows.</span></h2>
+<div class="flow">
+  <div class="flow-node"><strong>Windows</strong><small>PowerShell: wsl --install</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>WSL2</strong><small>ВМ с ядром Linux</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node active"><strong>Дистрибутив</strong><small>терминал и команды Linux</small></div>
+</div>
+<div class="panel"><div class="panel-label">Проверка в PowerShell</div><p><code>wsl --list --verbose</code> — у нужного дистрибутива указано <code>VERSION 2</code>.</p></div>
+<p class="takeaway">WSL2 запускает ядро Linux в управляемой виртуальной машине.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> в PowerShell с правами администратора команда wsl --install включает нужные компоненты и устанавливает дистрибутив по умолчанию; может потребоваться перезагрузка. Дистрибутив открывает обычный Linux-терминал. Команда wsl --list --verbose в PowerShell показывает, какой дистрибутив использует WSL 2. В отличие от WSL 1, WSL 2 запускает настоящее ядро Linux в управляемой ВМ.</p>
+  <p><b>Спросить:</b> где выполняются Linux-команды после открытия дистрибутива? <b>Ответ:</b> в Linux-среде WSL2, работающей внутри Windows.</p>
+  <p><b>Граница:</b> показана типовая установка на поддерживаемой версии Windows; конкретные требования и возможные ошибки зависят от компьютера. На следующем слайде отдельно проверяется возможность запускать KVM внутри WSL2.</p>
+</aside>

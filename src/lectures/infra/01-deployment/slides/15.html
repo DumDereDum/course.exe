@@ -1,0 +1,27 @@
+<!-- type: content -->
+<div class="tag">DOCKER / 04 · namespaces</div>
+<h2>Один процесс —<br><span class="accent">разные представления.</span></h2>
+<div class="columns">
+  <div class="panel">
+    <div class="panel-label">Из Ubuntu в demo · PID условный</div>
+    <pre class="ascii">backend: PID 4280
+ps: процессы ВМ
+/: файлы гостя
+net: сеть ВМ</pre>
+  </div>
+  <div class="panel">
+    <div class="panel-label">Из контейнера backend</div>
+    <pre class="ascii">backend: PID 1
+ps: свои процессы
+/: корень образа + запись
+net: свои интерфейсы</pre>
+  </div>
+</div>
+<p class="takeaway">PID, mount и network namespaces меняют взгляд на один процесс и его окружение.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> процесс backend принадлежит дочернему PID namespace контейнера и виден также из родительского пространства имён Ubuntu. Поэтому хост может видеть процесс под своим PID, а контейнер — под PID 1. Из контейнера нельзя увидеть процессы родительского PID namespace. Число 4280 условное, его нельзя выдавать за результат реального запуска.</p>
+  <p><b>Файлы:</b> mount namespace отделяет набор монтирований. Docker готовит корень из слоёв образа и собственного слоя записи; bind mount может намеренно открыть каталог хоста внутри контейнера. Сеть: network namespace даёт отдельные интерфейсы и маршруты; при обычном bridge-подключении контейнер связывается с сетью ВМ через инфраструктуру Docker.</p>
+  <p><b>Граница схемы:</b> показан запуск без дополнительного init-процесса. Если использовать docker run --init, PID 1 внутри контейнера получит init, а backend станет его потомком. PID namespace, mount namespace и network namespace решают разные задачи; они не создают нового ядра Linux.</p>
+  <p><b>Спросить:</b> почему ps внутри контейнера и ps в Ubuntu показывают разные PID для backend? <b>Ответ:</b> они смотрят из разных PID namespaces.</p>
+  <p><b>Источники:</b> <a href="https://man7.org/linux/man-pages/man7/pid_namespaces.7.html" target="_blank" rel="noopener">PID namespaces</a>; <a href="https://man7.org/linux/man-pages/man7/mount_namespaces.7.html" target="_blank" rel="noopener">mount namespaces</a>; <a href="https://docs.docker.com/engine/network/drivers/bridge/" target="_blank" rel="noopener">сеть bridge</a>.</p>
+</aside>

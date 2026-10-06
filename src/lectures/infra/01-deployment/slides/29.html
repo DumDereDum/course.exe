@@ -1,0 +1,13 @@
+<!-- type: media -->
+<div class="tag">СЕТЬ / 04 · Docker</div>
+<h2>Снаружи виден <span class="accent">web</span>.<br>Внутри web находит <span class="accent">backend</span>.</h2>
+<figure class="media">
+  <img src="@ASSETS@/diagrams/docker-network-path.svg" alt="Клиент обращается к порту 80 виртуальной машины demo. Docker направляет запрос на порт 80 контейнера web. Web обращается к контейнеру backend по имени backend и порту 8000 внутри сети Compose. Порт backend наружу не опубликован.">
+  <figcaption>Один внешний вход · два сервиса в общей сети</figcaption>
+</figure>
+<aside class="notes">
+  <p><b>Сказать:</b> Docker Engine работает в ВМ demo, поэтому порт 80 опубликован на ВМ, а не непосредственно на KVM-хосте. Docker направляет входящий запрос к web:80. Web как прокси обращается к backend:8000 по имени сервиса через сеть Compose. Backend не имеет ports, поэтому внешний клиент не обращается к нему напрямую. Сама сеть не настраивает прокси: конфигурация web должна явно указывать backend:8000.</p>
+  <p><b>Спросить:</b> какой адрес web использует для backend и нужен ли backend опубликованный порт? <b>Ответ:</b> backend:8000; публикация не нужна, потому что оба сервиса в одной сети Compose.</p>
+  <p><b>Граница:</b> внешний путь от KVM-хоста до ВМ и проброс 8080 → 80 разбираются позже. Здесь показана сеть Docker внутри ВМ. Готового web/backend в стенде пока нет.</p>
+  <p><b>Источники:</b> <a href="https://docs.docker.com/compose/how-tos/networking/" target="_blank" rel="noopener">сеть Compose</a>; <a href="https://docs.docker.com/engine/network/port-publishing/" target="_blank" rel="noopener">публикация порта</a>.</p>
+</aside>

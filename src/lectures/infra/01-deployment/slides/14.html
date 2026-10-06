@@ -1,0 +1,22 @@
+<!-- type: content -->
+<div class="tag">DOCKER / 03 · запуск процесса</div>
+<h2><code>docker run</code> запускает <span class="accent">процесс Linux.</span></h2>
+<pre class="code"><code>docker run --name backend backend:v1</code></pre>
+<div class="flow">
+  <div class="flow-node"><strong>Docker CLI</strong><small>передаёт запрос</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>dockerd</strong><small>образ и параметры</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>containerd + runc</strong><small>создают и запускают</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node active"><strong>backend</strong><small>PID 1 в контейнере</small></div>
+</div>
+<div class="panel"><div class="panel-label">Перед запуском</div><p>Образ + слой записи; namespaces и cgroups; сеть Docker.</p></div>
+<p class="takeaway">Процесс выполняет ядро Ubuntu в ВМ demo; второго ядра нет.</p>
+<aside class="notes">
+  <p><b>Связь:</b> на слайде 13 образ был основой для нескольких контейнеров. Теперь проследить один запуск backend:v1 внутри ВМ demo, где установлен Docker Engine.</p>
+  <p><b>Сказать:</b> docker CLI обращается к API демона dockerd. Демон готовит образ и конфигурацию контейнера и передаёт управление жизненным циклом containerd. В обычной конфигурации containerd использует runc для создания и запуска процесса по спецификации OCI. Ядро гостевой Ubuntu предоставляет файловую систему, пространства имён, cgroups и выполнение инструкций. docker run совмещает создание контейнера и его запуск; когда главный процесс завершается, контейнер останавливается.</p>
+  <p><b>Граница схемы:</b> стрелки показывают роли компонентов, а не точное дерево процессов или последовательность системных вызовов. backend:v1 — условное имя будущего образа, реальный стенд ещё не готов. В нашем стенде Docker-хост — гостевая Ubuntu в ВМ demo, а не физический KVM-хост.</p>
+  <p><b>Спросить:</b> какое ядро выполняет backend? <b>Ответ:</b> ядро Ubuntu внутри ВМ demo.</p>
+  <p><b>Источники:</b> <a href="https://docs.docker.com/engine/" target="_blank" rel="noopener">Docker Engine</a>; <a href="https://docs.docker.com/engine/daemon/alternative-runtimes/" target="_blank" rel="noopener">containerd и runc</a>.</p>
+</aside>

@@ -1,0 +1,40 @@
+<!-- type: sequence -->
+<div class="tag">DOCKER / 09 · безопасность образа</div>
+<h2>Trivy проверяет образ <span class="accent">до запуска</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Сканируем уже собранный образ: Trivy ищет известные уязвимости в пакетах ОС и Python.">
+      <div class="columns">
+        <div><div class="panel-label">Команда · сохранённый пример</div><pre class="code small"><code>$ trivy image --scanners vuln \
+    demo-backend:1</code></pre></div>
+        <div class="panel"><div class="panel-label">Сокращённый учебный отчёт</div><pre class="ascii">Пакеты ОС       HIGH: 1
+Python-пакеты   CRITICAL: 1</pre><p>В полном отчёте смотрим пакет, установленную и исправленную версии.</p></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="По отчёту обновляем базовый образ или зависимость, затем пересобираем образ с новым тегом.">
+      <div class="columns">
+        <div><div class="panel-label">Команда · сохранённый пример</div><pre class="code"><code>$ docker build -t demo-backend:2 .</code></pre></div>
+        <div class="panel"><div class="panel-label">Перед сборкой изменены файлы</div><pre class="ascii">Dockerfile → базовый образ
+requirements.txt → пакеты
+новый образ → demo-backend:2</pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Повторный скан: при находках HIGH/CRITICAL код 1 останавливает проверку; в учебном примере находок нет.">
+      <div class="columns">
+        <div><div class="panel-label">Команда · сохранённый пример</div><pre class="code small"><code>$ trivy image --scanners vuln \
+    --severity HIGH,CRITICAL \
+    --exit-code 1 demo-backend:2</code></pre></div>
+        <div class="panel"><div class="panel-label">Сокращённый учебный отчёт</div><pre class="ascii">HIGH: 0   CRITICAL: 0
+код возврата: 0</pre><p>Проверка прошла по выбранному порогу.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="takeaway">Нашли уязвимость → обновили компоненты → пересобрали и проверили образ снова.</p>
+<aside class="notes">
+  <p><b>Сценарий:</b> это сохранённый учебный пример, не результат реального запуска Trivy. Перед каждым кадром спросить, что должно измениться. Пробел — дальше, Shift + пробел — назад, R — сброс.</p>
+  <p><b>Сказать:</b> Trivy сопоставляет найденные в образе пакеты ОС и Python с базами известных уязвимостей. --scanners vuln оставляет только поиск уязвимостей. В отчёте важны затронутый пакет, его версия, severity и наличие исправленной версии. После изменения FROM или requirements.txt нужно собрать новый образ и сканировать именно его. --severity оставляет выбранные уровни; --exit-code 1 позволяет сделать наличие таких находок причиной неуспеха проверки. Без этого флага находки сами по себе обычно не дают ненулевой код возврата.</p>
+  <p><b>Граница:</b> счётчики и нулевой результат в кадрах вымышлены; готового backend и Trivy в стенде пока нет. Результат зависит от образа и версии базы уязвимостей; для первого обновления базы нужен доступ к источнику данных. Отсутствие находок не доказывает безопасность приложения, а severity не равна доказанной эксплуатируемости.</p>
+  <p><b>Спросить:</b> достаточно ли исправить Dockerfile, чтобы Trivy проверил новый образ? <b>Ответ:</b> нет, образ надо пересобрать и повторно просканировать.</p>
+  <p><b>Источники:</b> <a href="https://trivy.dev/docs/latest/target/container_image/" target="_blank" rel="noopener">сканирование образов Trivy</a>; <a href="https://trivy.dev/docs/latest/references/configuration/cli/trivy_image/" target="_blank" rel="noopener">параметры trivy image</a>.</p>
+</aside>

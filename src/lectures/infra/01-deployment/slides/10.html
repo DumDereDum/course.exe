@@ -1,0 +1,32 @@
+<!-- type: content -->
+<div class="tag">ANSIBLE / 02 · запуск ВМ</div>
+<h2>Ansible задаёт параметры,<br><span class="accent">libvirt запускает ВМ.</span></h2>
+<div class="columns">
+  <div>
+    <div class="panel-label">create-vm.yml · создание demo</div>
+    <pre class="code"><code>- community.libvirt.virt_install:
+    name: demo
+    memory: 2048
+    vcpus: 2
+    disks: [{path: "{{ vm_disk }}"}]
+    import: true
+    cloud_init:
+      clouduser_ssh_key: "{{ key_file }}"</code></pre>
+  </div>
+  <div class="panel">
+    <div class="panel-label">Кто что делает</div>
+    <pre class="ascii">Ansible
+   │ virt_install
+   ▼
+libvirt
+   │ запускает
+   ▼
+QEMU + KVM ──→ demo</pre>
+    <p class="caption"><code>vm_disk</code> — диск ВМ; <code>key_file</code> — публичный SSH-ключ. Сеть — <code>default</code>.</p>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Сказать:</b> это следующая задача playbook create-vm.yml. Переменная vm_disk указывает на отдельный диск demo.img, созданный из готового cloud image. Параметр import означает загрузку уже установленной ОС, без установщика с ISO. В полной задаче дополнительно указана сеть networks: [{network: default}], которую нужно заранее активировать в libvirt. cloud_init передаёт путь к публичному ключу на хосте; cloud-init внутри Ubuntu добавит ключ для первого SSH-доступа. Задача Ansible обращается к libvirt через virt-install; libvirt запускает процесс QEMU, а тот использует KVM. По завершении playbook ВМ продолжает работать. Для этого модуля нужны virtinst, коллекция community.libvirt, привязки Python к libvirt и lxml.</p>
+  <p><b>Спросить:</b> кто выполняет инструкции гостевой Ubuntu после завершения playbook? <b>Ответ:</b> ВМ продолжает выполняться через QEMU и KVM; Ansible лишь создал и запустил её.</p>
+  <p><b>Источники:</b> <a href="https://docs.ansible.com/projects/ansible/latest/collections/community/libvirt/virt_install_module.html" target="_blank" rel="noopener">модуль virt_install</a>; <a href="https://ubuntu.com/docs/public-images/public-images-how-to/launch-with-libvirt/" target="_blank" rel="noopener">запуск cloud image</a>.</p>
+</aside>

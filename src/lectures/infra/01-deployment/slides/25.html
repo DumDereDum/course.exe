@@ -1,0 +1,53 @@
+<!-- type: sequence -->
+<div class="tag">DOCKER / 14 · проверка работы</div>
+<h2>Проверяем процесс, <span class="accent">логи и ответ</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Норма: оба контейнера запущены. ps ещё не доказывает, что приложение отвечает.">
+      <div class="columns">
+        <div><div class="panel-label">ВМ demo · сохранённый пример</div><pre class="code"><code>$ docker compose ps --all</code></pre></div>
+        <div class="panel"><div class="panel-label">Норма · сокращённый вывод</div><pre class="ascii">NAME             STATUS
+demo-web-1       Up 2 minutes
+demo-backend-1   Up 2 minutes</pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Запрос к API через web проверяет весь путь до backend. Маршрут нужно подготовить в стенде.">
+      <div class="columns">
+        <div><div class="panel-label">ВМ demo · сохранённый пример</div><pre class="code small"><code>$ curl -i http://localhost/api/health</code></pre></div>
+        <div class="panel"><div class="panel-label">Норма · ответ приложения</div><pre class="ascii">HTTP/1.1 200 OK
+{"status":"ok"}</pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Сбой: backend завершился с кодом 1. Ключ --all показывает и остановленные контейнеры.">
+      <div class="columns">
+        <div><div class="panel-label">ВМ demo · сохранённый пример</div><pre class="code"><code>$ docker compose ps --all</code></pre></div>
+        <div class="panel"><div class="panel-label">Сбой · сокращённый вывод</div><pre class="ascii">NAME             STATUS
+demo-web-1       Up 2 minutes
+demo-backend-1   Exited (1)</pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Лог backend указывает причину: в учебном app.py допущена синтаксическая ошибка.">
+      <div class="columns">
+        <div><div class="panel-label">ВМ demo · сохранённый пример</div><pre class="code small"><code>$ docker compose logs --tail=20 backend</code></pre></div>
+        <div class="panel"><div class="panel-label">Сбой · фрагмент лога</div><pre class="ascii">backend-1 | ...
+backend-1 | SyntaxError: invalid syntax</pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Другая ветка: оба контейнера работают, но ответ медленный. stats даёт подсказку о нагрузке.">
+      <div class="columns">
+        <div><div class="panel-label">ВМ demo · сохранённый пример</div><pre class="code small"><code>$ docker compose stats --no-stream</code></pre></div>
+        <div class="panel"><div class="panel-label">Медленно · сокращённый вывод</div><pre class="ascii">NAME             CPU %   MEM
+demo-web-1        0.2%   12MiB
+demo-backend-1     95%   480MiB</pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="takeaway"><code>ps --all</code> → <code>logs</code> → HTTP-запрос; при торможении — <code>stats</code>.</p>
+<aside class="notes">
+  <p><b>Сценарий:</b> кадры 1–2 — исправная работа; 3–4 — намеренно сломанный backend; 5 — отдельная ситуация медленного ответа. Все выводы сокращены и подготовлены, это не запущенный стенд. Пробел — дальше, Shift + пробел — назад, R — сброс.</p>
+  <p><b>Сказать:</b> ps --all показывает и остановленные контейнеры. Статус Up означает, что главный процесс работает; без healthcheck он не подтверждает готовность API. Сначала ищем отсутствующий или завершившийся сервис, затем читаем его logs. После исправления отправляем HTTP-запрос через web к API. stats --no-stream показывает один снимок CPU и памяти только работающих контейнеров; высокая загрузка — повод разбираться дальше, не готовый диагноз.</p>
+  <p><b>Граница:</b> /api/health и ответ 200 требуют реализации маршрута и прокси в web. SyntaxError моделирует ошибку в учебном app.py; вывод не получен из реального backend. После исправления кода образ надо пересобрать. Числа stats иллюстративные и не являются порогами нормы.</p>
+  <p><b>Спросить:</b> достаточно ли двух строк Up, чтобы объявить приложение исправным? <b>Ответ:</b> нет, нужен запрос к приложению; если настроен healthcheck, можно отдельно смотреть и его состояние.</p>
+  <p><b>Источники:</b> <a href="https://docs.docker.com/reference/cli/docker/compose/ps/" target="_blank" rel="noopener">ps</a>; <a href="https://docs.docker.com/reference/cli/docker/compose/logs/" target="_blank" rel="noopener">logs</a>; <a href="https://docs.docker.com/reference/cli/docker/compose/stats/" target="_blank" rel="noopener">stats</a>.</p>
+</aside>

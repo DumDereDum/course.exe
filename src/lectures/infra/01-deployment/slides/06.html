@@ -1,0 +1,19 @@
+<!-- type: content -->
+<div class="tag">KVM / 05 · установка ОС</div>
+<h2>ОС устанавливается<br><span class="accent">на виртуальный диск.</span></h2>
+<div class="flow">
+  <div class="flow-node"><strong>ISO-образ</strong><small>установочный носитель</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>ВМ</strong><small>загрузка с ISO</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>Установщик</strong><small>записывает систему</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node active"><strong>Диск ВМ</strong><small>файл на хосте</small></div>
+</div>
+<div class="panel"><div class="panel-label">После установки</div><p>ISO отключают. При следующем запуске ВМ загружается с виртуального диска.</p></div>
+<p class="takeaway">Установщик меняет диск ВМ, а не операционную систему Linux-хоста.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> QEMU подключает установочный ISO как виртуальный носитель и создаёт отдельный пустой виртуальный диск. ВМ загружается с ISO. Установщик внутри гостя размечает диск и записывает на него файлы ОС. В этом примере виртуальный диск хранится как файл на хосте. После установки ISO отключают и запускают ВМ уже с диска.</p>
+  <p><b>Спросить:</b> куда установщик записывает ОС? <b>Ответ:</b> на виртуальный диск ВМ; в нашем примере это файл на Linux-хосте.</p>
+  <p><b>Граница примера:</b> конкретный дистрибутив и формат диска здесь не заданы. Позже в практическом стенде используется cloud image — виртуальный диск с уже установленной ОС, поэтому шаг с ISO и установщиком пропускается.</p>
+</aside>

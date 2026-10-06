@@ -1,0 +1,28 @@
+<!-- type: content -->
+<div class="tag">DOCKER / 12 · Compose</div>
+<h2>Compose описывает запуск <span class="accent">нескольких сервисов</span></h2>
+<div class="columns">
+  <div>
+    <div class="panel-label">compose.yaml</div>
+    <pre class="code"><code>services:
+  web:
+    image: demo-web:1
+    ports: ["80:80"]
+  backend:
+    image: demo-backend:1</code></pre>
+  </div>
+  <div class="panel">
+    <div class="panel-label">После docker compose up -d</div>
+    <pre class="ascii">ВМ demo:80 → web:80
+web → backend:8000
+сеть: &lt;проект&gt;_default</pre>
+    <p>Оба сервиса входят в общую сеть; имя <code>backend</code> доступно из <code>web</code>.</p>
+  </div>
+</div>
+<p class="takeaway">Compose создаёт контейнеры и сеть из файла; наружу опубликован только <code>web</code>.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> Compose читает compose.yaml и создаёт сервисы как контейнеры одного проекта. Без явного networks он создаёт сеть default; сервисы находят друг друга по имени. ports публикует порт 80 web на порту 80 Ubuntu внутри ВМ demo. У backend нет ports: его порт 8000 доступен web в общей сети, если приложение слушает на этом порту.</p>
+  <p><b>Граница:</b> Compose не настраивает прокси автоматически: образ web должен содержать конфигурацию обращения к http://backend:8000. Имена образов учебные; готовых web и backend в стенде пока нет. -d запускает сервисы в фоне.</p>
+  <p><b>Спросить:</b> сможет ли клиент снаружи ВМ обратиться к backend:8000 напрямую? <b>Ответ:</b> нет, его порт не опубликован; клиент идёт через web при настроенном прокси и сетевом доступе к ВМ.</p>
+  <p><b>Источники:</b> <a href="https://docs.docker.com/compose/intro/compose-application-model/" target="_blank" rel="noopener">модель Compose</a>; <a href="https://docs.docker.com/compose/how-tos/networking/" target="_blank" rel="noopener">сеть Compose</a>.</p>
+</aside>

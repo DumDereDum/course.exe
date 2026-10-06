@@ -1,0 +1,28 @@
+<!-- type: sequence -->
+<div class="tag">DOCKER / 06 · слои образа</div>
+<h2>Слои образа и <span class="accent">запись контейнера.</span></h2>
+<div class="widget" data-widget="sequence"><div class="sequence-viewport">
+<div class="sequence-frame" data-frame data-caption="FROM выбирает основу; она может содержать несколько слоёв."><div class="columns"><div><div class="panel-label">Dockerfile + запуск</div><div class="program"><div class="program-line current"><code>▶ FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line"><code class="ghost">COPY app.py /app/</code></div><div class="program-line"><code class="ghost">$ docker run backend:v1 python /app/app.py</code></div></div></div><div class="panel"><div class="panel-label">Основа</div><pre class="ascii">[ базовые слои     ]</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="COPY добавляет requirements.txt."><div class="columns"><div><div class="panel-label">Dockerfile + запуск</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line current"><code>▶ COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line"><code class="ghost">COPY app.py /app/</code></div><div class="program-line"><code class="ghost">$ docker run backend:v1 python /app/app.py</code></div></div></div><div class="panel"><div class="panel-label">Файл зависимостей</div><pre class="ascii">[ requirements.txt ]
+[ базовые слои     ]</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="RUN устанавливает пакеты при сборке."><div class="columns"><div><div class="panel-label">Dockerfile + запуск</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line current"><code>▶ RUN pip install -r /app/requirements.txt</code></div><div class="program-line"><code class="ghost">COPY app.py /app/</code></div><div class="program-line"><code class="ghost">$ docker run backend:v1 python /app/app.py</code></div></div></div><div class="panel"><div class="panel-label">Пакеты</div><pre class="ascii">[ pip-пакеты       ]
+[ requirements.txt ]
+[ базовые слои     ]</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="COPY добавляет код приложения."><div class="columns"><div><div class="panel-label">Dockerfile + запуск</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line current"><code>▶ COPY app.py /app/</code></div><div class="program-line"><code class="ghost">$ docker run backend:v1 python /app/app.py</code></div></div></div><div class="panel"><div class="panel-label">Код</div><pre class="ascii">[ app.py           ]
+[ pip-пакеты       ]
+[ requirements.txt ]
+[ базовые слои     ]</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="docker run создаёт отдельный слой записи контейнера."><div class="columns"><div><div class="panel-label">Dockerfile + запуск</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line"><code class="ghost">COPY app.py /app/</code></div><div class="program-line current"><code>▶ $ docker run backend:v1 python /app/app.py</code></div></div></div><div class="panel"><div class="panel-label">Контейнер A</div><pre class="ascii">[ слой записи A    ]
+────────────────────
+[ app.py           ]
+[ pip-пакеты       ]
+[ requirements.txt ]
+[ базовые слои     ]</pre></div></div></div>
+</div></div>
+<p class="takeaway">Образ общий; запись каждого контейнера хранится отдельно.</p>
+<aside class="notes">
+<p><b>Сценарий:</b> каждый кадр — одна подсвеченная строка и одно изменение справа. Пробел — дальше, Shift + пробел — назад, R — сброс.</p>
+<p><b>Сказать:</b> COPY переносит файлы, RUN выполняется при сборке. Схема показывает логические изменения; реальное число слоёв зависит от сборщика. docker run добавляет слой записи поверх неизменного образа.</p>
+<p><b>Граница:</b> последняя строка — команда терминала. Образ backend:v1 предварительно собирают с этим тегом. Второй контейнер получит свой слой записи.</p>
+<p><b>Источник:</b> <a href="https://docs.docker.com/get-started/docker-concepts/building-images/understanding-image-layers/" target="_blank" rel="noopener">слои образа Docker</a>.</p>
+</aside>

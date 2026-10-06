@@ -1,0 +1,26 @@
+<!-- type: sequence -->
+<div class="tag">DOCKER / 08 · кеш сборки</div>
+<h2>Порядок COPY <span class="accent">сохраняет кеш.</span></h2>
+<div class="widget" data-widget="sequence"><div class="sequence-viewport">
+<div class="sequence-frame" data-frame data-caption="Первая сборка: выбираем базовый образ."><div class="columns"><div><div class="panel-label">Dockerfile · первая сборка</div><div class="program"><div class="program-line current"><code>▶ FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line"><code class="ghost">COPY app.py /app/</code></div></div></div><div class="panel"><div class="panel-label">Основа</div><pre class="ascii">[ Python         · база  ]</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="Первый COPY добавляет зависимости."><div class="columns"><div><div class="panel-label">Dockerfile · первая сборка</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line current"><code>▶ COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line"><code class="ghost">COPY app.py /app/</code></div></div></div><div class="panel"><div class="panel-label">Файл</div><pre class="ascii">[ requirements   · новое ]
+[ Python         · база  ]</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="RUN устанавливает пакеты."><div class="columns"><div><div class="panel-label">Dockerfile · первая сборка</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line current"><code>▶ RUN pip install -r /app/requirements.txt</code></div><div class="program-line"><code class="ghost">COPY app.py /app/</code></div></div></div><div class="panel"><div class="panel-label">Пакеты</div><pre class="ascii">[ pip-пакеты     · новое ]
+[ requirements   · новое ]
+[ Python         · база  ]</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="Второй COPY добавляет app.py."><div class="columns"><div><div class="panel-label">Dockerfile · первая сборка</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line current"><code>▶ COPY app.py /app/</code></div></div></div><div class="panel"><div class="panel-label">Первый образ</div><pre class="ascii">[ app.py         · новое ]
+[ pip-пакеты     · новое ]
+[ requirements   · новое ]
+[ Python         · база  ]</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="При изменении app.py повторяется только его COPY."><div class="columns"><div><div class="panel-label">Dockerfile · повторная сборка</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line current"><code>▶ COPY app.py /app/</code></div></div></div><div class="panel"><div class="panel-label">После изменения кода</div><pre class="ascii">[ app.py         · новое ]
+[ pip-пакеты     · кеш  ]
+[ requirements   · кеш  ]
+[ Python         · база  ]</pre></div></div></div>
+</div></div>
+<div class="panel"><div class="panel-label">Ещё один приём · multi-stage</div><p>Итоговый образ получает артефакт через <code>COPY --from=build</code>, без компилятора.</p></div>
+<aside class="notes">
+<p><b>Сценарий:</b> первые четыре кадра — первая сборка строка за строкой. Пятый — повторная сборка после изменения app.py.</p>
+<p><b>Сказать:</b> кеш учитывает инструкцию и её входы. Пока requirements.txt не менялся, его COPY и RUN с pip повторно используют результат. Если код скопировать до RUN, изменение кода заставит переустановить пакеты.</p>
+<p><b>Граница:</b> изменение requirements.txt пересоберёт этот COPY, RUN и следующие шаги. Multi-stage оставляет инструменты сборки в первом этапе и копирует в итоговый образ нужный артефакт.</p>
+<p><b>Источники:</b> <a href="https://docs.docker.com/build/cache/invalidation/" target="_blank" rel="noopener">кеш сборки</a>; <a href="https://docs.docker.com/build/building/multi-stage/" target="_blank" rel="noopener">multi-stage</a>.</p>
+</aside>

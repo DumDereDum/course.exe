@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 355" role="img" aria-labelledby="title desc">
+  <title id="title">Путь запроса в сети Docker</title>
+  <desc id="desc">Клиент подключается к опубликованному порту 80 виртуальной машины. Запрос идёт к контейнеру web, затем внутри сети Compose к backend по имени и порту 8000. Порт backend наружу не открыт.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0L10 5L0 10" fill="#89f9b0"/>
+    </marker>
+  </defs>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace">
+    <rect x="285" y="19" width="890" height="320" rx="8" fill="none" stroke="#40614b" stroke-width="2"/>
+    <rect x="552" y="65" width="582" height="230" rx="8" fill="none" stroke="#638a70" stroke-width="2" stroke-dasharray="9 8"/>
+    <g fill="#91a99a" font-size="20">
+      <text x="310" y="52">ВМ demo · Docker host</text>
+      <text x="580" y="99">сеть Compose</text>
+    </g>
+    <g fill="none" stroke="#89f9b0" stroke-width="3" marker-end="url(#arrow)">
+      <path d="M228 181H326"/>
+      <path d="M486 181H607"/>
+      <path d="M818 181H904"/>
+    </g>
+    <g fill="#0c1510" stroke="#40614b" stroke-width="2">
+      <rect x="20" y="132" width="208" height="98" rx="5"/>
+      <rect x="326" y="132" width="160" height="98" rx="5"/>
+      <rect x="607" y="132" width="211" height="98" rx="5"/>
+      <rect x="904" y="132" width="211" height="98" rx="5"/>
+    </g>
+    <g text-anchor="middle">
+      <g fill="#89f9b0" font-size="19">
+        <text x="124" y="158">СНАРУЖИ</text>
+        <text x="406" y="158">ПУБЛИКАЦИЯ</text>
+        <text x="712" y="158">КОНТЕЙНЕР</text>
+        <text x="1009" y="158">КОНТЕЙНЕР</text>
+      </g>
+      <g fill="#e4eee6" font-size="30">
+        <text x="124" y="197">клиент</text>
+        <text x="406" y="197">:80</text>
+        <text x="712" y="197">web:80</text>
+        <text x="1009" y="197" font-size="26">backend:8000</text>
+      </g>
+      <g fill="#91a99a" font-size="20">
+        <text x="712" y="265">ports: "80:80"</text>
+        <text x="1009" y="265">без ports</text>
+      </g>
+    </g>
+  </g>
+</svg>

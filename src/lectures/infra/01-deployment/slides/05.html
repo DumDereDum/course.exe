@@ -1,0 +1,19 @@
+<!-- type: content -->
+<div class="tag">KVM / 04 · виртуальный диск</div>
+<h2>Запрос к виртуальному диску<br><span class="accent">обрабатывается через Linux.</span></h2>
+<div class="flow">
+  <div class="flow-node"><strong>Гостевая ОС</strong><small>просит блок данных</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>QEMU</strong><small>виртуальное устройство</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>Linux</strong><small>чтение файла</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node active"><strong>Файл диска ВМ</strong><small>данные гостя</small></div>
+</div>
+<div class="panel"><div class="panel-label">Обратный путь</div><p>Данные возвращаются гостю, и его выполнение продолжается.</p></div>
+<p class="takeaway">Для гостя это диск; для хоста — файл или другое устройство хранения.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> гостевая ОС обращается к виртуальному диску через драйвер. В простом варианте KVM возвращает управление QEMU, QEMU обрабатывает запрос виртуального устройства и просит Linux прочитать данные из файла образа. Затем результат становится доступен гостю, при необходимости через виртуальное прерывание.</p>
+  <p><b>Спросить:</b> где физически лежат данные виртуального диска? <b>Ответ:</b> в хранилище хоста, например в файле образа ВМ.</p>
+  <p><b>Граница схемы:</b> это один типичный путь. Virtio и механизмы ускорения могут перенести часть работы в ядро; не каждый запрос обязательно полностью проходит через QEMU.</p>
+</aside>

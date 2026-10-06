@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KVM, Docker и Ansible · Лекция 01 — Саратовцев Артём</title>
+<meta name="description" content="Воспроизводимое развёртывание приложения">
+<link rel="stylesheet" href="../../assets/css/site.css">
+<link rel="stylesheet" href="../../assets/css/deck.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<script defer src="../../assets/js/widgets/sequence.js"></script>
+<script defer src="../../assets/js/widgets/registers.js"></script>
+<script defer src="../../assets/js/widgets/register-map.js"></script>
+<script defer src="../../assets/js/widgets/command-lab.js"></script>
+<script defer src="../../assets/js/widgets/syscall-explorer.js"></script>
+<script defer src="../../assets/js/widgets/endian.js"></script>
+<script defer src="../../assets/js/resources.js"></script>
+<script defer src="../../assets/js/deck.js"></script>
+</head>
+<body class="lecture">
+<div class="deck">
+<header class="deck-header"><a href="../../index.html" title="Вернуться к каталогу">↖ Сборник</a><span>KVM, Docker и Ansible · Лекция 01</span></header>
+<main class="stage" aria-label="Слайды лекции">
+<section class="slide slide--title active" id="s-01" aria-label="KVM, Docker и Ansible.">
+<div class="tag">common / infrastructure / 01</div>
+<h1>KVM, Docker<br><span class="accent">и Ansible.</span></h1>
+<p class="lead">Как воспроизводимо развернуть приложение?</p>
+<div class="title-line">Саратовцев Артём · ВШЭ НН</div>
+<span class="title-number" aria-hidden="true">01</span>
+<aside class="notes">
+  <p><b>Начало:</b> коротко назвать тему и вопрос занятия. Сегодня разбираем виртуальные машины, контейнеры, сети и автоматизацию настройки. Время: около 1 минуты.</p>
+  <p><b>Спросить:</b> с какими из этих инструментов уже работали? <b>Ответ:</b> открытый; оценить практический опыт группы и перейти к устройству виртуальной машины.</p>
+  <p><b>Сценарий:</b> после титула перейти к устройству виртуальной машины и ролям QEMU и KVM. Архитектуру полного стенда и задание лабораторной показать после разбора инструментов, в конце лекции. Реальный стенд пока не подготовлен.</p>
+</aside>
+</section>
+
+<section class="slide slide--media" id="s-02" aria-label="Гость видит свой компьютер. QEMU и KVM делят работу." inert aria-hidden="true">
+<div class="tag">KVM / 01 · роли</div>
+<h2>Гость видит свой компьютер.<br><span class="accent">QEMU и KVM делят работу.</span></h2>
+<figure class="media">
+  <img src="../../assets/diagrams/qemu-kvm-roles.svg" alt="Обычный код гостя выполняется через KVM. Запросы к виртуальным диску и сети обслуживает QEMU. QEMU создаёт ВМ и vCPU через KVM. Оба используют ресурсы Linux-хоста.">
+  <figcaption>Пути показаны по смыслу: запрос к QEMU обычно требует выхода из гостевого режима KVM.</figcaption>
+</figure>
+<p class="takeaway">Обычные инструкции → KVM; запуск ВМ → QEMU → KVM; диск и сеть → QEMU.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> QEMU — процесс Linux: он собирает модель машины, выделяет память и открывает файл диска. Через /dev/kvm QEMU создаёт ВМ и vCPU, а затем запускает выполнение. KVM — модуль ядра Linux. Он даёт обычным инструкциям гостя выполняться на физическом CPU с аппаратной виртуализацией.</p>
+  <p><b>Устройства:</b> когда гостю нужны диск или сеть, он обращается к виртуальному устройству. В типичном простом пути выполнение выходит из KVM в QEMU; QEMU обслуживает устройство с помощью файловой или сетевой подсистемы Linux. Некоторые операции ускоряются в ядре и не возвращаются в QEMU.</p>
+  <p><b>Спросить:</b> кто открывает файл виртуального диска, а кто выполняет обычные инструкции гостя? <b>Ответ:</b> QEMU открывает файл; KVM обеспечивает выполнение инструкций на физическом CPU.</p>
+  <p><b>Граница схемы:</b> стрелки показывают логические обязанности, а не каждый переход между режимами процессора. Гостевая ОС не вызывает QEMU как обычную библиотеку.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-03" aria-label="ВМ начинается с процесса QEMU, а затем загружает собственную ОС." inert aria-hidden="true">
+<div class="tag">KVM / 02 · запуск</div>
+<h2>ВМ начинается с процесса QEMU,<br><span class="accent">а затем загружает собственную ОС.</span></h2>
+<div class="flow">
+  <div class="flow-node"><strong>QEMU запущен</strong><small>процесс Linux</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>Ресурсы готовы</strong><small>память, диск, устройства</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>KVM создаёт ВМ</strong><small>/dev/kvm · vCPU</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node active"><strong>Гость загружается</strong><small>UEFI → загрузчик → ОС</small></div>
+</div>
+<p class="takeaway">QEMU подготавливает машину; гостевая ОС проходит обычные этапы загрузки.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> QEMU читает конфигурацию, выделяет память и открывает файл диска. Через /dev/kvm он просит ядро создать ВМ и виртуальные процессоры, связывает гостевую память с памятью своего процесса. После запуска vCPU выполняется прошивка BIOS/UEFI, затем загрузчик и ядро гостевой ОС.</p>
+  <p><b>Спросить:</b> что загружается раньше гостевой ОС? <b>Ответ:</b> виртуальная прошивка и загрузчик.</p>
+  <p><b>Граница схемы:</b> порядок некоторых операций подготовки зависит от конфигурации QEMU; здесь показаны смысловые этапы, а не трасса системных вызовов.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-04" aria-label="vCPU получает время на реальном процессоре." inert aria-hidden="true">
+<div class="tag">KVM / 03 · выполнение</div>
+<h2>vCPU получает время<br><span class="accent">на реальном процессоре.</span></h2>
+<div class="flow">
+  <div class="flow-node"><strong>vCPU гостя</strong><small>виден гостевой ОС</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>Поток QEMU</strong><small>один на vCPU</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>KVM_RUN</strong><small>вход в гостевой режим</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node active"><strong>Физический CPU</strong><small>выполняет код гостя</small></div>
+</div>
+<div class="panel"><div class="panel-label">Кто распределяет время</div><p>Linux планирует потоки QEMU вместе с остальными процессами хоста.</p></div>
+<p class="takeaway">vCPU — не отдельный чип: его код исполняется на общем физическом CPU.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> гостевая ОС считает, что у неё есть собственный процессор. В обычной конфигурации QEMU каждому vCPU соответствует поток хоста. Поток вызывает KVM_RUN, и гостевые инструкции выполняются физическим CPU с аппаратной поддержкой виртуализации. Планировщик Linux решает, когда поток получает время.</p>
+  <p><b>Пример:</b> если ВМ получила два vCPU, это не резервирует для неё два физических ядра: потоки конкурируют за время с другими задачами хоста.</p>
+  <p><b>Спросить:</b> сможет ли Linux на хосте выполнять другие процессы, пока работает ВМ? <b>Ответ:</b> да; он планирует потоки ВМ вместе с остальными.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-05" aria-label="Запрос к виртуальному диску обрабатывается через Linux." inert aria-hidden="true">
+<div class="tag">KVM / 04 · виртуальный диск</div>
+<h2>Запрос к виртуальному диску<br><span class="accent">обрабатывается через Linux.</span></h2>
+<div class="flow">
+  <div class="flow-node"><strong>Гостевая ОС</strong><small>просит блок данных</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>QEMU</strong><small>виртуальное устройство</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>Linux</strong><small>чтение файла</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node active"><strong>Файл диска ВМ</strong><small>данные гостя</small></div>
+</div>
+<div class="panel"><div class="panel-label">Обратный путь</div><p>Данные возвращаются гостю, и его выполнение продолжается.</p></div>
+<p class="takeaway">Для гостя это диск; для хоста — файл или другое устройство хранения.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> гостевая ОС обращается к виртуальному диску через драйвер. В простом варианте KVM возвращает управление QEMU, QEMU обрабатывает запрос виртуального устройства и просит Linux прочитать данные из файла образа. Затем результат становится доступен гостю, при необходимости через виртуальное прерывание.</p>
+  <p><b>Спросить:</b> где физически лежат данные виртуального диска? <b>Ответ:</b> в хранилище хоста, например в файле образа ВМ.</p>
+  <p><b>Граница схемы:</b> это один типичный путь. Virtio и механизмы ускорения могут перенести часть работы в ядро; не каждый запрос обязательно полностью проходит через QEMU.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-06" aria-label="ОС устанавливается на виртуальный диск." inert aria-hidden="true">
+<div class="tag">KVM / 05 · установка ОС</div>
+<h2>ОС устанавливается<br><span class="accent">на виртуальный диск.</span></h2>
+<div class="flow">
+  <div class="flow-node"><strong>ISO-образ</strong><small>установочный носитель</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>ВМ</strong><small>загрузка с ISO</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>Установщик</strong><small>записывает систему</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node active"><strong>Диск ВМ</strong><small>файл на хосте</small></div>
+</div>
+<div class="panel"><div class="panel-label">После установки</div><p>ISO отключают. При следующем запуске ВМ загружается с виртуального диска.</p></div>
+<p class="takeaway">Установщик меняет диск ВМ, а не операционную систему Linux-хоста.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> QEMU подключает установочный ISO как виртуальный носитель и создаёт отдельный пустой виртуальный диск. ВМ загружается с ISO. Установщик внутри гостя размечает диск и записывает на него файлы ОС. В этом примере виртуальный диск хранится как файл на хосте. После установки ISO отключают и запускают ВМ уже с диска.</p>
+  <p><b>Спросить:</b> куда установщик записывает ОС? <b>Ответ:</b> на виртуальный диск ВМ; в нашем примере это файл на Linux-хосте.</p>
+  <p><b>Граница примера:</b> конкретный дистрибутив и формат диска здесь не заданы. Позже в практическом стенде используется cloud image — виртуальный диск с уже установленной ОС, поэтому шаг с ISO и установщиком пропускается.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-07" aria-label="WSL2 даёт Linux-среду внутри Windows." inert aria-hidden="true">
+<div class="tag">KVM / 06 · WSL2</div>
+<h2>WSL2 даёт Linux-среду<br><span class="accent">внутри Windows.</span></h2>
+<div class="flow">
+  <div class="flow-node"><strong>Windows</strong><small>PowerShell: wsl --install</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>WSL2</strong><small>ВМ с ядром Linux</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node active"><strong>Дистрибутив</strong><small>терминал и команды Linux</small></div>
+</div>
+<div class="panel"><div class="panel-label">Проверка в PowerShell</div><p><code>wsl --list --verbose</code> — у нужного дистрибутива указано <code>VERSION 2</code>.</p></div>
+<p class="takeaway">WSL2 запускает ядро Linux в управляемой виртуальной машине.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> в PowerShell с правами администратора команда wsl --install включает нужные компоненты и устанавливает дистрибутив по умолчанию; может потребоваться перезагрузка. Дистрибутив открывает обычный Linux-терминал. Команда wsl --list --verbose в PowerShell показывает, какой дистрибутив использует WSL 2. В отличие от WSL 1, WSL 2 запускает настоящее ядро Linux в управляемой ВМ.</p>
+  <p><b>Спросить:</b> где выполняются Linux-команды после открытия дистрибутива? <b>Ответ:</b> в Linux-среде WSL2, работающей внутри Windows.</p>
+  <p><b>Граница:</b> показана типовая установка на поддерживаемой версии Windows; конкретные требования и возможные ошибки зависят от компьютера. На следующем слайде отдельно проверяется возможность запускать KVM внутри WSL2.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-08" aria-label="KVM в WSL2: вложенная ВМ." inert aria-hidden="true">
+<div class="tag">KVM / 07 · вложенная виртуализация</div>
+<h2>KVM в WSL2: <span class="accent">вложенная ВМ.</span></h2>
+<div class="flow">
+  <div class="flow-node"><strong>Windows</strong><small>виртуализация CPU</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>WSL2</strong><small>Linux-ядро в ВМ</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>QEMU + KVM</strong><small>внутри WSL2</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node active"><strong>Гостевая ВМ</strong><small>ещё один уровень</small></div>
+</div>
+<pre class="code"><code>sudo apt update
+sudo apt install qemu-system-x86
+ls -l /dev/kvm
+sudo qemu-system-x86_64 -accel kvm \
+  -m 512 -display none \
+  -monitor stdio</code></pre>
+<p class="caption">Ubuntu x86-64 внутри WSL2. В мониторе QEMU: <code>info kvm</code>, затем <code>quit</code>. Диск не подключён.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> WSL2 уже работает в виртуальной машине. Если Windows передаёт ей аппаратные возможности виртуализации, модуль KVM внутри Linux-ядра WSL2 может выполнять код ещё одной гостевой ВМ. QEMU запускается как процесс внутри дистрибутива и обращается к /dev/kvm.</p>
+  <p><b>Показ:</b> команды рассчитаны на Ubuntu x86-64 внутри WSL2. Установить QEMU, проверить наличие /dev/kvm, затем запустить пробную ВМ с явным ускорителем KVM. sudo использован только для этой короткой проверки, чтобы не зависеть от членства пользователя в группе kvm. Диск не подключён: гостевая ОС не загружается, но QEMU создаёт ВМ и запускает виртуальный CPU. В мониторе QEMU команда info kvm должна показать активный KVM; quit завершает процесс. Если ускоритель недоступен, QEMU выдаст ошибку вместо незаметного перехода на программную эмуляцию.</p>
+  <p><b>Граница проверки:</b> наличие /dev/kvm само по себе недостаточно. Параметр nestedVirtualization в .wslconfig влияет на доступность вложенной виртуализации, но её работоспособность зависит также от Windows, CPU, ядра WSL и политик компьютера. Реальный запуск на WSL2 здесь не выполнялся.</p>
+  <p><b>Спросить:</b> сколько уровней ВМ здесь показано? <b>Ответ:</b> два: среда WSL2 и гостевая ВМ, которую запускают QEMU и KVM внутри неё.</p>
+  <p><b>Переход:</b> после проверки KVM можно подключить к ВМ установочный ISO или готовый образ диска. Конкретная среда для практического стенда ещё не проверена.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-09" aria-label="Ansible готовит Linux-хост для ВМ." inert aria-hidden="true">
+<div class="tag">ANSIBLE / 01 · подготовка хоста</div>
+<h2>Ansible готовит<br><span class="accent">Linux-хост для ВМ.</span></h2>
+<div class="columns">
+  <div>
+    <div class="panel-label">create-vm.yml · KVM-хост</div>
+    <pre class="code"><code>- name: Пакеты для KVM
+  ansible.builtin.apt:
+    name:
+      - qemu-kvm
+      - libvirt-daemon-system
+      - virtinst
+    state: present
+    update_cache: true</code></pre>
+  </div>
+  <div class="panel">
+    <div class="panel-label">На Linux-хосте · demo: 2 vCPU, 2 ГБ</div>
+    <pre class="ascii">Ansible
+   ├─ apt → QEMU + libvirt
+   └─ get_url → cloud image
+                   │
+                   ▼
+                demo.img</pre>
+    <p class="caption">В образе уже установлена Ubuntu.</p>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Сказать:</b> пример рассчитан на Ubuntu-хост с доступным KVM, который проверяли ранее. Для простоты Ansible запускается на этом же хосте: inventory содержит группу kvm_host и строку localhost ansible_connection=local. Команда запуска — ansible-playbook -i inventory.ini create-vm.yml. В play с hosts: kvm_host и become: true задача apt устанавливает пакеты на экране. Следующие задачи получают готовый cloud image Ubuntu и создают из него отдельный диск demo.img, сохраняя существующий диск при повторном запуске. Для модуля создания ВМ дополнительно нужны коллекция community.libvirt, привязки Python к libvirt и lxml. На экране показан фрагмент playbook, а не готовый стенд.</p>
+  <p><b>Спросить:</b> где выполняется задача apt? <b>Ответ:</b> на Linux-хосте с KVM, ещё до запуска гостевой Ubuntu.</p>
+  <p><b>Источники:</b> <a href="https://ubuntu.com/server/docs/how-to/virtualisation/libvirt/" target="_blank" rel="noopener">пакеты libvirt в Ubuntu</a>; <a href="https://ubuntu.com/docs/public-images/public-images-how-to/launch-with-libvirt/" target="_blank" rel="noopener">cloud image и libvirt</a>.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-10" aria-label="Ansible задаёт параметры, libvirt запускает ВМ." inert aria-hidden="true">
+<div class="tag">ANSIBLE / 02 · запуск ВМ</div>
+<h2>Ansible задаёт параметры,<br><span class="accent">libvirt запускает ВМ.</span></h2>
+<div class="columns">
+  <div>
+    <div class="panel-label">create-vm.yml · создание demo</div>
+    <pre class="code"><code>- community.libvirt.virt_install:
+    name: demo
+    memory: 2048
+    vcpus: 2
+    disks: [{path: "{{ vm_disk }}"}]
+    import: true
+    cloud_init:
+      clouduser_ssh_key: "{{ key_file }}"</code></pre>
+  </div>
+  <div class="panel">
+    <div class="panel-label">Кто что делает</div>
+    <pre class="ascii">Ansible
+   │ virt_install
+   ▼
+libvirt
+   │ запускает
+   ▼
+QEMU + KVM ──→ demo</pre>
+    <p class="caption"><code>vm_disk</code> — диск ВМ; <code>key_file</code> — публичный SSH-ключ. Сеть — <code>default</code>.</p>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Сказать:</b> это следующая задача playbook create-vm.yml. Переменная vm_disk указывает на отдельный диск demo.img, созданный из готового cloud image. Параметр import означает загрузку уже установленной ОС, без установщика с ISO. В полной задаче дополнительно указана сеть networks: [{network: default}], которую нужно заранее активировать в libvirt. cloud_init передаёт путь к публичному ключу на хосте; cloud-init внутри Ubuntu добавит ключ для первого SSH-доступа. Задача Ansible обращается к libvirt через virt-install; libvirt запускает процесс QEMU, а тот использует KVM. По завершении playbook ВМ продолжает работать. Для этого модуля нужны virtinst, коллекция community.libvirt, привязки Python к libvirt и lxml.</p>
+  <p><b>Спросить:</b> кто выполняет инструкции гостевой Ubuntu после завершения playbook? <b>Ответ:</b> ВМ продолжает выполняться через QEMU и KVM; Ansible лишь создал и запустил её.</p>
+  <p><b>Источники:</b> <a href="https://docs.ansible.com/projects/ansible/latest/collections/community/libvirt/virt_install_module.html" target="_blank" rel="noopener">модуль virt_install</a>; <a href="https://ubuntu.com/docs/public-images/public-images-how-to/launch-with-libvirt/" target="_blank" rel="noopener">запуск cloud image</a>.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-11" aria-label="После запуска Ansible входит в Ubuntu по SSH." inert aria-hidden="true">
+<div class="tag">ANSIBLE / 03 · настройка гостя</div>
+<h2>После запуска Ansible<br><span class="accent">входит в Ubuntu по SSH.</span></h2>
+<div class="columns">
+  <div>
+    <div class="panel-label">configure-vm.yml · гостевая ОС</div>
+    <pre class="code"><code>- hosts: demo
+  become: true
+  tasks:
+    - name: Установить Nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present</code></pre>
+  </div>
+  <div class="panel">
+    <div class="panel-label">Новый адресат</div>
+    <pre class="ascii">Ansible
+   │ SSH
+   ▼
+Ubuntu в demo
+   │ apt
+   ▼
+Nginx</pre>
+    <p class="caption"><code>inventory.ini</code>: <code>demo ansible_host=192.168.122.100 ansible_user=ubuntu</code>. IP здесь — пример. Повторный запуск не ставит Nginx заново.</p>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Сказать:</b> после запуска ВМ узнаём её фактический IP-адрес в сети libvirt и записываем его в inventory; 192.168.122.100 на экране — только пример, DHCP может выдать другой адрес. Команда ansible-playbook -i inventory.ini configure-vm.yml запускает второй playbook. Ansible подключается к гостевой Ubuntu по SSH с ключом, переданным через cloud-init, и выполняет задачу apt уже внутри гостя. become: true даёт права для установки пакета. state: present описывает требуемое состояние: если Nginx уже установлен, повторный запуск не устанавливает его заново. Это подготовленный пример, реальный адрес и доступность SSH должны быть проверены на стенде.</p>
+  <p><b>Спросить:</b> на каком компьютере установится Nginx? <b>Ответ:</b> в гостевой Ubuntu внутри ВМ demo, потому что play обращается к хосту demo из inventory.</p>
+  <p><b>Источник:</b> <a href="https://docs.ansible.com/projects/ansible-core/devel/getting_started/get_started_playbook.html" target="_blank" rel="noopener">plays и задачи Ansible</a>.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-12" aria-label="Приложению нужен код и его окружение." inert aria-hidden="true">
+<div class="tag">DOCKER / 01 · окружение</div>
+<h2>Приложению нужен<br><span class="accent">код и его окружение.</span></h2>
+<div class="columns">
+  <div class="panel"><div class="panel-label">На ноутбуке · пример</div><p><code>backend</code> требует библиотеку v2. Она установлена — сервис запускается.</p></div>
+  <div class="panel"><div class="panel-label">В Ubuntu demo · пример</div><p>Исходники те же, но стоит библиотека v1. Запуск может закончиться ошибкой.</p></div>
+</div>
+<div class="panel"><div class="panel-label">Что фиксируем в образе</div><p>Среду выполнения, нужные библиотеки, файлы <code>backend</code> и команду запуска.</p></div>
+<p class="takeaway">Образ хранит окружение приложения; ядро Linux предоставляет хост.</p>
+<aside class="notes">
+  <p><b>Связь:</b> Ansible подготовил гостевую Ubuntu и установил Nginx. Теперь нужно запустить готовое приложение из web и backend. Копирования исходников недостаточно, если в госте нет нужного окружения.</p>
+  <p><b>Сказать:</b> версии библиотек на экране — иллюстрация, а не результат проверки реального стенда. Образ фиксирует файлы приложения, зависимости и команду запуска. Адреса и секреты конкретного развёртывания передадим отдельно при создании контейнера; ядро Linux в образ не входит. Это снижает различия сред, но не обещает работу на любой платформе.</p>
+  <p><b>Спросить:</b> что нужно перенести вместе с кодом, чтобы backend запустился? <b>Ответ:</b> нужное окружение: совместимую среду выполнения и зависимости.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-13" aria-label="Образ задаёт основу. Контейнер получает состояние." inert aria-hidden="true">
+<div class="tag">DOCKER / 02 · образ и контейнер</div>
+<h2>Образ задаёт основу.<br><span class="accent">Контейнер получает состояние.</span></h2>
+<div class="columns">
+  <div class="panel">
+    <div class="panel-label">Образ backend:v1</div>
+    <p>Слои только для чтения: среда выполнения, библиотеки и код.</p>
+    <p>В настройках — рабочий каталог и команда запуска.</p>
+  </div>
+  <div class="panel">
+    <div class="panel-label">Два контейнера из образа</div>
+    <pre class="ascii">backend:v1
+   ├──→ A: процесс + слой записи
+   └──→ B: процесс + слой записи</pre>
+    <p>Остановленный контейнер можно запустить снова.</p>
+  </div>
+</div>
+<p class="takeaway"><code>docker build</code> создаёт образ; <code>docker run</code> создаёт и запускает новый контейнер.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> образ — подготовленная основа: файлы и настройки запуска. Из одного образа можно создать несколько контейнеров. Их слои образа общие и доступны только для чтения, а изменения файлов каждый экземпляр пишет в свой слой. При запуске у каждого появляется свой главный процесс. Остановленный контейнер остаётся существовать до удаления.</p>
+  <p><b>Команды:</b> docker build создаёт образ; docker run создаёт и запускает новый контейнер. backend:v1 на схеме — условное имя будущего образа, а не уже подготовленный стенд.</p>
+  <p><b>Спросить:</b> если контейнер A создаст файл в своём слое, увидит ли его контейнер B? <b>Ответ:</b> нет, без общего тома или другого механизма обмена данными.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-14" aria-label="docker run запускает процесс Linux." inert aria-hidden="true">
+<div class="tag">DOCKER / 03 · запуск процесса</div>
+<h2><code>docker run</code> запускает <span class="accent">процесс Linux.</span></h2>
+<pre class="code"><code>docker run --name backend backend:v1</code></pre>
+<div class="flow">
+  <div class="flow-node"><strong>Docker CLI</strong><small>передаёт запрос</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>dockerd</strong><small>образ и параметры</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>containerd + runc</strong><small>создают и запускают</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node active"><strong>backend</strong><small>PID 1 в контейнере</small></div>
+</div>
+<div class="panel"><div class="panel-label">Перед запуском</div><p>Образ + слой записи; namespaces и cgroups; сеть Docker.</p></div>
+<p class="takeaway">Процесс выполняет ядро Ubuntu в ВМ demo; второго ядра нет.</p>
+<aside class="notes">
+  <p><b>Связь:</b> на слайде 13 образ был основой для нескольких контейнеров. Теперь проследить один запуск backend:v1 внутри ВМ demo, где установлен Docker Engine.</p>
+  <p><b>Сказать:</b> docker CLI обращается к API демона dockerd. Демон готовит образ и конфигурацию контейнера и передаёт управление жизненным циклом containerd. В обычной конфигурации containerd использует runc для создания и запуска процесса по спецификации OCI. Ядро гостевой Ubuntu предоставляет файловую систему, пространства имён, cgroups и выполнение инструкций. docker run совмещает создание контейнера и его запуск; когда главный процесс завершается, контейнер останавливается.</p>
+  <p><b>Граница схемы:</b> стрелки показывают роли компонентов, а не точное дерево процессов или последовательность системных вызовов. backend:v1 — условное имя будущего образа, реальный стенд ещё не готов. В нашем стенде Docker-хост — гостевая Ubuntu в ВМ demo, а не физический KVM-хост.</p>
+  <p><b>Спросить:</b> какое ядро выполняет backend? <b>Ответ:</b> ядро Ubuntu внутри ВМ demo.</p>
+  <p><b>Источники:</b> <a href="https://docs.docker.com/engine/" target="_blank" rel="noopener">Docker Engine</a>; <a href="https://docs.docker.com/engine/daemon/alternative-runtimes/" target="_blank" rel="noopener">containerd и runc</a>.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-15" aria-label="Один процесс — разные представления." inert aria-hidden="true">
+<div class="tag">DOCKER / 04 · namespaces</div>
+<h2>Один процесс —<br><span class="accent">разные представления.</span></h2>
+<div class="columns">
+  <div class="panel">
+    <div class="panel-label">Из Ubuntu в demo · PID условный</div>
+    <pre class="ascii">backend: PID 4280
+ps: процессы ВМ
+/: файлы гостя
+net: сеть ВМ</pre>
+  </div>
+  <div class="panel">
+    <div class="panel-label">Из контейнера backend</div>
+    <pre class="ascii">backend: PID 1
+ps: свои процессы
+/: корень образа + запись
+net: свои интерфейсы</pre>
+  </div>
+</div>
+<p class="takeaway">PID, mount и network namespaces меняют взгляд на один процесс и его окружение.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> процесс backend принадлежит дочернему PID namespace контейнера и виден также из родительского пространства имён Ubuntu. Поэтому хост может видеть процесс под своим PID, а контейнер — под PID 1. Из контейнера нельзя увидеть процессы родительского PID namespace. Число 4280 условное, его нельзя выдавать за результат реального запуска.</p>
+  <p><b>Файлы:</b> mount namespace отделяет набор монтирований. Docker готовит корень из слоёв образа и собственного слоя записи; bind mount может намеренно открыть каталог хоста внутри контейнера. Сеть: network namespace даёт отдельные интерфейсы и маршруты; при обычном bridge-подключении контейнер связывается с сетью ВМ через инфраструктуру Docker.</p>
+  <p><b>Граница схемы:</b> показан запуск без дополнительного init-процесса. Если использовать docker run --init, PID 1 внутри контейнера получит init, а backend станет его потомком. PID namespace, mount namespace и network namespace решают разные задачи; они не создают нового ядра Linux.</p>
+  <p><b>Спросить:</b> почему ps внутри контейнера и ps в Ubuntu показывают разные PID для backend? <b>Ответ:</b> они смотрят из разных PID namespaces.</p>
+  <p><b>Источники:</b> <a href="https://man7.org/linux/man-pages/man7/pid_namespaces.7.html" target="_blank" rel="noopener">PID namespaces</a>; <a href="https://man7.org/linux/man-pages/man7/mount_namespaces.7.html" target="_blank" rel="noopener">mount namespaces</a>; <a href="https://docs.docker.com/engine/network/drivers/bridge/" target="_blank" rel="noopener">сеть bridge</a>.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-16" aria-label="Ядро ограничивает ресурсы и действия." inert aria-hidden="true">
+<div class="tag">DOCKER / 05 · ограничения ядра</div>
+<h2>Ядро ограничивает <span class="accent">ресурсы и действия.</span></h2>
+<div class="panel">
+  <div class="panel-label">Один процесс · три механизма</div>
+  <pre class="ascii">backend
+  ├─ cgroups       → CPU, память, процессы
+  ├─ capabilities  → привилегированные действия
+  └─ seccomp       → системные вызовы</pre>
+</div>
+<div class="panel"><div class="panel-label">Пример лимитов</div><p><code>--memory=256m</code> · <code>--cpus=1</code> · <code>--pids-limit=64</code> — значения задают явно.</p></div>
+<p class="takeaway">Ограничения применяет ядро Ubuntu в ВМ demo, общее для контейнеров.</p>
+<aside class="notes">
+  <p><b>Связь:</b> namespaces на предыдущем слайде меняют видимые ресурсы. Здесь показать другие механизмы: сколько ресурсов процессу доступно и какие действия он может выполнять.</p>
+  <p><b>Сказать:</b> cgroups учитывают процессы и могут ограничить память, долю CPU и число процессов. Конкретные значения лимитов появляются после явной настройки; один только факт принадлежности контейнера cgroup не означает ограничение памяти в 256 МБ. Capabilities делят полномочия root на отдельные права, и Docker по умолчанию оставляет ограниченный набор. Seccomp фильтрует системные вызовы, через которые процесс обращается к ядру. Это параллельные механизмы, не три последовательных шага.</p>
+  <p><b>Граница модели:</b> контейнеры используют общее ядро Ubuntu в ВМ demo. Права, монтирования и режимы запуска меняют степень изоляции; например, --privileged существенно расширяет возможности контейнера. Значение --cpus=1 задаёт квоту CPU, а не закрепляет за контейнером отдельный физический процессор.</p>
+  <p><b>Спросить:</b> какой механизм ограничит память, а какой проверит допустимость системного вызова? <b>Ответ:</b> cgroups и seccomp соответственно.</p>
+  <p><b>Источники:</b> <a href="https://docs.kernel.org/admin-guide/cgroup-v2.html" target="_blank" rel="noopener">cgroup v2</a>; <a href="https://docs.docker.com/engine/security/" target="_blank" rel="noopener">безопасность Docker Engine</a>; <a href="https://docs.docker.com/engine/security/seccomp/" target="_blank" rel="noopener">seccomp в Docker</a>.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-17" aria-label="Слои образа и запись контейнера." inert aria-hidden="true">
+<div class="tag">DOCKER / 06 · слои образа</div>
+<h2>Слои образа и <span class="accent">запись контейнера.</span></h2>
+<div class="widget" data-widget="sequence"><div class="sequence-viewport">
+<div class="sequence-frame" data-frame data-caption="FROM выбирает основу; она может содержать несколько слоёв."><div class="columns"><div><div class="panel-label">Dockerfile + запуск</div><div class="program"><div class="program-line current"><code>▶ FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line"><code class="ghost">COPY app.py /app/</code></div><div class="program-line"><code class="ghost">$ docker run backend:v1 python /app/app.py</code></div></div></div><div class="panel"><div class="panel-label">Основа</div><pre class="ascii">[ базовые слои     ]</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="COPY добавляет requirements.txt."><div class="columns"><div><div class="panel-label">Dockerfile + запуск</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line current"><code>▶ COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line"><code class="ghost">COPY app.py /app/</code></div><div class="program-line"><code class="ghost">$ docker run backend:v1 python /app/app.py</code></div></div></div><div class="panel"><div class="panel-label">Файл зависимостей</div><pre class="ascii">[ requirements.txt ]
+[ базовые слои     ]</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="RUN устанавливает пакеты при сборке."><div class="columns"><div><div class="panel-label">Dockerfile + запуск</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line current"><code>▶ RUN pip install -r /app/requirements.txt</code></div><div class="program-line"><code class="ghost">COPY app.py /app/</code></div><div class="program-line"><code class="ghost">$ docker run backend:v1 python /app/app.py</code></div></div></div><div class="panel"><div class="panel-label">Пакеты</div><pre class="ascii">[ pip-пакеты       ]
+[ requirements.txt ]
+[ базовые слои     ]</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="COPY добавляет код приложения."><div class="columns"><div><div class="panel-label">Dockerfile + запуск</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line current"><code>▶ COPY app.py /app/</code></div><div class="program-line"><code class="ghost">$ docker run backend:v1 python /app/app.py</code></div></div></div><div class="panel"><div class="panel-label">Код</div><pre class="ascii">[ app.py           ]
+[ pip-пакеты       ]
+[ requirements.txt ]
+[ базовые слои     ]</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="docker run создаёт отдельный слой записи контейнера."><div class="columns"><div><div class="panel-label">Dockerfile + запуск</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line"><code class="ghost">COPY app.py /app/</code></div><div class="program-line current"><code>▶ $ docker run backend:v1 python /app/app.py</code></div></div></div><div class="panel"><div class="panel-label">Контейнер A</div><pre class="ascii">[ слой записи A    ]
+────────────────────
+[ app.py           ]
+[ pip-пакеты       ]
+[ requirements.txt ]
+[ базовые слои     ]</pre></div></div></div>
+</div></div>
+<p class="takeaway">Образ общий; запись каждого контейнера хранится отдельно.</p>
+<aside class="notes">
+<p><b>Сценарий:</b> каждый кадр — одна подсвеченная строка и одно изменение справа. Пробел — дальше, Shift + пробел — назад, R — сброс.</p>
+<p><b>Сказать:</b> COPY переносит файлы, RUN выполняется при сборке. Схема показывает логические изменения; реальное число слоёв зависит от сборщика. docker run добавляет слой записи поверх неизменного образа.</p>
+<p><b>Граница:</b> последняя строка — команда терминала. Образ backend:v1 предварительно собирают с этим тегом. Второй контейнер получит свой слой записи.</p>
+<p><b>Источник:</b> <a href="https://docs.docker.com/get-started/docker-concepts/building-images/understanding-image-layers/" target="_blank" rel="noopener">слои образа Docker</a>.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-18" aria-label="Dockerfile меняет образ шаг за шагом." inert aria-hidden="true">
+<div class="tag">DOCKER / 07 · Dockerfile</div>
+<h2>Dockerfile меняет образ<br><span class="accent">шаг за шагом.</span></h2>
+<div class="widget" data-widget="sequence"><div class="sequence-viewport">
+<div class="sequence-frame" data-frame data-caption="FROM выбирает базовый Python-образ."><div class="columns"><div><div class="panel-label">Dockerfile</div><div class="program"><div class="program-line current"><code>▶ FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line"><code class="ghost">COPY app.py /app/</code></div><div class="program-line"><code class="ghost">CMD [&quot;python&quot;, &quot;/app/app.py&quot;]</code></div></div></div><div class="panel"><div class="panel-label">Будущий контейнер</div><pre class="ascii">python:3.13-slim</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="COPY переносит файл из контекста сборки."><div class="columns"><div><div class="panel-label">Dockerfile</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line current"><code>▶ COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line"><code class="ghost">COPY app.py /app/</code></div><div class="program-line"><code class="ghost">CMD [&quot;python&quot;, &quot;/app/app.py&quot;]</code></div></div></div><div class="panel"><div class="panel-label">Файлы образа</div><pre class="ascii">python:3.13-slim
+/app/requirements.txt</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="RUN запускает pip при сборке."><div class="columns"><div><div class="panel-label">Dockerfile</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line current"><code>▶ RUN pip install -r /app/requirements.txt</code></div><div class="program-line"><code class="ghost">COPY app.py /app/</code></div><div class="program-line"><code class="ghost">CMD [&quot;python&quot;, &quot;/app/app.py&quot;]</code></div></div></div><div class="panel"><div class="panel-label">Файлы образа</div><pre class="ascii">python:3.13-slim
+/app/requirements.txt
+site-packages/  ← пакеты</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="Второй COPY добавляет код приложения."><div class="columns"><div><div class="panel-label">Dockerfile</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line current"><code>▶ COPY app.py /app/</code></div><div class="program-line"><code class="ghost">CMD [&quot;python&quot;, &quot;/app/app.py&quot;]</code></div></div></div><div class="panel"><div class="panel-label">Файлы образа</div><pre class="ascii">python:3.13-slim
+/app/requirements.txt
+/app/app.py
+site-packages/</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="CMD сохраняет команду запуска; приложение пока не работает."><div class="columns"><div><div class="panel-label">Dockerfile</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line"><code class="ghost">COPY app.py /app/</code></div><div class="program-line current"><code>▶ CMD [&quot;python&quot;, &quot;/app/app.py&quot;]</code></div></div></div><div class="panel"><div class="panel-label">Файлы + конфигурация</div><pre class="ascii">python:3.13-slim
+/app/requirements.txt
+/app/app.py
+site-packages/
+CMD → python /app/app.py</pre></div></div></div>
+</div></div>
+<p class="takeaway"><code>RUN</code> исполняется при сборке; <code>CMD</code> — при запуске контейнера.</p>
+<aside class="notes">
+<p><b>Сценарий:</b> один кадр на одну инструкцию. Перед RUN спросить, когда работает pip; перед CMD — запустилось ли приложение.</p>
+<p><b>Сказать:</b> docker build читает Dockerfile и контекст. FROM выбирает основу, COPY переносит файлы, RUN сохраняет результат команды. CMD сохраняет команду в конфигурации образа; процесс появится после docker run.</p>
+<p><b>Граница:</b> site-packages — условное обозначение; реальный путь зависит от образа. Справа — состояние будущего контейнера, не работающий процесс.</p>
+<p><b>Источники:</b> <a href="https://docs.docker.com/reference/dockerfile/" target="_blank" rel="noopener">Dockerfile</a>; <a href="https://docs.docker.com/build/concepts/context/" target="_blank" rel="noopener">контекст сборки</a>.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-19" aria-label="Порядок COPY сохраняет кеш." inert aria-hidden="true">
+<div class="tag">DOCKER / 08 · кеш сборки</div>
+<h2>Порядок COPY <span class="accent">сохраняет кеш.</span></h2>
+<div class="widget" data-widget="sequence"><div class="sequence-viewport">
+<div class="sequence-frame" data-frame data-caption="Первая сборка: выбираем базовый образ."><div class="columns"><div><div class="panel-label">Dockerfile · первая сборка</div><div class="program"><div class="program-line current"><code>▶ FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line"><code class="ghost">COPY app.py /app/</code></div></div></div><div class="panel"><div class="panel-label">Основа</div><pre class="ascii">[ Python         · база  ]</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="Первый COPY добавляет зависимости."><div class="columns"><div><div class="panel-label">Dockerfile · первая сборка</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line current"><code>▶ COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line"><code class="ghost">COPY app.py /app/</code></div></div></div><div class="panel"><div class="panel-label">Файл</div><pre class="ascii">[ requirements   · новое ]
+[ Python         · база  ]</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="RUN устанавливает пакеты."><div class="columns"><div><div class="panel-label">Dockerfile · первая сборка</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line current"><code>▶ RUN pip install -r /app/requirements.txt</code></div><div class="program-line"><code class="ghost">COPY app.py /app/</code></div></div></div><div class="panel"><div class="panel-label">Пакеты</div><pre class="ascii">[ pip-пакеты     · новое ]
+[ requirements   · новое ]
+[ Python         · база  ]</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="Второй COPY добавляет app.py."><div class="columns"><div><div class="panel-label">Dockerfile · первая сборка</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line current"><code>▶ COPY app.py /app/</code></div></div></div><div class="panel"><div class="panel-label">Первый образ</div><pre class="ascii">[ app.py         · новое ]
+[ pip-пакеты     · новое ]
+[ requirements   · новое ]
+[ Python         · база  ]</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="При изменении app.py повторяется только его COPY."><div class="columns"><div><div class="panel-label">Dockerfile · повторная сборка</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line current"><code>▶ COPY app.py /app/</code></div></div></div><div class="panel"><div class="panel-label">После изменения кода</div><pre class="ascii">[ app.py         · новое ]
+[ pip-пакеты     · кеш  ]
+[ requirements   · кеш  ]
+[ Python         · база  ]</pre></div></div></div>
+</div></div>
+<div class="panel"><div class="panel-label">Ещё один приём · multi-stage</div><p>Итоговый образ получает артефакт через <code>COPY --from=build</code>, без компилятора.</p></div>
+<aside class="notes">
+<p><b>Сценарий:</b> первые четыре кадра — первая сборка строка за строкой. Пятый — повторная сборка после изменения app.py.</p>
+<p><b>Сказать:</b> кеш учитывает инструкцию и её входы. Пока requirements.txt не менялся, его COPY и RUN с pip повторно используют результат. Если код скопировать до RUN, изменение кода заставит переустановить пакеты.</p>
+<p><b>Граница:</b> изменение requirements.txt пересоберёт этот COPY, RUN и следующие шаги. Multi-stage оставляет инструменты сборки в первом этапе и копирует в итоговый образ нужный артефакт.</p>
+<p><b>Источники:</b> <a href="https://docs.docker.com/build/cache/invalidation/" target="_blank" rel="noopener">кеш сборки</a>; <a href="https://docs.docker.com/build/building/multi-stage/" target="_blank" rel="noopener">multi-stage</a>.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-20" aria-label="Trivy проверяет образ до запуска" inert aria-hidden="true">
+<div class="tag">DOCKER / 09 · безопасность образа</div>
+<h2>Trivy проверяет образ <span class="accent">до запуска</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Сканируем уже собранный образ: Trivy ищет известные уязвимости в пакетах ОС и Python.">
+      <div class="columns">
+        <div><div class="panel-label">Команда · сохранённый пример</div><pre class="code small"><code>$ trivy image --scanners vuln \
+    demo-backend:1</code></pre></div>
+        <div class="panel"><div class="panel-label">Сокращённый учебный отчёт</div><pre class="ascii">Пакеты ОС       HIGH: 1
+Python-пакеты   CRITICAL: 1</pre><p>В полном отчёте смотрим пакет, установленную и исправленную версии.</p></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="По отчёту обновляем базовый образ или зависимость, затем пересобираем образ с новым тегом.">
+      <div class="columns">
+        <div><div class="panel-label">Команда · сохранённый пример</div><pre class="code"><code>$ docker build -t demo-backend:2 .</code></pre></div>
+        <div class="panel"><div class="panel-label">Перед сборкой изменены файлы</div><pre class="ascii">Dockerfile → базовый образ
+requirements.txt → пакеты
+новый образ → demo-backend:2</pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Повторный скан: при находках HIGH/CRITICAL код 1 останавливает проверку; в учебном примере находок нет.">
+      <div class="columns">
+        <div><div class="panel-label">Команда · сохранённый пример</div><pre class="code small"><code>$ trivy image --scanners vuln \
+    --severity HIGH,CRITICAL \
+    --exit-code 1 demo-backend:2</code></pre></div>
+        <div class="panel"><div class="panel-label">Сокращённый учебный отчёт</div><pre class="ascii">HIGH: 0   CRITICAL: 0
+код возврата: 0</pre><p>Проверка прошла по выбранному порогу.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="takeaway">Нашли уязвимость → обновили компоненты → пересобрали и проверили образ снова.</p>
+<aside class="notes">
+  <p><b>Сценарий:</b> это сохранённый учебный пример, не результат реального запуска Trivy. Перед каждым кадром спросить, что должно измениться. Пробел — дальше, Shift + пробел — назад, R — сброс.</p>
+  <p><b>Сказать:</b> Trivy сопоставляет найденные в образе пакеты ОС и Python с базами известных уязвимостей. --scanners vuln оставляет только поиск уязвимостей. В отчёте важны затронутый пакет, его версия, severity и наличие исправленной версии. После изменения FROM или requirements.txt нужно собрать новый образ и сканировать именно его. --severity оставляет выбранные уровни; --exit-code 1 позволяет сделать наличие таких находок причиной неуспеха проверки. Без этого флага находки сами по себе обычно не дают ненулевой код возврата.</p>
+  <p><b>Граница:</b> счётчики и нулевой результат в кадрах вымышлены; готового backend и Trivy в стенде пока нет. Результат зависит от образа и версии базы уязвимостей; для первого обновления базы нужен доступ к источнику данных. Отсутствие находок не доказывает безопасность приложения, а severity не равна доказанной эксплуатируемости.</p>
+  <p><b>Спросить:</b> достаточно ли исправить Dockerfile, чтобы Trivy проверил новый образ? <b>Ответ:</b> нет, образ надо пересобрать и повторно просканировать.</p>
+  <p><b>Источники:</b> <a href="https://trivy.dev/docs/latest/target/container_image/" target="_blank" rel="noopener">сканирование образов Trivy</a>; <a href="https://trivy.dev/docs/latest/references/configuration/cli/trivy_image/" target="_blank" rel="noopener">параметры trivy image</a>.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-23" aria-label="Compose описывает запуск нескольких сервисов" inert aria-hidden="true">
+<div class="tag">DOCKER / 12 · Compose</div>
+<h2>Compose описывает запуск <span class="accent">нескольких сервисов</span></h2>
+<div class="columns">
+  <div>
+    <div class="panel-label">compose.yaml</div>
+    <pre class="code"><code>services:
+  web:
+    image: demo-web:1
+    ports: ["80:80"]
+  backend:
+    image: demo-backend:1</code></pre>
+  </div>
+  <div class="panel">
+    <div class="panel-label">После docker compose up -d</div>
+    <pre class="ascii">ВМ demo:80 → web:80
+web → backend:8000
+сеть: &lt;проект&gt;_default</pre>
+    <p>Оба сервиса входят в общую сеть; имя <code>backend</code> доступно из <code>web</code>.</p>
+  </div>
+</div>
+<p class="takeaway">Compose создаёт контейнеры и сеть из файла; наружу опубликован только <code>web</code>.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> Compose читает compose.yaml и создаёт сервисы как контейнеры одного проекта. Без явного networks он создаёт сеть default; сервисы находят друг друга по имени. ports публикует порт 80 web на порту 80 Ubuntu внутри ВМ demo. У backend нет ports: его порт 8000 доступен web в общей сети, если приложение слушает на этом порту.</p>
+  <p><b>Граница:</b> Compose не настраивает прокси автоматически: образ web должен содержать конфигурацию обращения к http://backend:8000. Имена образов учебные; готовых web и backend в стенде пока нет. -d запускает сервисы в фоне.</p>
+  <p><b>Спросить:</b> сможет ли клиент снаружи ВМ обратиться к backend:8000 напрямую? <b>Ответ:</b> нет, его порт не опубликован; клиент идёт через web при настроенном прокси и сетевом доступе к ВМ.</p>
+  <p><b>Источники:</b> <a href="https://docs.docker.com/compose/intro/compose-application-model/" target="_blank" rel="noopener">модель Compose</a>; <a href="https://docs.docker.com/compose/how-tos/networking/" target="_blank" rel="noopener">сеть Compose</a>.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-24" aria-label="Имена сервисов и состояние проекта" inert aria-hidden="true">
+<div class="tag">DOCKER / 13 · управление Compose</div>
+<h2>Имена сервисов и <span class="accent">состояние проекта</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="up создаёт сеть и запускает контейнеры. Web обращается к backend по имени сервиса.">
+      <div class="columns">
+        <div><div class="panel-label">ВМ demo · сохранённый пример</div><pre class="code"><code>$ docker compose up -d</code></pre></div>
+        <div class="panel"><div class="panel-label">Состояние после команды</div><pre class="ascii">web       running
+backend   running
+web → backend:8000
+сеть: &lt;проект&gt;_default</pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="stop останавливает процессы, но оставляет контейнеры и сеть проекта.">
+      <div class="columns">
+        <div><div class="panel-label">ВМ demo · сохранённый пример</div><pre class="code"><code>$ docker compose stop</code></pre></div>
+        <div class="panel"><div class="panel-label">Состояние после команды</div><pre class="ascii">web       stopped
+backend   stopped
+контейнеры остаются
+сеть остаётся</pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="down удаляет контейнеры и сеть. Образы и именованные тома по умолчанию остаются.">
+      <div class="columns">
+        <div><div class="panel-label">ВМ demo · сохранённый пример</div><pre class="code"><code>$ docker compose down</code></pre></div>
+        <div class="panel"><div class="panel-label">Состояние после команды</div><pre class="ascii">контейнеров нет
+сети проекта нет
+образы остаются
+именованные тома остаются</pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="takeaway"><code>stop</code> сохраняет контейнеры; <code>down</code> удаляет их вместе с сетью.</p>
+<aside class="notes">
+  <p><b>Сценарий:</b> перед каждой командой спросить, что останется после неё. Это подготовленные состояния, команды на слайде не выполняются. Пробел — дальше, Shift + пробел — назад, R — сброс.</p>
+  <p><b>Сказать:</b> сервисы Compose в одной сети находят друг друга по имени. Адрес backend:8000 используется внутри web при настроенном прокси; IP контейнера может меняться. up -d запускает сервисы в фоне. stop не удаляет контейнеры, их записываемые слои и сеть: их можно снова запустить через compose start. down удаляет контейнеры с их записываемыми слоями и сеть, но по умолчанию сохраняет образы и именованные тома. down -v удалит и тома проекта.</p>
+  <p><b>Граница:</b> пример предполагает уже подготовленные образы demo-web:1 и demo-backend:1 из предыдущего слайда; реального стенда пока нет. Имя сети зависит от имени проекта.</p>
+  <p><b>Спросить:</b> после down новый контейнер web получит прежний записываемый слой? <b>Ответ:</b> нет; постоянные данные следует хранить в томе или внешнем хранилище.</p>
+  <p><b>Источники:</b> <a href="https://docs.docker.com/compose/how-tos/networking/" target="_blank" rel="noopener">сеть Compose</a>; <a href="https://docs.docker.com/reference/cli/docker/compose/stop/" target="_blank" rel="noopener">stop</a>; <a href="https://docs.docker.com/reference/cli/docker/compose/down/" target="_blank" rel="noopener">down</a>.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-25" aria-label="Проверяем процесс, логи и ответ" inert aria-hidden="true">
+<div class="tag">DOCKER / 14 · проверка работы</div>
+<h2>Проверяем процесс, <span class="accent">логи и ответ</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Норма: оба контейнера запущены. ps ещё не доказывает, что приложение отвечает.">
+      <div class="columns">
+        <div><div class="panel-label">ВМ demo · сохранённый пример</div><pre class="code"><code>$ docker compose ps --all</code></pre></div>
+        <div class="panel"><div class="panel-label">Норма · сокращённый вывод</div><pre class="ascii">NAME             STATUS
+demo-web-1       Up 2 minutes
+demo-backend-1   Up 2 minutes</pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Запрос к API через web проверяет весь путь до backend. Маршрут нужно подготовить в стенде.">
+      <div class="columns">
+        <div><div class="panel-label">ВМ demo · сохранённый пример</div><pre class="code small"><code>$ curl -i http://localhost/api/health</code></pre></div>
+        <div class="panel"><div class="panel-label">Норма · ответ приложения</div><pre class="ascii">HTTP/1.1 200 OK
+{"status":"ok"}</pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Сбой: backend завершился с кодом 1. Ключ --all показывает и остановленные контейнеры.">
+      <div class="columns">
+        <div><div class="panel-label">ВМ demo · сохранённый пример</div><pre class="code"><code>$ docker compose ps --all</code></pre></div>
+        <div class="panel"><div class="panel-label">Сбой · сокращённый вывод</div><pre class="ascii">NAME             STATUS
+demo-web-1       Up 2 minutes
+demo-backend-1   Exited (1)</pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Лог backend указывает причину: в учебном app.py допущена синтаксическая ошибка.">
+      <div class="columns">
+        <div><div class="panel-label">ВМ demo · сохранённый пример</div><pre class="code small"><code>$ docker compose logs --tail=20 backend</code></pre></div>
+        <div class="panel"><div class="panel-label">Сбой · фрагмент лога</div><pre class="ascii">backend-1 | ...
+backend-1 | SyntaxError: invalid syntax</pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Другая ветка: оба контейнера работают, но ответ медленный. stats даёт подсказку о нагрузке.">
+      <div class="columns">
+        <div><div class="panel-label">ВМ demo · сохранённый пример</div><pre class="code small"><code>$ docker compose stats --no-stream</code></pre></div>
+        <div class="panel"><div class="panel-label">Медленно · сокращённый вывод</div><pre class="ascii">NAME             CPU %   MEM
+demo-web-1        0.2%   12MiB
+demo-backend-1     95%   480MiB</pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="takeaway"><code>ps --all</code> → <code>logs</code> → HTTP-запрос; при торможении — <code>stats</code>.</p>
+<aside class="notes">
+  <p><b>Сценарий:</b> кадры 1–2 — исправная работа; 3–4 — намеренно сломанный backend; 5 — отдельная ситуация медленного ответа. Все выводы сокращены и подготовлены, это не запущенный стенд. Пробел — дальше, Shift + пробел — назад, R — сброс.</p>
+  <p><b>Сказать:</b> ps --all показывает и остановленные контейнеры. Статус Up означает, что главный процесс работает; без healthcheck он не подтверждает готовность API. Сначала ищем отсутствующий или завершившийся сервис, затем читаем его logs. После исправления отправляем HTTP-запрос через web к API. stats --no-stream показывает один снимок CPU и памяти только работающих контейнеров; высокая загрузка — повод разбираться дальше, не готовый диагноз.</p>
+  <p><b>Граница:</b> /api/health и ответ 200 требуют реализации маршрута и прокси в web. SyntaxError моделирует ошибку в учебном app.py; вывод не получен из реального backend. После исправления кода образ надо пересобрать. Числа stats иллюстративные и не являются порогами нормы.</p>
+  <p><b>Спросить:</b> достаточно ли двух строк Up, чтобы объявить приложение исправным? <b>Ответ:</b> нет, нужен запрос к приложению; если настроен healthcheck, можно отдельно смотреть и его состояние.</p>
+  <p><b>Источники:</b> <a href="https://docs.docker.com/reference/cli/docker/compose/ps/" target="_blank" rel="noopener">ps</a>; <a href="https://docs.docker.com/reference/cli/docker/compose/logs/" target="_blank" rel="noopener">logs</a>; <a href="https://docs.docker.com/reference/cli/docker/compose/stats/" target="_blank" rel="noopener">stats</a>.</p>
+</aside>
+</section>
+
+<section class="slide slide--media" id="s-29" aria-label="Снаружи виден web. Внутри web находит backend." inert aria-hidden="true">
+<div class="tag">СЕТЬ / 04 · Docker</div>
+<h2>Снаружи виден <span class="accent">web</span>.<br>Внутри web находит <span class="accent">backend</span>.</h2>
+<figure class="media">
+  <img src="../../assets/diagrams/docker-network-path.svg" alt="Клиент обращается к порту 80 виртуальной машины demo. Docker направляет запрос на порт 80 контейнера web. Web обращается к контейнеру backend по имени backend и порту 8000 внутри сети Compose. Порт backend наружу не опубликован.">
+  <figcaption>Один внешний вход · два сервиса в общей сети</figcaption>
+</figure>
+<aside class="notes">
+  <p><b>Сказать:</b> Docker Engine работает в ВМ demo, поэтому порт 80 опубликован на ВМ, а не непосредственно на KVM-хосте. Docker направляет входящий запрос к web:80. Web как прокси обращается к backend:8000 по имени сервиса через сеть Compose. Backend не имеет ports, поэтому внешний клиент не обращается к нему напрямую. Сама сеть не настраивает прокси: конфигурация web должна явно указывать backend:8000.</p>
+  <p><b>Спросить:</b> какой адрес web использует для backend и нужен ли backend опубликованный порт? <b>Ответ:</b> backend:8000; публикация не нужна, потому что оба сервиса в одной сети Compose.</p>
+  <p><b>Граница:</b> внешний путь от KVM-хоста до ВМ и проброс 8080 → 80 разбираются позже. Здесь показана сеть Docker внутри ВМ. Готового web/backend в стенде пока нет.</p>
+  <p><b>Источники:</b> <a href="https://docs.docker.com/compose/how-tos/networking/" target="_blank" rel="noopener">сеть Compose</a>; <a href="https://docs.docker.com/engine/network/port-publishing/" target="_blank" rel="noopener">публикация порта</a>.</p>
+</aside>
+</section>
+</main>
+<footer class="deck-footer">
+<div class="nav-controls"><button data-prev aria-label="Предыдущий слайд">←</button><span id="counter" aria-live="polite">01 / 24</span><button data-next aria-label="Следующий слайд">→</button></div>
+<span id="interaction-hint">← → слайды</span>
+<div class="deck-tools"><button data-fullscreen title="Полный экран (F)">Экран <kbd>F</kbd></button><button data-dialog="help" aria-label="Клавиши управления">?</button></div>
+</footer>
+<div class="progress-track" aria-hidden="true"><div id="progress"></div></div>
+</div>
+<dialog id="help" aria-labelledby="help-title"><div class="dialog-top"><h2 id="help-title">Управление</h2><button data-close aria-label="Закрыть">×</button></div><dl class="key-list"><dt>← → / Page Up, Down</dt><dd>Предыдущий / следующий слайд</dd><dt>Пробел / Shift + пробел</dt><dd>Вперёд / назад внутри демонстрации</dd><dt>R</dt><dd>Сбросить демонстрацию</dd><dt>F</dt><dd>Полный экран</dd><dt>Esc</dt><dd>Закрыть панель</dd></dl></dialog>
+<noscript>Для переключения слайдов и демонстраций включите JavaScript.</noscript>
+</body>
+</html>

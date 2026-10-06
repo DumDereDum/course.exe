@@ -1,0 +1,42 @@
+<!-- type: sequence -->
+<div class="tag">DOCKER / 13 · управление Compose</div>
+<h2>Имена сервисов и <span class="accent">состояние проекта</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="up создаёт сеть и запускает контейнеры. Web обращается к backend по имени сервиса.">
+      <div class="columns">
+        <div><div class="panel-label">ВМ demo · сохранённый пример</div><pre class="code"><code>$ docker compose up -d</code></pre></div>
+        <div class="panel"><div class="panel-label">Состояние после команды</div><pre class="ascii">web       running
+backend   running
+web → backend:8000
+сеть: &lt;проект&gt;_default</pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="stop останавливает процессы, но оставляет контейнеры и сеть проекта.">
+      <div class="columns">
+        <div><div class="panel-label">ВМ demo · сохранённый пример</div><pre class="code"><code>$ docker compose stop</code></pre></div>
+        <div class="panel"><div class="panel-label">Состояние после команды</div><pre class="ascii">web       stopped
+backend   stopped
+контейнеры остаются
+сеть остаётся</pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="down удаляет контейнеры и сеть. Образы и именованные тома по умолчанию остаются.">
+      <div class="columns">
+        <div><div class="panel-label">ВМ demo · сохранённый пример</div><pre class="code"><code>$ docker compose down</code></pre></div>
+        <div class="panel"><div class="panel-label">Состояние после команды</div><pre class="ascii">контейнеров нет
+сети проекта нет
+образы остаются
+именованные тома остаются</pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="takeaway"><code>stop</code> сохраняет контейнеры; <code>down</code> удаляет их вместе с сетью.</p>
+<aside class="notes">
+  <p><b>Сценарий:</b> перед каждой командой спросить, что останется после неё. Это подготовленные состояния, команды на слайде не выполняются. Пробел — дальше, Shift + пробел — назад, R — сброс.</p>
+  <p><b>Сказать:</b> сервисы Compose в одной сети находят друг друга по имени. Адрес backend:8000 используется внутри web при настроенном прокси; IP контейнера может меняться. up -d запускает сервисы в фоне. stop не удаляет контейнеры, их записываемые слои и сеть: их можно снова запустить через compose start. down удаляет контейнеры с их записываемыми слоями и сеть, но по умолчанию сохраняет образы и именованные тома. down -v удалит и тома проекта.</p>
+  <p><b>Граница:</b> пример предполагает уже подготовленные образы demo-web:1 и demo-backend:1 из предыдущего слайда; реального стенда пока нет. Имя сети зависит от имени проекта.</p>
+  <p><b>Спросить:</b> после down новый контейнер web получит прежний записываемый слой? <b>Ответ:</b> нет; постоянные данные следует хранить в томе или внешнем хранилище.</p>
+  <p><b>Источники:</b> <a href="https://docs.docker.com/compose/how-tos/networking/" target="_blank" rel="noopener">сеть Compose</a>; <a href="https://docs.docker.com/reference/cli/docker/compose/stop/" target="_blank" rel="noopener">stop</a>; <a href="https://docs.docker.com/reference/cli/docker/compose/down/" target="_blank" rel="noopener">down</a>.</p>
+</aside>

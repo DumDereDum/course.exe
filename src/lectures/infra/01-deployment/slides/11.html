@@ -1,0 +1,31 @@
+<!-- type: content -->
+<div class="tag">ANSIBLE / 03 · настройка гостя</div>
+<h2>После запуска Ansible<br><span class="accent">входит в Ubuntu по SSH.</span></h2>
+<div class="columns">
+  <div>
+    <div class="panel-label">configure-vm.yml · гостевая ОС</div>
+    <pre class="code"><code>- hosts: demo
+  become: true
+  tasks:
+    - name: Установить Nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present</code></pre>
+  </div>
+  <div class="panel">
+    <div class="panel-label">Новый адресат</div>
+    <pre class="ascii">Ansible
+   │ SSH
+   ▼
+Ubuntu в demo
+   │ apt
+   ▼
+Nginx</pre>
+    <p class="caption"><code>inventory.ini</code>: <code>demo ansible_host=192.168.122.100 ansible_user=ubuntu</code>. IP здесь — пример. Повторный запуск не ставит Nginx заново.</p>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Сказать:</b> после запуска ВМ узнаём её фактический IP-адрес в сети libvirt и записываем его в inventory; 192.168.122.100 на экране — только пример, DHCP может выдать другой адрес. Команда ansible-playbook -i inventory.ini configure-vm.yml запускает второй playbook. Ansible подключается к гостевой Ubuntu по SSH с ключом, переданным через cloud-init, и выполняет задачу apt уже внутри гостя. become: true даёт права для установки пакета. state: present описывает требуемое состояние: если Nginx уже установлен, повторный запуск не устанавливает его заново. Это подготовленный пример, реальный адрес и доступность SSH должны быть проверены на стенде.</p>
+  <p><b>Спросить:</b> на каком компьютере установится Nginx? <b>Ответ:</b> в гостевой Ubuntu внутри ВМ demo, потому что play обращается к хосту demo из inventory.</p>
+  <p><b>Источник:</b> <a href="https://docs.ansible.com/projects/ansible-core/devel/getting_started/get_started_playbook.html" target="_blank" rel="noopener">plays и задачи Ansible</a>.</p>
+</aside>

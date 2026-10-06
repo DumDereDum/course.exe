@@ -13,6 +13,11 @@
           "name": "git",
           "description": "Контроль версий",
           "sections": ["git"]
+        },
+        {
+          "name": "infrastructure",
+          "description": "Виртуальные машины, контейнеры и автоматизация",
+          "sections": ["infra"]
         }
       ]
     }

@@ -1,0 +1,27 @@
+<!-- type: sequence -->
+<div class="tag">DOCKER / 07 · Dockerfile</div>
+<h2>Dockerfile меняет образ<br><span class="accent">шаг за шагом.</span></h2>
+<div class="widget" data-widget="sequence"><div class="sequence-viewport">
+<div class="sequence-frame" data-frame data-caption="FROM выбирает базовый Python-образ."><div class="columns"><div><div class="panel-label">Dockerfile</div><div class="program"><div class="program-line current"><code>▶ FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line"><code class="ghost">COPY app.py /app/</code></div><div class="program-line"><code class="ghost">CMD [&quot;python&quot;, &quot;/app/app.py&quot;]</code></div></div></div><div class="panel"><div class="panel-label">Будущий контейнер</div><pre class="ascii">python:3.13-slim</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="COPY переносит файл из контекста сборки."><div class="columns"><div><div class="panel-label">Dockerfile</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line current"><code>▶ COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line"><code class="ghost">COPY app.py /app/</code></div><div class="program-line"><code class="ghost">CMD [&quot;python&quot;, &quot;/app/app.py&quot;]</code></div></div></div><div class="panel"><div class="panel-label">Файлы образа</div><pre class="ascii">python:3.13-slim
+/app/requirements.txt</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="RUN запускает pip при сборке."><div class="columns"><div><div class="panel-label">Dockerfile</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line current"><code>▶ RUN pip install -r /app/requirements.txt</code></div><div class="program-line"><code class="ghost">COPY app.py /app/</code></div><div class="program-line"><code class="ghost">CMD [&quot;python&quot;, &quot;/app/app.py&quot;]</code></div></div></div><div class="panel"><div class="panel-label">Файлы образа</div><pre class="ascii">python:3.13-slim
+/app/requirements.txt
+site-packages/  ← пакеты</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="Второй COPY добавляет код приложения."><div class="columns"><div><div class="panel-label">Dockerfile</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line current"><code>▶ COPY app.py /app/</code></div><div class="program-line"><code class="ghost">CMD [&quot;python&quot;, &quot;/app/app.py&quot;]</code></div></div></div><div class="panel"><div class="panel-label">Файлы образа</div><pre class="ascii">python:3.13-slim
+/app/requirements.txt
+/app/app.py
+site-packages/</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="CMD сохраняет команду запуска; приложение пока не работает."><div class="columns"><div><div class="panel-label">Dockerfile</div><div class="program"><div class="program-line"><code class="ghost">FROM python:3.13-slim</code></div><div class="program-line"><code class="ghost">COPY requirements.txt /app/</code></div><div class="program-line"><code class="ghost">RUN pip install -r /app/requirements.txt</code></div><div class="program-line"><code class="ghost">COPY app.py /app/</code></div><div class="program-line current"><code>▶ CMD [&quot;python&quot;, &quot;/app/app.py&quot;]</code></div></div></div><div class="panel"><div class="panel-label">Файлы + конфигурация</div><pre class="ascii">python:3.13-slim
+/app/requirements.txt
+/app/app.py
+site-packages/
+CMD → python /app/app.py</pre></div></div></div>
+</div></div>
+<p class="takeaway"><code>RUN</code> исполняется при сборке; <code>CMD</code> — при запуске контейнера.</p>
+<aside class="notes">
+<p><b>Сценарий:</b> один кадр на одну инструкцию. Перед RUN спросить, когда работает pip; перед CMD — запустилось ли приложение.</p>
+<p><b>Сказать:</b> docker build читает Dockerfile и контекст. FROM выбирает основу, COPY переносит файлы, RUN сохраняет результат команды. CMD сохраняет команду в конфигурации образа; процесс появится после docker run.</p>
+<p><b>Граница:</b> site-packages — условное обозначение; реальный путь зависит от образа. Справа — состояние будущего контейнера, не работающий процесс.</p>
+<p><b>Источники:</b> <a href="https://docs.docker.com/reference/dockerfile/" target="_blank" rel="noopener">Dockerfile</a>; <a href="https://docs.docker.com/build/concepts/context/" target="_blank" rel="noopener">контекст сборки</a>.</p>
+</aside>

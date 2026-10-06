@@ -1,0 +1,4 @@
+---
+collections:
+  - name: community.libvirt
+    version: "2.3.0"

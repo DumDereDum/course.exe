@@ -1,0 +1,18 @@
+<!-- type: content -->
+<div class="tag">KVM / 02 · запуск</div>
+<h2>ВМ начинается с процесса QEMU,<br><span class="accent">а затем загружает собственную ОС.</span></h2>
+<div class="flow">
+  <div class="flow-node"><strong>QEMU запущен</strong><small>процесс Linux</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>Ресурсы готовы</strong><small>память, диск, устройства</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>KVM создаёт ВМ</strong><small>/dev/kvm · vCPU</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node active"><strong>Гость загружается</strong><small>UEFI → загрузчик → ОС</small></div>
+</div>
+<p class="takeaway">QEMU подготавливает машину; гостевая ОС проходит обычные этапы загрузки.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> QEMU читает конфигурацию, выделяет память и открывает файл диска. Через /dev/kvm он просит ядро создать ВМ и виртуальные процессоры, связывает гостевую память с памятью своего процесса. После запуска vCPU выполняется прошивка BIOS/UEFI, затем загрузчик и ядро гостевой ОС.</p>
+  <p><b>Спросить:</b> что загружается раньше гостевой ОС? <b>Ответ:</b> виртуальная прошивка и загрузчик.</p>
+  <p><b>Граница схемы:</b> порядок некоторых операций подготовки зависит от конфигурации QEMU; здесь показаны смысловые этапы, а не трасса системных вызовов.</p>
+</aside>

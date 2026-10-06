@@ -1,0 +1,19 @@
+<!-- type: content -->
+<div class="tag">DOCKER / 05 · ограничения ядра</div>
+<h2>Ядро ограничивает <span class="accent">ресурсы и действия.</span></h2>
+<div class="panel">
+  <div class="panel-label">Один процесс · три механизма</div>
+  <pre class="ascii">backend
+  ├─ cgroups       → CPU, память, процессы
+  ├─ capabilities  → привилегированные действия
+  └─ seccomp       → системные вызовы</pre>
+</div>
+<div class="panel"><div class="panel-label">Пример лимитов</div><p><code>--memory=256m</code> · <code>--cpus=1</code> · <code>--pids-limit=64</code> — значения задают явно.</p></div>
+<p class="takeaway">Ограничения применяет ядро Ubuntu в ВМ demo, общее для контейнеров.</p>
+<aside class="notes">
+  <p><b>Связь:</b> namespaces на предыдущем слайде меняют видимые ресурсы. Здесь показать другие механизмы: сколько ресурсов процессу доступно и какие действия он может выполнять.</p>
+  <p><b>Сказать:</b> cgroups учитывают процессы и могут ограничить память, долю CPU и число процессов. Конкретные значения лимитов появляются после явной настройки; один только факт принадлежности контейнера cgroup не означает ограничение памяти в 256 МБ. Capabilities делят полномочия root на отдельные права, и Docker по умолчанию оставляет ограниченный набор. Seccomp фильтрует системные вызовы, через которые процесс обращается к ядру. Это параллельные механизмы, не три последовательных шага.</p>
+  <p><b>Граница модели:</b> контейнеры используют общее ядро Ubuntu в ВМ demo. Права, монтирования и режимы запуска меняют степень изоляции; например, --privileged существенно расширяет возможности контейнера. Значение --cpus=1 задаёт квоту CPU, а не закрепляет за контейнером отдельный физический процессор.</p>
+  <p><b>Спросить:</b> какой механизм ограничит память, а какой проверит допустимость системного вызова? <b>Ответ:</b> cgroups и seccomp соответственно.</p>
+  <p><b>Источники:</b> <a href="https://docs.kernel.org/admin-guide/cgroup-v2.html" target="_blank" rel="noopener">cgroup v2</a>; <a href="https://docs.docker.com/engine/security/" target="_blank" rel="noopener">безопасность Docker Engine</a>; <a href="https://docs.docker.com/engine/security/seccomp/" target="_blank" rel="noopener">seccomp в Docker</a>.</p>
+</aside>

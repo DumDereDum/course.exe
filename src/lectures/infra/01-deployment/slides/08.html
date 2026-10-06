@@ -1,0 +1,26 @@
+<!-- type: content -->
+<div class="tag">KVM / 07 · вложенная виртуализация</div>
+<h2>KVM в WSL2: <span class="accent">вложенная ВМ.</span></h2>
+<div class="flow">
+  <div class="flow-node"><strong>Windows</strong><small>виртуализация CPU</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>WSL2</strong><small>Linux-ядро в ВМ</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node"><strong>QEMU + KVM</strong><small>внутри WSL2</small></div>
+  <span class="flow-arrow" aria-hidden="true">→</span>
+  <div class="flow-node active"><strong>Гостевая ВМ</strong><small>ещё один уровень</small></div>
+</div>
+<pre class="code"><code>sudo apt update
+sudo apt install qemu-system-x86
+ls -l /dev/kvm
+sudo qemu-system-x86_64 -accel kvm \
+  -m 512 -display none \
+  -monitor stdio</code></pre>
+<p class="caption">Ubuntu x86-64 внутри WSL2. В мониторе QEMU: <code>info kvm</code>, затем <code>quit</code>. Диск не подключён.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> WSL2 уже работает в виртуальной машине. Если Windows передаёт ей аппаратные возможности виртуализации, модуль KVM внутри Linux-ядра WSL2 может выполнять код ещё одной гостевой ВМ. QEMU запускается как процесс внутри дистрибутива и обращается к /dev/kvm.</p>
+  <p><b>Показ:</b> команды рассчитаны на Ubuntu x86-64 внутри WSL2. Установить QEMU, проверить наличие /dev/kvm, затем запустить пробную ВМ с явным ускорителем KVM. sudo использован только для этой короткой проверки, чтобы не зависеть от членства пользователя в группе kvm. Диск не подключён: гостевая ОС не загружается, но QEMU создаёт ВМ и запускает виртуальный CPU. В мониторе QEMU команда info kvm должна показать активный KVM; quit завершает процесс. Если ускоритель недоступен, QEMU выдаст ошибку вместо незаметного перехода на программную эмуляцию.</p>
+  <p><b>Граница проверки:</b> наличие /dev/kvm само по себе недостаточно. Параметр nestedVirtualization в .wslconfig влияет на доступность вложенной виртуализации, но её работоспособность зависит также от Windows, CPU, ядра WSL и политик компьютера. Реальный запуск на WSL2 здесь не выполнялся.</p>
+  <p><b>Спросить:</b> сколько уровней ВМ здесь показано? <b>Ответ:</b> два: среда WSL2 и гостевая ВМ, которую запускают QEMU и KVM внутри неё.</p>
+  <p><b>Переход:</b> после проверки KVM можно подключить к ВМ установочный ISO или готовый образ диска. Конкретная среда для практического стенда ещё не проверена.</p>
+</aside>

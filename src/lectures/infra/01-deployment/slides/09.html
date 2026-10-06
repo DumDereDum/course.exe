@@ -1,0 +1,31 @@
+<!-- type: content -->
+<div class="tag">ANSIBLE / 01 · подготовка хоста</div>
+<h2>Ansible готовит<br><span class="accent">Linux-хост для ВМ.</span></h2>
+<div class="columns">
+  <div>
+    <div class="panel-label">create-vm.yml · KVM-хост</div>
+    <pre class="code"><code>- name: Пакеты для KVM
+  ansible.builtin.apt:
+    name:
+      - qemu-kvm
+      - libvirt-daemon-system
+      - virtinst
+    state: present
+    update_cache: true</code></pre>
+  </div>
+  <div class="panel">
+    <div class="panel-label">На Linux-хосте · demo: 2 vCPU, 2 ГБ</div>
+    <pre class="ascii">Ansible
+   ├─ apt → QEMU + libvirt
+   └─ get_url → cloud image
+                   │
+                   ▼
+                demo.img</pre>
+    <p class="caption">В образе уже установлена Ubuntu.</p>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Сказать:</b> пример рассчитан на Ubuntu-хост с доступным KVM, который проверяли ранее. Для простоты Ansible запускается на этом же хосте: inventory содержит группу kvm_host и строку localhost ansible_connection=local. Команда запуска — ansible-playbook -i inventory.ini create-vm.yml. В play с hosts: kvm_host и become: true задача apt устанавливает пакеты на экране. Следующие задачи получают готовый cloud image Ubuntu и создают из него отдельный диск demo.img, сохраняя существующий диск при повторном запуске. Для модуля создания ВМ дополнительно нужны коллекция community.libvirt, привязки Python к libvirt и lxml. На экране показан фрагмент playbook, а не готовый стенд.</p>
+  <p><b>Спросить:</b> где выполняется задача apt? <b>Ответ:</b> на Linux-хосте с KVM, ещё до запуска гостевой Ubuntu.</p>
+  <p><b>Источники:</b> <a href="https://ubuntu.com/server/docs/how-to/virtualisation/libvirt/" target="_blank" rel="noopener">пакеты libvirt в Ubuntu</a>; <a href="https://ubuntu.com/docs/public-images/public-images-how-to/launch-with-libvirt/" target="_blank" rel="noopener">cloud image и libvirt</a>.</p>
+</aside>

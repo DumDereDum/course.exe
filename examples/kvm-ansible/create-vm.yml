@@ -1,0 +1,138 @@
+---
+- name: Create one Ubuntu VM on the local KVM host
+  hosts: kvm_host
+  become: true
+  gather_facts: true
+
+  vars:
+    vm_name: demo
+    vm_memory_mib: 2048
+    vm_vcpus: 2
+    image_dir: /var/lib/libvirt/images
+    base_image_url: https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
+    base_image: "{{ image_dir }}/noble-server-cloudimg-amd64.img"
+    vm_disk: "{{ image_dir }}/{{ vm_name }}.qcow2"
+    ssh_public_key_file: "{{ lookup('env', 'HOME') }}/.ssh/kvm-demo.pub"
+
+  pre_tasks:
+    - name: Check the example runs on Ubuntu x86-64
+      ansible.builtin.assert:
+        that:
+          - ansible_facts['distribution'] == 'Ubuntu'
+          - ansible_facts['architecture'] == 'x86_64'
+        fail_msg: This example expects an Ubuntu x86-64 KVM host.
+
+    - name: Check the KVM device
+      ansible.builtin.stat:
+        path: /dev/kvm
+      register: kvm_device
+
+    - name: Stop when KVM is unavailable
+      ansible.builtin.assert:
+        that:
+          - kvm_device.stat.exists
+        fail_msg: /dev/kvm is missing. Enable CPU virtualization before running this example.
+
+    - name: Check the public SSH key
+      ansible.builtin.stat:
+        path: "{{ ssh_public_key_file }}"
+      register: ssh_public_key
+
+    - name: Stop when the SSH key is missing
+      ansible.builtin.assert:
+        that:
+          - ssh_public_key.stat.exists
+          - ssh_public_key.stat.isreg
+        fail_msg: Create ~/.ssh/kvm-demo.pub as described in README.md.
+
+  tasks:
+    - name: Install QEMU, libvirt and Ansible module requirements
+      ansible.builtin.apt:
+        name:
+          - qemu-kvm
+          - libvirt-daemon-system
+          - libvirt-clients
+          - virtinst
+          - dnsmasq-base
+          - python3-libvirt
+          - python3-lxml
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Start libvirt
+      ansible.builtin.service:
+        name: libvirtd
+        state: started
+        enabled: true
+
+    - name: Start the default libvirt network
+      community.libvirt.virt_net:
+        name: default
+        state: active
+
+    - name: Start the default network after host reboot
+      community.libvirt.virt_net:
+        name: default
+        autostart: true
+
+    - name: Download the Ubuntu 24.04 cloud image once
+      ansible.builtin.get_url:
+        url: "{{ base_image_url }}"
+        dest: "{{ base_image }}"
+        mode: "0644"
+        force: false
+
+    - name: Copy the image to a separate VM disk only once
+      ansible.builtin.command:
+        argv:
+          - cp
+          - "{{ base_image }}"
+          - "{{ vm_disk }}"
+        creates: "{{ vm_disk }}"
+
+    - name: Give QEMU access to the VM disk
+      ansible.builtin.file:
+        path: "{{ vm_disk }}"
+        state: file
+        owner: libvirt-qemu
+        group: kvm
+        mode: "0600"
+
+    - name: Define and create the VM
+      community.libvirt.virt_install:
+        name: "{{ vm_name }}"
+        uri: qemu:///system
+        state: present
+        virt_type: kvm
+        memory: "{{ vm_memory_mib }}"
+        vcpus: "{{ vm_vcpus }}"
+        osinfo:
+          name: generic
+        import: true
+        disks:
+          - path: "{{ vm_disk }}"
+            bus: virtio
+            format: qcow2
+        networks:
+          - network: default
+            model:
+              type: virtio
+        graphics:
+          type: none
+        cloud_init:
+          clouduser_ssh_key: "{{ ssh_public_key_file }}"
+          disable: true
+
+    - name: Keep the VM running on repeated playbook runs
+      community.libvirt.virt:
+        name: "{{ vm_name }}"
+        uri: qemu:///system
+        state: running
+
+    - name: Show the commands for the next live-demo step
+      ansible.builtin.debug:
+        msg:
+          - "sudo virsh -c qemu:///system list --all"
+          - "sudo virsh -c qemu:///system domifaddr {{ vm_name }} --source lease"
+          - "ssh -i ~/.ssh/kvm-demo ubuntu@<IP_FROM_PREVIOUS_COMMAND>"
