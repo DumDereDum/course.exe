@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 from string import Template
 from tools.content import read_slide, check_links
+from tools.byte_hints import inline_byte_diagrams
 
 ROOT = Path(__file__).resolve().parent
 SRC = ROOT / 'src' / 'lectures'
@@ -39,9 +40,20 @@ def render_lecture(lecture):
         active = ' active' if i == 0 else ''
         inert = '' if i == 0 else ' inert aria-hidden="true"'
         parts.append(f'<section class="slide slide--{slide["type"]}{active}" id="{slide["id"]}" aria-label="{esc(slide["title"], quote=True)}"{inert}>\n' +
-                     slide['body'].replace('@ASSETS@', '../../assets') + '\n</section>')
+                     inline_byte_diagrams(slide['body'], ROOT, slide['id']).replace('@ASSETS@', '../../assets') + '\n</section>')
     template = Template((ROOT / 'templates' / 'lecture.html').read_text(encoding='utf-8'))
-    return template.substitute(title=esc(lecture['title']), subtitle=esc(lecture['subtitle'], quote=True),
+    byte_hint_assets = ''
+    if any('data-byte-hints' in slide['body'] for slide in lecture['slides']):
+        byte_hint_assets = '<link rel="stylesheet" href="../../assets/css/byte-hints.css">\n<script defer src="../../assets/js/byte-hints.js"></script>\n'
+    conditional_jump_assets = ''
+    if any('conditional-jump' in slide.get('widgets', []) for slide in lecture['slides']):
+        conditional_jump_assets = '<link rel="stylesheet" href="../../assets/css/conditional-jump.css">\n<script defer src="../../assets/js/widgets/conditional-jump.js"></script>\n'
+    while_loop_assets = ''
+    if any('while-loop' in slide.get('widgets', []) for slide in lecture['slides']):
+        while_loop_assets = '<link rel="stylesheet" href="../../assets/css/while-loop.css">\n<script defer src="../../assets/js/widgets/while-loop.js"></script>\n'
+    return template.substitute(title=esc(lecture['title']), subtitle=esc(lecture['subtitle'], quote=True), byte_hint_assets=byte_hint_assets,
+                               conditional_jump_assets=conditional_jump_assets,
+                               while_loop_assets=while_loop_assets,
                                slides='\n\n'.join(parts), count=f'{len(parts):02}')
 
 

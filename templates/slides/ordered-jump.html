@@ -1,0 +1,13 @@
+<!-- type: split -->
+<div class="tag">02 / знаковое и беззнаковое сравнение</div>
+<h2>Один <code>cmp</code> —<br><span class="accent">разные условия перехода.</span></h2>
+<div class="widget" data-widget="conditional-jump" data-jump-kind="ordered">
+  <div class="jump-inputs">
+    <label>Переход <select data-jump-operation><option value="jl">jl · со знаком · SF ≠ OF</option><option value="jb">jb · без знака · CF = 1</option></select></label>
+    <span class="caption">EAX = FFFFFFFF · EBX = 00000001</span>
+  </div>
+  <div data-jump-diagram>
+    <img class="diagram" data-byte-hints src="@ASSETS@/diagrams/ordered-step-0.svg" alt="Одинаковый CMP с переходами JL и JB, байты, маршрут, RIP и флаги SF/OF/CF/ZF">
+  </div>
+</div>
+<aside class="notes"><p>Одинаковые данные и CMP, разные условия JL/JB. Контракт: docs/widgets/ordered-jump.md. Пробел — шаг, Shift + пробел — назад, R — сброс с выбранным переходом.</p></aside>

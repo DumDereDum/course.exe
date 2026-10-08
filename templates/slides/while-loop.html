@@ -1,0 +1,15 @@
+<!-- type: split -->
+<div class="tag">02 / while</div>
+<h2>Цикл возвращает выполнение <span class="accent">к проверке.</span></h2>
+<div class="widget" data-widget="while-loop">
+  <div class="loop-inputs">
+    <label>EAX · счётчик <input data-eax type="number" min="0" max="5" step="1" value="0" aria-label="Начальный счётчик в EAX, от 0 до 5"></label>
+    <label>EBX · граница <input data-ebx type="number" min="0" max="5" step="1" value="3" aria-label="Граница цикла в EBX, от 0 до 5"></label>
+    <span class="caption">0…5 · один шаг — одна инструкция</span>
+  </div>
+  <div data-loop-diagram>
+    <img class="diagram" data-byte-hints src="@ASSETS@/diagrams/while-step-0.svg" alt="Цикл WHILE на C и ассемблере. Проверка CMP, выход JGE, тело INC, возврат JMP; байты, RIP, счётчик, граница и флаги.">
+  </div>
+</div>
+<p class="takeaway">Перед каждой итерацией снова проверяем условие.</p>
+<aside class="notes"><p>WHILE: проверка, тело и возврат. Контракт: docs/widgets/while-loop.md. Показать 0/3 и 3/3. Пробел — шаг, Shift + пробел — назад, R — сброс.</p></aside>

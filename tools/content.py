@@ -62,7 +62,7 @@ class Fragment(HTMLParser):
                 self.errors.append('ошибка data-do: ожидается объект set/add/inc/xor/zf')
         if 'data-widget' in attrs:
             self.widgets.append(attrs['data-widget'])
-            if attrs['data-widget'] not in {'sequence', 'registers', 'endian', 'register-map', 'command-lab', 'syscall-explorer'}:
+            if attrs['data-widget'] not in {'sequence', 'registers', 'endian', 'register-map', 'command-lab', 'syscall-explorer', 'conditional-jump', 'while-loop'}:
                 self.errors.append(f"неизвестный виджет: {attrs['data-widget']}")
         if tag in {'h1', 'h2'}:
             self.in_heading, self.heading = True, ''
@@ -89,6 +89,7 @@ class Fragment(HTMLParser):
         if not self.widgets:
             return
         widget = self.widgets[0]
+        testing = self.markers.get('data-jump-kind') == ['test']
         required = {
             'sequence': ['data-frame'],
             'registers': ['data-program', 'data-registers'],
@@ -96,12 +97,30 @@ class Fragment(HTMLParser):
             'register-map': ['data-register-map'],
             'command-lab': ['data-command-examples', 'data-command-state', 'data-command', 'data-before', 'data-after'],
             'syscall-explorer': ['data-syscall-explorer'],
+            'conditional-jump': ['data-eax', 'data-ebx', 'data-jump-operation', 'data-jump-diagram', 'data-byte-hints'],
+            'while-loop': ['data-eax', 'data-ebx', 'data-loop-diagram', 'data-byte-hints'],
         }
+        if widget == 'conditional-jump' and testing:
+            required[widget] = ['data-eax', 'data-test-mode', 'data-jump-diagram', 'data-byte-hints']
+        if widget == 'conditional-jump' and self.markers.get('data-jump-kind') == ['ordered']:
+            required[widget] = ['data-jump-operation', 'data-jump-diagram', 'data-byte-hints']
+        if widget == 'conditional-jump' and self.markers.get('data-jump-kind') == ['max']:
+            required[widget] = ['data-eax', 'data-ebx', 'data-jump-diagram', 'data-byte-hints']
+        if widget == 'while-loop' and self.markers.get('data-loop-kind') in [['for'],['sum']]:
+            required[widget] = ['data-ebx', 'data-loop-diagram', 'data-byte-hints']
+        if widget == 'while-loop' and self.markers.get('data-loop-kind', ['while'])[0] not in {'while','for','sum'}:
+            self.errors.append('while-loop: data-loop-kind должен быть while, for или sum')
+        if widget == 'conditional-jump' and self.markers.get('data-jump-kind', ['cmp'])[0] not in {'cmp','test','ordered','max'}:
+            self.errors.append('conditional-jump: data-jump-kind должен быть cmp, test, ordered или max')
         for name in required.get(widget, []):
             if name not in self.markers:
                 self.errors.append(f'{widget}: отсутствует {name}')
         if widget == 'sequence' and not 2 <= len(self.markers.get('data-frame', [])) <= 5:
             self.errors.append('sequence: нужно от 2 до 5 кадров')
+        if widget in {'conditional-jump', 'while-loop'}:
+            for name in required[widget]:
+                if len(self.markers.get(name, [])) != 1:
+                    self.errors.append(f'{widget}: нужна ровно одна область {name}')
         if widget == 'register-map':
             if len(self.markers.get('data-register-map', [])) != 1:
                 self.errors.append('register-map: нужна ровно одна область data-register-map')
@@ -181,7 +200,7 @@ def read_slide(path: Path):
         raise ValueError(f'{path}: ' + '; '.join(parser.errors))
     return {'id': 's-' + path.stem, 'type': match[1], 'body': body,
             'title': parser.headings[0], 'links': parser.links, 'ids': parser.ids,
-            'interactive': bool(parser.widgets) or 'data-embed' in parser.markers}
+            'interactive': bool(parser.widgets) or 'data-embed' in parser.markers, 'widgets': parser.widgets}
 
 
 def check_links(slides, output, root):

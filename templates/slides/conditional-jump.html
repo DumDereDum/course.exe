@@ -1,0 +1,15 @@
+<!-- type: split -->
+<div class="tag">02 / условные переходы</div>
+<h2><code>je</code> и <code>jne</code> проверяют ZF<br><span class="accent">и выбирают следующий адрес.</span></h2>
+<div class="widget" data-widget="conditional-jump">
+  <div class="jump-inputs">
+    <label>EAX <input data-eax type="number" min="0" max="99" step="1" value="7"></label>
+    <label>EBX <input data-ebx type="number" min="0" max="99" step="1" value="7"></label>
+    <label>Переход <select data-jump-operation><option value="je">je · ZF = 1</option><option value="jne">jne · ZF = 0</option></select></label>
+    <span class="caption">Начальные значения · 0…99</span>
+  </div>
+  <div data-jump-diagram>
+    <img class="diagram" data-byte-hints src="@ASSETS@/diagrams/branch-step-0.svg" alt="CMP и условный переход: адреса, байты, выбранный путь, RIP, EAX, EBX, ZF и ECX">
+  </div>
+</div>
+<aside class="notes"><p>Объяснить CMP, затем JE/JNE при одинаковых данных. Контракт: docs/widgets/conditional-jump.md. Пробел — шаг, Shift + пробел — назад, R — начало с выбранными числами.</p></aside>

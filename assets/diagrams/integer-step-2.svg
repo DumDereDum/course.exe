@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 430" role="img" aria-labelledby="title desc">
+<title id="title">Одни биты, две трактовки — состояние 3</title>
+<desc id="desc">Со знаком: те же биты означают −1. Теперь −1 &lt; 1 — «да»; содержимое EAX не изменилось.</desc>
+<defs><marker id="green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10" fill="#89f9b0"/></marker><marker id="muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10" fill="#40614b"/></marker></defs>
+<rect x="260" y="18" width="880" height="138" rx="10" fill="#0c1510" stroke="#89f9b0" stroke-width="2"/>
+<text x="290" y="47" fill="#91a99a" font-size="20" font-family="Inter, Arial, sans-serif" text-anchor="start">СОДЕРЖИМОЕ EAX · 32 БИТА</text>
+<text x="555" y="88" fill="#e4eee6" font-size="32" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">0x</text>
+<rect x="284" y="110" width="26" height="31" rx="4" fill="#153020" stroke="#89f9b0" stroke-width="1.5"/>
+<g data-byte="FF" data-byte-hint="Байт содержимого EAX: биты 31…24, двоичная запись 11111111. Биты показаны от старшего к младшему.">
+<rect class="byte-hit" x="605" y="59" width="50" height="39" rx="4" fill="transparent"/>
+<text x="610" y="88" fill="#e4eee6" font-size="32" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">FF</text>
+</g>
+<g data-byte="FF" data-byte-hint="Байт содержимого EAX: биты 23…16, двоичная запись 11111111. Биты показаны от старшего к младшему.">
+<rect class="byte-hit" x="665" y="59" width="50" height="39" rx="4" fill="transparent"/>
+<text x="670" y="88" fill="#e4eee6" font-size="32" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">FF</text>
+</g>
+<g data-byte="FF" data-byte-hint="Байт содержимого EAX: биты 15…8, двоичная запись 11111111. Биты показаны от старшего к младшему.">
+<rect class="byte-hit" x="725" y="59" width="50" height="39" rx="4" fill="transparent"/>
+<text x="730" y="88" fill="#e4eee6" font-size="32" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">FF</text>
+</g>
+<g data-byte="FF" data-byte-hint="Байт содержимого EAX: биты 7…0, двоичная запись 11111111. Биты показаны от старшего к младшему.">
+<rect class="byte-hit" x="785" y="59" width="50" height="39" rx="4" fill="transparent"/>
+<text x="790" y="88" fill="#e4eee6" font-size="32" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">FF</text>
+</g>
+<text x="290" y="134" fill="#89f9b0" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="314" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="338" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="362" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="386" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="410" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="434" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="458" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="506" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="530" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="554" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="578" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="602" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="626" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="650" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="674" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="722" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="746" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="770" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="794" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="818" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="842" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="866" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="890" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="938" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="962" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="986" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="1010" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="1034" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="1058" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="1082" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<text x="1106" y="134" fill="#e4eee6" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">1</text>
+<path d="M297 142V159" stroke="#89f9b0" stroke-width="2"/>
+<text x="286" y="182" fill="#89f9b0" font-size="18" font-family="Inter, Arial, sans-serif" text-anchor="start">старший бит · 31</text>
+<path d="M620 156V194H340V240" fill="none" stroke="#89f9b0" stroke-width="2" marker-end="url(#green)"/>
+<path d="M780 156V194H1060V240" fill="none" stroke="#89f9b0" stroke-width="2" marker-end="url(#green)"/>
+<text x="700" y="224" fill="#e4eee6" font-size="24" font-family="Inter, Arial, sans-serif" text-anchor="middle">Сравниваем с EBX = 1</text>
+<rect x="60" y="247" width="560" height="139" rx="10" fill="#153020" stroke="#89f9b0" stroke-width="2"/>
+<text x="340" y="277" fill="#89f9b0" font-size="22" font-family="Inter, Arial, sans-serif" text-anchor="middle">СО ЗНАКОМ · signed</text>
+<g display="inline">
+<text x="340" y="326" fill="#e4eee6" font-size="44" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">−1</text>
+<text x="340" y="369" fill="#89f9b0" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">−1 &lt; 1 → да</text>
+</g>
+<rect x="780" y="247" width="560" height="139" rx="10" fill="#0c1510" stroke="#40614b" stroke-width="2"/>
+<text x="1060" y="277" fill="#91a99a" font-size="22" font-family="Inter, Arial, sans-serif" text-anchor="middle">БЕЗ ЗНАКА · unsigned</text>
+<g display="inline">
+<text x="1060" y="326" fill="#e4eee6" font-size="44" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">4294967295</text>
+<text x="1060" y="369" fill="#e4eee6" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">4294967295 &lt; 1 → нет</text>
+</g>
+<g display="inline">
+<text x="700" y="420" fill="#89f9b0" font-size="26" font-family="Inter, Arial, sans-serif" text-anchor="middle">Ответ зависит от трактовки операндов.</text>
+</g>
+</svg>

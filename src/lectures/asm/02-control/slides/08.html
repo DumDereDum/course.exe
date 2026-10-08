@@ -1,0 +1,40 @@
+<!-- type: sequence -->
+<div class="tag">02 / выбор перехода</div>
+<h2>Как выбрать <span class="accent">условный переход.</span></h2>
+<p class="lead"><code>cmp eax, ebx</code> — сравниваем EAX с EBX.</p>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="JL — less, JB — below: один знак «меньше», две трактовки чисел.">
+      <pre class="code"><span class="comment">Условие        </span><span class="accent">Со знаком · signed</span>       <span class="ghost">Без знака · unsigned</span>
+EAX &lt; EBX      <span class="accent"><abbr tabindex="0" title="Less · SF ≠ OF">jl</abbr></span>                       <span class="ghost"><abbr tabindex="0" title="Below · CF = 1">jb</abbr></span>
+
+
+
+ </pre>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Буква E добавляет равенство: JLE и JBE означают «меньше или равно».">
+      <pre class="code"><span class="comment">Условие        </span><span class="accent">Со знаком · signed</span>       <span class="ghost">Без знака · unsigned</span>
+EAX &lt; EBX      <span class="accent"><abbr tabindex="0" title="Less · SF ≠ OF">jl</abbr></span>                       <span class="ghost"><abbr tabindex="0" title="Below · CF = 1">jb</abbr></span>
+EAX ≤ EBX      <span class="accent"><abbr tabindex="0" title="Less or equal · ZF = 1 или SF ≠ OF">jle</abbr></span>                      <span class="ghost"><abbr tabindex="0" title="Below or equal · CF = 1 или ZF = 1">jbe</abbr></span>
+EAX &gt; EBX      <span class="accent"><abbr tabindex="0" title="Greater · ZF = 0 и SF = OF">jg</abbr></span>                       <span class="ghost"><abbr tabindex="0" title="Above · CF = 0 и ZF = 0">ja</abbr></span>
+EAX ≥ EBX      <span class="accent"><abbr tabindex="0" title="Greater or equal · SF = OF">jge</abbr></span>                      <span class="ghost"><abbr tabindex="0" title="Above or equal · CF = 0">jae</abbr></span>
+ </pre>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="JE и JNE подходят для обеих трактовок. Наведите на команду, чтобы увидеть условие по флагам.">
+      <pre class="code"><span class="comment">Условие        </span><span class="accent">Со знаком · signed</span>       <span class="ghost">Без знака · unsigned</span>
+EAX &lt; EBX      <span class="accent"><abbr tabindex="0" title="Less · SF ≠ OF">jl</abbr></span>                       <span class="ghost"><abbr tabindex="0" title="Below · CF = 1">jb</abbr></span>
+EAX ≤ EBX      <span class="accent"><abbr tabindex="0" title="Less or equal · ZF = 1 или SF ≠ OF">jle</abbr></span>                      <span class="ghost"><abbr tabindex="0" title="Below or equal · CF = 1 или ZF = 1">jbe</abbr></span>
+EAX &gt; EBX      <span class="accent"><abbr tabindex="0" title="Greater · ZF = 0 и SF = OF">jg</abbr></span>                       <span class="ghost"><abbr tabindex="0" title="Above · CF = 0 и ZF = 0">ja</abbr></span>
+EAX ≥ EBX      <span class="accent"><abbr tabindex="0" title="Greater or equal · SF = OF">jge</abbr></span>                      <span class="ghost"><abbr tabindex="0" title="Above or equal · CF = 0">jae</abbr></span>
+Для обоих:     <abbr tabindex="0" title="Equal · ZF = 1">je</abbr> — равны;              <abbr tabindex="0" title="Not equal · ZF = 0">jne</abbr> — не равны</pre>
+    </div>
+  </div>
+</div>
+<p class="takeaway">Сначала смысл чисел, затем команда перехода.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> CMP EAX,EBX выставляет флаги как EAX−EBX, сохраняя операнды. Таблица сравнивает EAX с EBX; перестановка операндов меняет смысл. Между CMP и переходом сохраняем нужные флаги.</p>
+  <p><b>Показ:</b> JL/JB → остальные сравнения → JE/JNE. Less/greater — со знаком, below/above — без знака; E добавляет equal. Напомнить FFFFFFFF и 1. Угадывание не требуется.</p>
+  <p><b>Объяснить:</b> в регистре нет типа. Равенство не зависит от трактовки. JE/JZ и JNE/JNZ — синонимы. Наведение на команды раскрывает формулы флагов стандартной браузерной подписью.</p>
+  <p><b>Управление:</b> пробел, Shift + пробел, R. Три кадра, около 5 минут. Далее — максимум двух чисел через IF/ELSE.</p>
+  <p><b>Источник:</b> Intel SDM, Vol. 1, Table 7-4: https://cdrdv2-public.intel.com/843820/325462-sdm-vol-1-2abcd-3abcd-4-1.pdf.</p>
+</aside>

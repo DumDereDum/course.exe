@@ -1,0 +1,21 @@
+<!-- type: split -->
+<div class="tag">02 / if и else</div>
+<h2>Выбираем <span class="accent">максимум двух чисел.</span></h2>
+<div class="widget" data-widget="conditional-jump" data-jump-kind="max">
+  <div class="jump-inputs">
+    <label>EAX <input data-eax type="number" min="-2147483648" max="2147483647" step="1" value="7" aria-label="Начальное знаковое число в EAX"></label>
+    <label>EBX <input data-ebx type="number" min="-2147483648" max="2147483647" step="1" value="3" aria-label="Начальное знаковое число в EBX"></label>
+    <span class="caption">signed · 32 бита · результат в ECX</span>
+  </div>
+  <div data-jump-diagram>
+    <img class="diagram" data-byte-hints src="@ASSETS@/diagrams/max-step-0.svg" alt="IF/ELSE на C и ассемблере: CMP, JL use_b, выбор EAX или EBX в ECX, JMP done. Адреса, байты, RIP и флаги SF/OF.">
+  </div>
+</div>
+<p class="takeaway">Выполняется одна ветка, затем продолжаем с общего адреса.</p>
+<aside class="notes">
+  <p><b>Мысль:</b> знакомый IF/ELSE состоит из сравнения, условного перехода и общего продолжения. EAX=a, EBX=b, ECX=result. Операнды — знаковые 32-битные целые; в регистре нет отметки типа.</p>
+  <p><b>Показ:</b> 7/3 — CMP, JL пропускается, MOV ECX,EAX, JMP done. Затем 3/7 — JL на use_b, MOV ECX,EBX и done. Наконец 7/7 — JL не срабатывает, выбираем EAX. При желании −3/−7: максимум −3, используем знаковое сравнение. Изменение поля возвращает к началу.</p>
+  <p><b>Объяснить:</b> в C условие a≥b, в машинном коде JL проверяет противоположное a&lt;b и отправляет в ELSE. SF≠OF учитывает переполнение вычитания. CMP сохраняет операнды, MOV/JL/JMP сохраняют флаги. JMP done нужен, чтобы запись EBX не перезаписала выбранный EAX. Метки не занимают байтов.</p>
+  <p><b>Байты:</b> CMP 39 D8; JL 7C 04; MOV ECX,EAX 89 C1; JMP EB 02; MOV ECX,EBX 89 D9. Адреса 401000, 401002, 401004, 401006, 401008, 40100A. Относительные смещения считаются от конца перехода. Каждая пара hex-цифр имеет подпись HEX/BIN.</p>
+  <p><b>Управление:</b> пробел — инструкция, Shift + пробел — назад, R — начало с текущими числами. В конце остановка. До MOV значение ECX неизвестно. Модель фиксированного фрагмента, начальные значения EAX/EBX подготовлены заранее. Время: 6–7 минут.</p>
+</aside>

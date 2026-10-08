@@ -1,0 +1,15 @@
+<!-- type: split -->
+<div class="tag">02 / if и else</div>
+<h2>Выбираем <span class="accent">максимум двух чисел.</span></h2>
+<div class="widget" data-widget="conditional-jump" data-jump-kind="max">
+  <div class="jump-inputs">
+    <label>EAX <input data-eax type="number" min="-2147483648" max="2147483647" step="1" value="7" aria-label="Начальное знаковое число в EAX"></label>
+    <label>EBX <input data-ebx type="number" min="-2147483648" max="2147483647" step="1" value="3" aria-label="Начальное знаковое число в EBX"></label>
+    <span class="caption">signed · 32 бита · результат в ECX</span>
+  </div>
+  <div data-jump-diagram>
+    <img class="diagram" data-byte-hints src="@ASSETS@/diagrams/max-step-0.svg" alt="IF/ELSE на C и ассемблере: CMP, JL use_b, выбор EAX или EBX в ECX, JMP done. Адреса, байты, RIP и флаги SF/OF.">
+  </div>
+</div>
+<p class="takeaway">Выполняется одна ветка, затем продолжаем с общего адреса.</p>
+<aside class="notes"><p>IF/ELSE: максимум двух знаковых чисел. Контракт: docs/widgets/max.md. Пробел — шаг, Shift + пробел — назад, R — сброс.</p></aside>

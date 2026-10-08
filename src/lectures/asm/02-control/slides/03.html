@@ -1,0 +1,32 @@
+<!-- type: sequence -->
+<div class="tag">02 / сравнение и флаги</div>
+<h2><code>cmp</code> обновляет флаги,<br><span class="accent">не изменяя операнды.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Перед выполнением: EAX, EBX и флаги не заданы. RIP указывает на первый mov.">
+      <img class="diagram" data-byte-hints src="@ASSETS@/diagrams/cmp-step-0.svg" alt="Перед выполнением: EAX, EBX и флаги не заданы. RIP указывает на первый mov.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Два mov подготовили числа: EAX = 7, EBX = 7. Следующей будет выполнена cmp.">
+      <img class="diagram" data-byte-hints src="@ASSETS@/diagrams/cmp-step-1.svg" alt="Два mov подготовили числа: EAX = 7, EBX = 7. Следующей будет выполнена cmp.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Cmp проверила 7 − 7 = 0: ZF = 1. EAX и EBX по-прежнему равны 7.">
+      <img class="diagram" data-byte-hints src="@ASSETS@/diagrams/cmp-step-2.svg" alt="Cmp проверила 7 − 7 = 0: ZF = 1. EAX и EBX по-прежнему равны 7.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Mov записала 3 в EBX. ZF остался равен 1: это ещё результат предыдущего cmp.">
+      <img class="diagram" data-byte-hints src="@ASSETS@/diagrams/cmp-step-3.svg" alt="Mov записала 3 в EBX. ZF остался равен 1: это ещё результат предыдущего cmp.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Вторая cmp проверила 7 − 3 = 4: ZF = 0. Значения EAX = 7 и EBX = 3 сохранились.">
+      <img class="diagram" data-byte-hints src="@ASSETS@/diagrams/cmp-step-4.svg" alt="Вторая cmp проверила 7 − 3 = 4: ZF = 0. Значения EAX = 7 и EBX = 3 сохранились.">
+    </div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Мысль:</b> cmp первый, второй устанавливает флаги по результату первого минус второй, как sub, но не записывает разность. В примере оба операнда — 32-битные регистры EAX и EBX.</p>
+  <p><b>Показ:</b> пять состояний. Начало — значения неизвестны, RIP на первом mov. Один шаг выполняет два подготовительных mov: EAX=7, EBX=7, флаги остаются неизвестными. Следующий шаг — cmp: разность 0, ZF=1, оба регистра сохраняются. Далее mov ebx, 3 меняет только данные: ZF всё ещё 1. Последняя cmp даёт разность 4, ZF=0, EAX=7 и EBX=3 остаются прежними.</p>
+  <p><b>Акцент:</b> ZF=1 означает нулевую разность, то есть равенство операндов при этой cmp. Флаг относится к последней операции, которая его обновила. Сам cmp не делает переход: RIP продолжает двигаться последовательно.</p>
+  <p><b>Байты:</b> MOV EAX — B8, MOV EBX — BB, затем четыре байта константы little-endian. CMP — 39 D8: код 39 и ModR/M D8 задают сравнение EAX с EBX. Наведение или Tab показывают роль байта и таблицу HEX/BIN. Кодировки и адреса проверены сборкой NASM и дизассемблером.</p>
+  <p><b>Управление:</b> пробел — шаг; Shift + пробел — назад; R — сброс. На последнем кадре остановка. Время: 5–6 минут. Вопрос после сравнения: куда делась разность? Ответ: в регистр она не записана, сохранились только флаги.</p>
+  <p><b>Граница:</b> подготовленная модель на границе между инструкциями. Первый шаг объединяет два mov; затем каждый шаг выполняет одну инструкцию. Адреса условные, продолжение не задано. Показаны ZF, CF, SF и OF; cmp меняет также AF и PF, здесь они опущены. Для 7−7 и 7−3 CF/SF/OF равны 0. Предыдущие значения флагов обозначены прочерками, а не нулями.</p>
+  <p><b>Далее:</b> je/jne используют ZF для выбора следующего адреса.</p>
+  <p><b>Источник:</b> Intel SDM, Volume 2A, CMP — Compare Two Operands: https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-vol-2a-manual.pdf.</p>
+</aside>

@@ -1,0 +1,14 @@
+<!-- type: sequence -->
+<div class="tag">01 / подписи машинных байтов</div>
+<h2>Наведите мышь на байт —<br><span class="accent">появится его назначение.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Две hex-цифры — один байт. Наведение и Tab показывают пояснение.">
+      <img class="diagram" data-byte-hints src="@ASSETS@/diagrams/rip-step-0.svg" alt="Код в памяти и RIP перед первой инструкцией">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Переход к следующему состоянию закрывает прежнее пояснение.">
+      <img class="diagram" data-byte-hints src="@ASSETS@/diagrams/rip-step-1.svg" alt="RIP после первой инструкции">
+    </div>
+  </div>
+</div>
+<aside class="notes"><p>Настройка внешнего SVG описана в docs/widgets/byte-hints.md. Компонент дополняет sequence; навигация и клавиши сохраняются.</p></aside>

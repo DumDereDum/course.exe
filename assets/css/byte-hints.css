@@ -1,0 +1,26 @@
+/* Local enhancement for annotated byte diagrams. */
+.byte-diagram{position:relative;width:100%;min-width:0}
+.byte-diagram>.diagram{height:auto}
+.byte-diagram [data-byte-hint]{cursor:help;outline:none}
+.byte-diagram .byte-hit{fill:transparent;stroke:transparent;stroke-width:1.5}
+.byte-diagram .byte-selected .byte-hit,
+.byte-diagram [data-byte-hint]:focus-visible .byte-hit{fill:#89f9b015;stroke:var(--green)}
+.byte-tooltip{
+  position:absolute;
+  z-index:4;
+  width:max-content;
+  max-width:min(37cqw,calc(100% - 2cqw));
+  padding:.8cqh 1cqw;
+  border:1px solid var(--green);
+  border-radius:.35cqw;
+  background:var(--panel);
+  color:var(--ink);
+  font:1.2cqw/1.45 var(--sans);
+  box-shadow:0 .5cqh 2cqw #0009;
+  pointer-events:none
+}
+.byte-bits{border-collapse:collapse;margin:0 0 .8cqh;font:1.3cqw/1.35 var(--mono)}
+.byte-bits th{padding:.4cqh .7cqw .4cqh 0;color:var(--muted);font-size:.85cqw;font-weight:400;text-align:left}
+.byte-bits td{padding:.4cqh .8cqw;border:1px solid var(--line);text-align:center;min-width:5cqw}
+.byte-bits tr:first-child td{color:var(--green);background:var(--soft)}
+.byte-description{margin:0}

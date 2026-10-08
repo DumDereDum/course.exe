@@ -1,0 +1,14 @@
+<!-- type: split -->
+<div class="tag">02 / побитовая проверка</div>
+<h2><code>test</code> проверяет биты,<br><span class="accent">сохраняя значение регистра.</span></h2>
+<div class="widget" data-widget="conditional-jump" data-jump-kind="test">
+  <div class="jump-inputs">
+    <label>EAX <input data-eax type="number" min="0" max="255" step="1" value="7"></label>
+    <label>Проверка <select data-test-mode><option value="zero">На ноль · test eax, eax</option><option value="bit">Чётность · test eax, 1</option></select></label>
+    <span class="caption">Начальное значение · 0…255</span>
+  </div>
+  <div data-jump-diagram>
+    <img class="diagram" data-byte-hints src="@ASSETS@/diagrams/test-step-0.svg" alt="TEST, младшие восемь бит EAX, второй операнд, результат AND, флаги и маршрут JZ">
+  </div>
+</div>
+<aside class="notes"><p>Сначала проверка на ноль, затем чётность. Контракт: docs/widgets/test.md. TEST сохраняет EAX; JZ использует ZF, уже подготовленный TEST.</p></aside>

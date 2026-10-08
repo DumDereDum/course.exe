@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 430" role="img" aria-labelledby="title desc">
+<title id="title">TEST — ноль и чётность</title>
+<desc id="desc">Выбор EAX и проверки на ноль или чётность. TEST выполняет AND для флагов, сохраняя EAX. Показаны младшие восемь бит, маска, результат, RIP, ZF и выбранный маршрут JZ.</desc>
+<defs><marker id="green" data-jump-marker="green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10" fill="#89f9b0" /></marker><marker id="muted" data-jump-marker="muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10" fill="#40614b" /></marker></defs>
+<text x="28" y="28" fill="#91a99a" font-size="21" font-family="Inter, Arial, sans-serif" text-anchor="start">КОД В ПАМЯТИ · ФРАГМЕНТ .text</text>
+<rect x="24" y="48" width="906" height="350" rx="10" fill="#0c1510" stroke="#40614b" stroke-width="2" />
+<text x="45" y="80" fill="#91a99a" font-size="18" font-family="Inter, Arial, sans-serif" text-anchor="start">АДРЕС</text>
+<text x="230" y="80" fill="#91a99a" font-size="18" font-family="Inter, Arial, sans-serif" text-anchor="start">БАЙТЫ</text>
+<text x="480" y="80" fill="#91a99a" font-size="18" font-family="Inter, Arial, sans-serif" text-anchor="start">МЕТКА</text>
+<text x="595" y="80" fill="#91a99a" font-size="18" font-family="Inter, Arial, sans-serif" text-anchor="start">ИНСТРУКЦИЯ</text>
+<path d="M25 98H929" stroke="#40614b" />
+<g data-jump-row="0">
+<rect class="jump-highlight" x="25" y="101" width="904" height="46" rx="6" fill="#153020" opacity="1" />
+<text x="45" y="135" fill="#e4eee6" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-jump-address="">0x401000</text>
+<text x="480" y="135" fill="#89f9b0" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" class="jump-label" />
+<text x="595" y="135" fill="#e4eee6" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-instruction="">test eax, eax</text>
+<g data-byte="85" data-byte-hint="TEST: побитовое AND двух 32-битных операндов для флагов. Результат не записывается в регистр." data-test-byte="0" display="inline">
+<rect class="byte-hit" x="225" y="108" width="40" height="34" rx="4" fill="transparent" />
+<text x="230" y="135" fill="#e4eee6" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">85</text>
+</g>
+<g data-byte="C0" data-byte-hint="ModR/M: 11 | 000 | 000 — оба операнда являются регистром EAX. Проверка EAX AND EAX." data-test-byte="1" display="inline">
+<rect class="byte-hit" x="270" y="108" width="40" height="34" rx="4" fill="transparent" />
+<text x="275" y="135" fill="#e4eee6" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">C0</text>
+</g>
+<g data-byte="00" data-byte-hint="Байт маски для режима test eax, 1; скрыт в текущем режиме." data-test-byte="2" display="none">
+<rect class="byte-hit" x="315" y="108" width="40" height="34" rx="4" fill="transparent" />
+<text x="320" y="135" fill="#e4eee6" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">00</text>
+</g>
+<g data-byte="00" data-byte-hint="Байт маски для режима test eax, 1; скрыт в текущем режиме." data-test-byte="3" display="none">
+<rect class="byte-hit" x="360" y="108" width="40" height="34" rx="4" fill="transparent" />
+<text x="365" y="135" fill="#e4eee6" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">00</text>
+</g>
+<g data-byte="00" data-byte-hint="Байт маски для режима test eax, 1; скрыт в текущем режиме." data-test-byte="4" display="none">
+<rect class="byte-hit" x="405" y="108" width="40" height="34" rx="4" fill="transparent" />
+<text x="410" y="135" fill="#e4eee6" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">00</text>
+</g>
+</g>
+<g data-jump-row="1">
+<rect class="jump-highlight" x="25" y="149" width="904" height="46" rx="6" fill="#153020" opacity="0" />
+<text x="45" y="183" fill="#e4eee6" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-jump-address="">0x401002</text>
+<text x="480" y="183" fill="#89f9b0" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" class="jump-label" />
+<text x="595" y="183" fill="#e4eee6" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-jump-instruction="">jz zero</text>
+<g data-byte="74" data-byte-hint="JZ: короткий переход при ZF = 1. Это другое имя JE, байты совпадают." data-jump-opcode="">
+<rect class="byte-hit" x="225" y="156" width="40" height="34" rx="4" fill="transparent" />
+<text x="230" y="183" fill="#e4eee6" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">74</text>
+</g>
+<g data-byte="07" data-byte-hint="Смещение +7 байтов от адреса после JZ: 0x401004 + 7 = 0x40100B (zero)." data-test-jz-offset="">
+<rect class="byte-hit" x="270" y="156" width="40" height="34" rx="4" fill="transparent" />
+<text x="275" y="183" fill="#e4eee6" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">07</text>
+</g>
+</g>
+<g data-jump-row="2">
+<rect class="jump-highlight" x="25" y="197" width="904" height="46" rx="6" fill="#153020" opacity="0" />
+<text x="45" y="231" fill="#e4eee6" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-jump-address="">0x401004</text>
+<text x="480" y="231" fill="#89f9b0" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" class="jump-label" />
+<text x="595" y="231" fill="#e4eee6" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">mov ecx, 0</text>
+<g data-byte="B9" data-byte-hint="MOV: записать 32-битную константу в ECX. Верхние 32 бита RCX обнуляются; флаги сохраняются.">
+<rect class="byte-hit" x="225" y="204" width="40" height="34" rx="4" fill="transparent" />
+<text x="230" y="231" fill="#e4eee6" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">B9</text>
+</g>
+<g data-byte="00" data-byte-hint="Байт 1 из 4 константы 0: 00 00 00 00. Младший байт первым (little-endian).">
+<rect class="byte-hit" x="270" y="204" width="40" height="34" rx="4" fill="transparent" />
+<text x="275" y="231" fill="#e4eee6" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">00</text>
+</g>
+<g data-byte="00" data-byte-hint="Байт 2 из 4 константы 0: 00 00 00 00. Младший байт первым (little-endian).">
+<rect class="byte-hit" x="315" y="204" width="40" height="34" rx="4" fill="transparent" />
+<text x="320" y="231" fill="#e4eee6" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">00</text>
+</g>
+<g data-byte="00" data-byte-hint="Байт 3 из 4 константы 0: 00 00 00 00. Младший байт первым (little-endian).">
+<rect class="byte-hit" x="360" y="204" width="40" height="34" rx="4" fill="transparent" />
+<text x="365" y="231" fill="#e4eee6" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">00</text>
+</g>
+<g data-byte="00" data-byte-hint="Байт 4 из 4 константы 0: 00 00 00 00. Младший байт первым (little-endian).">
+<rect class="byte-hit" x="405" y="204" width="40" height="34" rx="4" fill="transparent" />
+<text x="410" y="231" fill="#e4eee6" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">00</text>
+</g>
+<text x="790" y="231" fill="#91a99a" font-size="18" font-family="Inter, Arial, sans-serif" text-anchor="start" class="jump-skip-label" opacity="0">пропуск</text>
+</g>
+<g data-jump-row="3">
+<rect class="jump-highlight" x="25" y="245" width="904" height="46" rx="6" fill="#153020" opacity="0" />
+<text x="45" y="279" fill="#e4eee6" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-jump-address="">0x401009</text>
+<text x="480" y="279" fill="#89f9b0" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" class="jump-label" />
+<text x="595" y="279" fill="#e4eee6" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">jmp done</text>
+<g data-byte="EB" data-byte-hint="JMP: короткий безусловный переход. ZF не проверяет и не изменяет.">
+<rect class="byte-hit" x="225" y="252" width="40" height="34" rx="4" fill="transparent" />
+<text x="230" y="279" fill="#e4eee6" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">EB</text>
+</g>
+<g data-byte="05" data-byte-hint="Смещение +5 байтов от адреса после jmp: 0x40100B + 5 = 0x401010 (done)." data-test-jmp-offset="">
+<rect class="byte-hit" x="270" y="252" width="40" height="34" rx="4" fill="transparent" />
+<text x="275" y="279" fill="#e4eee6" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">05</text>
+</g>
+<text x="790" y="279" fill="#91a99a" font-size="18" font-family="Inter, Arial, sans-serif" text-anchor="start" class="jump-skip-label" opacity="0">пропуск</text>
+</g>
+<g data-jump-row="4">
+<rect class="jump-highlight" x="25" y="293" width="904" height="46" rx="6" fill="#153020" opacity="0" />
+<text x="45" y="327" fill="#e4eee6" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-jump-address="">0x40100B</text>
+<text x="480" y="327" fill="#89f9b0" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" class="jump-label" data-test-target-label="">zero:</text>
+<text x="595" y="327" fill="#e4eee6" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">mov ecx, 1</text>
+<g data-byte="B9" data-byte-hint="MOV: записать 32-битную константу в ECX. Верхние 32 бита RCX обнуляются; флаги сохраняются.">
+<rect class="byte-hit" x="225" y="300" width="40" height="34" rx="4" fill="transparent" />
+<text x="230" y="327" fill="#e4eee6" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">B9</text>
+</g>
+<g data-byte="01" data-byte-hint="Байт 1 из 4 константы 1: 01 00 00 00. Младший байт первым (little-endian).">
+<rect class="byte-hit" x="270" y="300" width="40" height="34" rx="4" fill="transparent" />
+<text x="275" y="327" fill="#e4eee6" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">01</text>
+</g>
+<g data-byte="00" data-byte-hint="Байт 2 из 4 константы 1: 01 00 00 00. Младший байт первым (little-endian).">
+<rect class="byte-hit" x="315" y="300" width="40" height="34" rx="4" fill="transparent" />
+<text x="320" y="327" fill="#e4eee6" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">00</text>
+</g>
+<g data-byte="00" data-byte-hint="Байт 3 из 4 константы 1: 01 00 00 00. Младший байт первым (little-endian).">
+<rect class="byte-hit" x="360" y="300" width="40" height="34" rx="4" fill="transparent" />
+<text x="365" y="327" fill="#e4eee6" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">00</text>
+</g>
+<g data-byte="00" data-byte-hint="Байт 4 из 4 константы 1: 01 00 00 00. Младший байт первым (little-endian).">
+<rect class="byte-hit" x="405" y="300" width="40" height="34" rx="4" fill="transparent" />
+<text x="410" y="327" fill="#e4eee6" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">00</text>
+</g>
+<text x="790" y="327" fill="#91a99a" font-size="18" font-family="Inter, Arial, sans-serif" text-anchor="start" class="jump-skip-label" opacity="0">пропуск</text>
+</g>
+<g data-jump-row="5">
+<rect class="jump-highlight" x="25" y="341" width="904" height="46" rx="6" fill="#153020" opacity="0" />
+<text x="45" y="375" fill="#e4eee6" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-jump-address="">0x401010</text>
+<text x="480" y="375" fill="#89f9b0" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" class="jump-label">done:</text>
+<text x="595" y="375" fill="#e4eee6" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">дальше…</text>
+<text x="230" y="375" fill="#e4eee6" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">…</text>
+</g>
+<path data-branch-path="" d="M799 172H900V316H799" fill="none" stroke="#40614b" stroke-width="2" marker-end="url(#muted)" />
+<path data-fallthrough-path="" d="M799 172V220" fill="none" stroke="#40614b" stroke-width="2" marker-end="url(#muted)" />
+<path data-done-path="" d="M799 268H879V364H799" fill="none" stroke="#40614b" stroke-width="2" marker-end="url(#muted)" />
+<path data-jump-pointer="" d="M1030 111H978V124H932" fill="none" stroke="#89f9b0" stroke-width="3" marker-end="url(#green)" />
+<text x="28" y="426" fill="#91a99a" font-size="20" font-family="Inter, Arial, sans-serif" text-anchor="start" data-jump-rule="">JZ = JE: переход при ZF = 1 · TEST не записывает результат AND в EAX</text>
+<rect x="1030" y="48" width="346" height="82" rx="10" fill="#153020" stroke="#89f9b0" stroke-width="2" /><text x="1203" y="76" fill="#89f9b0" font-size="24" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">RIP</text><text x="1203" y="114" fill="#e4eee6" font-size="32" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle" data-jump-rip="">0x401000</text><rect x="1030" y="149" width="346" height="169" rx="10" fill="#0c1510" stroke="#40614b" stroke-width="2" /><text x="1048" y="175" fill="#91a99a" font-size="18" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">EAX =</text><text x="1110" y="175" fill="#e4eee6" font-size="22" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-jump-eax="">7</text><text x="1360" y="173" fill="#91a99a" font-size="17" font-family="Inter, Arial, sans-serif" text-anchor="end">8 младших бит</text><rect x="1310" y="183" width="32" height="111" rx="4" fill="#153020" stroke="#89f9b0" stroke-width="2" data-test-lsb="" display="none" /><text x="1048" y="205" fill="#91a99a" font-size="17" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">EAX</text><text x="1048" y="241" fill="#91a99a" font-size="17" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-mask-label="">&amp; EAX</text><text x="1048" y="280" fill="#89f9b0" font-size="17" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">= AND</text><path d="M1110 255H1345" stroke="#40614b" /><text x="1110" y="307" fill="#91a99a" font-size="20" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="end">CF =</text><text x="1130" y="307" fill="#91a99a" font-size="20" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-cf="">—</text><text x="1270" y="307" fill="#91a99a" font-size="20" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="end">OF =</text><text x="1290" y="307" fill="#91a99a" font-size="20" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-of="">—</text><rect x="1030" y="339" width="346" height="59" rx="10" fill="#0c1510" stroke="#40614b" stroke-width="2" /><path d="M1203 339V398" stroke="#40614b" /><text x="1077" y="375" fill="#89f9b0" font-size="21" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">ZF</text><text x="1155" y="380" fill="#e4eee6" font-size="30" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle" data-jump-zf="">—</text><text x="1230" y="375" fill="#89f9b0" font-size="21" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">ECX</text><text x="1335" y="380" fill="#e4eee6" font-size="30" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle" data-jump-ecx="">—</text><text x="1114" y="205" fill="#e4eee6" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-input-bit="0">0</text><text x="1142" y="205" fill="#e4eee6" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-input-bit="1">0</text><text x="1170" y="205" fill="#e4eee6" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-input-bit="2">0</text><text x="1198" y="205" fill="#e4eee6" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-input-bit="3">0</text><text x="1234" y="205" fill="#e4eee6" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-input-bit="4">0</text><text x="1262" y="205" fill="#e4eee6" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-input-bit="5">1</text><text x="1290" y="205" fill="#e4eee6" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-input-bit="6">1</text><text x="1318" y="205" fill="#e4eee6" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-input-bit="7">1</text><text x="1114" y="241" fill="#e4eee6" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-mask-bit="0">0</text><text x="1142" y="241" fill="#e4eee6" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-mask-bit="1">0</text><text x="1170" y="241" fill="#e4eee6" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-mask-bit="2">0</text><text x="1198" y="241" fill="#e4eee6" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-mask-bit="3">0</text><text x="1234" y="241" fill="#e4eee6" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-mask-bit="4">0</text><text x="1262" y="241" fill="#e4eee6" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-mask-bit="5">1</text><text x="1290" y="241" fill="#e4eee6" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-mask-bit="6">1</text><text x="1318" y="241" fill="#e4eee6" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-mask-bit="7">1</text><text x="1114" y="280" fill="#89f9b0" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-result-bit="0">—</text><text x="1142" y="280" fill="#89f9b0" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-result-bit="1">—</text><text x="1170" y="280" fill="#89f9b0" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-result-bit="2">—</text><text x="1198" y="280" fill="#89f9b0" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-result-bit="3">—</text><text x="1234" y="280" fill="#89f9b0" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-result-bit="4">—</text><text x="1262" y="280" fill="#89f9b0" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-result-bit="5">—</text><text x="1290" y="280" fill="#89f9b0" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-result-bit="6">—</text><text x="1318" y="280" fill="#89f9b0" font-size="26" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start" data-test-result-bit="7">—</text></svg>

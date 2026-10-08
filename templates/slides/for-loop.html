@@ -1,0 +1,14 @@
+<!-- type: split -->
+<div class="tag">02 / for</div>
+<h2>В <code>for</code> у каждой части <span class="accent">своё место.</span></h2>
+<div class="widget" data-widget="while-loop" data-loop-kind="for">
+  <div class="loop-inputs">
+    <label>EBX · граница <input data-ebx type="number" min="0" max="5" step="1" value="3" aria-label="Граница FOR в EBX, от 0 до 5"></label>
+    <span class="caption">i начинается с 0 · ECX = 0 подготовлен заранее</span>
+  </div>
+  <div data-loop-diagram>
+    <img class="diagram" data-byte-hints src="@ASSETS@/diagrams/for-step-0.svg" alt="FOR на C и машинные инструкции: MOV EAX,0 один раз; CMP/JGE, ADD ECX,2, INC EAX, JMP check. RIP, регистры, флаги и история.">
+  </div>
+</div>
+<p class="takeaway">Инициализация — один раз. Возврат — к проверке.</p>
+<aside class="notes"><p>FOR: инициализация один раз, возврат к проверке. Контракт: docs/widgets/for-loop.md. Показать границы 3 и 0.</p></aside>

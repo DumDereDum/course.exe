@@ -41,6 +41,14 @@ python3 build.py --check
 | Титул | `title.html` | — |
 | Объяснение / сравнение | `content.html` | — |
 | Этапы процесса / подготовленный терминал | `sequence.html` | `docs/widgets/sequence.md` |
+| Подписи байтов при наведении на SVG | `byte-hints.html` | `docs/widgets/byte-hints.md` |
+| Выбор EAX/EBX и JE/JNE | `conditional-jump.html` | `docs/widgets/conditional-jump.md` |
+| TEST: проверка на ноль и чётность | `test.html` | `docs/widgets/test.md` |
+| JL/JB при одинаковом CMP | `ordered-jump.html` | `docs/widgets/ordered-jump.md` |
+| IF/ELSE: максимум двух чисел | `max.html` | `docs/widgets/max.md` |
+| WHILE: проверка, тело и возврат | `while-loop.html` | `docs/widgets/while-loop.md` |
+| FOR: инициализация и изменение счётчика | `for-loop.html` | `docs/widgets/for-loop.md` |
+| Сумма 1…N | `sum-loop.html` | `docs/widgets/sum-loop.md` |
 | Инструкции и регистры | `registers.html` | `docs/widgets/registers.md` |
 | Карта регистров и их части | `register-map.html` | `docs/widgets/register-map.md` |
 | Примеры команд и состояние | `command-lab.html` | `docs/widgets/command-lab.md` |

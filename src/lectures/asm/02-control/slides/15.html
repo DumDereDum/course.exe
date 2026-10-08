@@ -1,0 +1,26 @@
+<!-- type: sequence -->
+<div class="tag">02 / инструкция к примерам</div>
+<h2>Ручная сборка: <span class="accent">Windows и macOS.</span></h2>
+<div class="widget" data-widget="sequence"><div class="sequence-viewport">
+<div class="sequence-frame" data-frame data-caption="Из корня перейти в examples/asm. Если уже там — переход пропустить."><div class="columns"><div class="stack"><div class="panel"><p><b>VS Code:</b> открыть весь репозиторий, Terminal → New Terminal.</p><p><b>Windows:</b> PowerShell; Docker Desktop с WSL 2 и Linux-контейнерами.</p><p><b>macOS:</b> Zsh/Bash. Запустить Docker Desktop.</p></div><p class="caption">В рабочей папке: max.asm, abs.asm, sum.asm, for.asm.</p></div><div class="stack"><div class="panel-label">1 / Windows · PowerShell</div><pre class="code command-wrap repo-windows">Set-Location .\examples\asm
+Get-ChildItem</pre><div class="panel-label">macOS · терминал</div><pre class="code command-wrap repo-mac">cd examples/asm
+ls</pre></div></div></div>
+<div class="sequence-frame" data-frame data-caption="Docker: из examples/asm. Команда для PowerShell и macOS."><div class="columns"><div class="stack"><div class="panel-label">2 / На компьютере · из examples/asm</div><pre class="code command-wrap repo-docker">docker run --name asm-examples --platform linux/amd64 -it --mount &quot;type=bind,source=${PWD},target=/work&quot; -w /work debian:bookworm-slim bash</pre><div class="resource-actions"><button class="btn" data-copy=".repo-docker">Копировать</button><span class="copy-status" aria-live="polite"></span></div><p class="caption"><code>${PWD}</code> — уже папка исходников, без дополнительного пути.</p></div><div class="stack"><div class="panel-label">После входа · внутри Linux</div><pre class="code command-wrap repo-check">pwd
+ls</pre><div class="resource-actions"><button class="btn" data-copy=".repo-check">Копировать</button><span class="copy-status" aria-live="polite"></span></div><p class="caption">Ожидаем <code>/work</code> и четыре .asm. Повторный вход с компьютера: <code>docker start -ai asm-examples</code>.</p></div></div></div>
+<div class="sequence-frame" data-frame data-caption="Внутри Linux: инструменты один раз; NASM, ld и запуск — вручную."><div class="columns"><div class="stack"><div class="panel-label">3 / Инструменты и ручная сборка</div><pre class="code command-wrap repo-build">apt-get update
+apt-get install -y nasm binutils
+mkdir -p build
+nasm -f elf64 sum.asm -o build/sum.o
+ld -o build/sum build/sum.o</pre><div class="resource-actions"><button class="btn" data-copy=".repo-build">Копировать</button><span class="copy-status" aria-live="polite"></span></div><p class="caption"><code>nasm</code> создаёт .o, <code>ld</code> — исполняемый ELF. Сначала сохранить файл.</p></div><div class="stack"><div class="panel-label">Ручной запуск и проверка</div><pre class="code command-wrap repo-run">./build/sum
+echo &quot;$?&quot;</pre><div class="resource-actions"><button class="btn" data-copy=".repo-run">Копировать</button><span class="copy-status" aria-live="polite"></span></div><p class="caption">Ожидаем <code>10</code>. Для max, abs и for повторить NASM, ld и запуск со своим именем.</p></div></div></div>
+<div class="sequence-frame" data-frame data-caption="Внутри Linux: читать адрес, байты и инструкцию."><div class="columns"><div class="stack"><div class="panel-label">4 / Дизассемблировать ELF</div><pre class="code command-wrap repo-disasm">objdump -d -M intel build/sum</pre><div class="resource-actions"><button class="btn" data-copy=".repo-disasm">Копировать</button><span class="copy-status" aria-live="polite"></span></div><p class="caption"><code>-d</code> — кодовые секции; <code>-M intel</code> — Intel-синтаксис.</p></div><div class="stack"><div class="panel-label">Байты цикла из sum.asm</div><pre class="code">39 D8    cmp eax, ebx
+7F 06    jg done
+EB F6    jmp check</pre><p class="caption">Найти сравнение, выход и обратный переход.</p></div></div></div>
+<div class="sequence-frame" data-frame data-caption="Внутри Linux: ELF и .text; адреса NDISASM от 0."><div class="columns"><div class="stack"><div class="panel-label">5 / Заголовки и байты ELF</div><pre class="code command-wrap repo-headers">readelf -h build/sum
+readelf -S build/sum
+od -Ax -tx1 -N64 build/sum</pre><div class="resource-actions"><button class="btn" data-copy=".repo-headers">Копировать</button><span class="copy-status" aria-live="polite"></span></div><p class="caption"><code>7F 45 4C 46</code> — сигнатура ELF; od показывает файловые смещения.</p></div><div class="stack"><div class="panel-label">Извлечь и разобрать код .text</div><pre class="code command-wrap repo-binary">objdump -s -j .text build/sum
+objcopy -O binary -j .text \
+  build/sum build/sum.text.bin
+ndisasm -b64 build/sum.text.bin</pre><div class="resource-actions"><button class="btn" data-copy=".repo-binary">Копировать</button><span class="copy-status" aria-live="polite"></span></div><p class="caption">Все эти команды — внутри Linux на Windows и macOS.</p></div></div></div>
+</div></div>
+<aside class="notes"><p>Перед Docker перейти в examples/asm; внутри /work команды Linux одинаковы на обеих ОС. Студенты вручную вызывают NASM, ld, программу и echo. Подробности — README. Windows и браузер не проверены.</p></aside>

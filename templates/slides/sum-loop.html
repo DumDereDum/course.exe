@@ -1,0 +1,11 @@
+<!-- type: split -->
+<div class="tag">02 / сумма от 1 до N</div>
+<h2>Счётчик выбирает число.<br><span class="accent">Накопитель хранит сумму.</span></h2>
+<div class="widget" data-widget="while-loop" data-loop-kind="sum">
+  <div class="loop-inputs">
+    <label>EBX · N <input data-ebx type="number" min="0" max="5" step="1" value="4" aria-label="Верхняя граница суммы N, от 0 до 5"></label>
+    <span class="caption">Первое слагаемое — 1 · ECX заранее равен 0</span>
+  </div>
+  <div data-loop-diagram><img class="diagram" data-byte-hints src="@ASSETS@/diagrams/sum-step-0.svg" alt="Сумма 1…N: MOV EAX,1, CMP/JG, ADD ECX,EAX, INC EAX, JMP check; регистры, ZF/SF/OF и истории счётчика и суммы."></div>
+</div>
+<aside class="notes"><p>Сумма 1…N, пример N=4 и N=0. Контракт: docs/widgets/sum-loop.md.</p></aside>

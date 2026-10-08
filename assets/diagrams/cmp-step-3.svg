@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 430" role="img" aria-labelledby="title desc">
+<title id="title">CMP — состояние 4</title>
+<desc id="desc">Mov записала 3 в EBX. ZF остался равен 1: это ещё результат предыдущего cmp. Новые данные в EBX. Флаги пока от предыдущего сравнения.</desc>
+<defs><marker id="green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10" fill="#89f9b0"/></marker></defs>
+<text x="28" y="28" fill="#91a99a" font-size="21" font-family="Inter, Arial, sans-serif" text-anchor="start">КОД В ПАМЯТИ · ФРАГМЕНТ .text</text>
+<rect x="24" y="48" width="906" height="350" rx="10" fill="#0c1510" stroke="#40614b" stroke-width="2"/>
+<text x="45" y="80" fill="#91a99a" font-size="18" font-family="Inter, Arial, sans-serif" text-anchor="start">АДРЕС</text>
+<text x="230" y="80" fill="#91a99a" font-size="18" font-family="Inter, Arial, sans-serif" text-anchor="start">БАЙТЫ</text>
+<text x="510" y="80" fill="#91a99a" font-size="18" font-family="Inter, Arial, sans-serif" text-anchor="start">ИНСТРУКЦИЯ</text>
+<text x="852" y="80" fill="#91a99a" font-size="18" font-family="Inter, Arial, sans-serif" text-anchor="middle">БАЙТ</text>
+<path d="M25 98H929" stroke="#40614b"/>
+<text x="45" y="135" fill="#91a99a" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">0x401000</text>
+<text x="510" y="135" fill="#91a99a" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">mov eax, 7</text>
+<text x="852" y="135" fill="#91a99a" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">5</text>
+<g data-byte="B8" data-byte-hint="MOV: записать 32-битную константу в EAX. Верхние 32 бита RAX обнуляются. Флаги не меняются.">
+<rect class="byte-hit" x="225" y="108" width="40" height="34" rx="4" fill="transparent"/>
+<text x="230" y="135" fill="#91a99a" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">B8</text>
+</g>
+<g data-byte="07" data-byte-hint="Байт 1 из 4 константы 7. Вся константа: 07 00 00 00, младший байт первым (little-endian).">
+<rect class="byte-hit" x="270" y="108" width="40" height="34" rx="4" fill="transparent"/>
+<text x="275" y="135" fill="#91a99a" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">07</text>
+</g>
+<g data-byte="00" data-byte-hint="Байт 2 из 4 константы 7. Вся константа: 07 00 00 00, младший байт первым (little-endian).">
+<rect class="byte-hit" x="315" y="108" width="40" height="34" rx="4" fill="transparent"/>
+<text x="320" y="135" fill="#91a99a" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">00</text>
+</g>
+<g data-byte="00" data-byte-hint="Байт 3 из 4 константы 7. Вся константа: 07 00 00 00, младший байт первым (little-endian).">
+<rect class="byte-hit" x="360" y="108" width="40" height="34" rx="4" fill="transparent"/>
+<text x="365" y="135" fill="#91a99a" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">00</text>
+</g>
+<g data-byte="00" data-byte-hint="Байт 4 из 4 константы 7. Вся константа: 07 00 00 00, младший байт первым (little-endian).">
+<rect class="byte-hit" x="405" y="108" width="40" height="34" rx="4" fill="transparent"/>
+<text x="410" y="135" fill="#91a99a" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">00</text>
+</g>
+<text x="45" y="183" fill="#91a99a" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">0x401005</text>
+<text x="510" y="183" fill="#91a99a" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">mov ebx, 7</text>
+<text x="852" y="183" fill="#91a99a" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">5</text>
+<g data-byte="BB" data-byte-hint="MOV: записать 32-битную константу в EBX. Верхние 32 бита RBX обнуляются. Флаги не меняются.">
+<rect class="byte-hit" x="225" y="156" width="40" height="34" rx="4" fill="transparent"/>
+<text x="230" y="183" fill="#91a99a" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">BB</text>
+</g>
+<g data-byte="07" data-byte-hint="Байт 1 из 4 константы 7. Вся константа: 07 00 00 00, младший байт первым (little-endian).">
+<rect class="byte-hit" x="270" y="156" width="40" height="34" rx="4" fill="transparent"/>
+<text x="275" y="183" fill="#91a99a" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">07</text>
+</g>
+<g data-byte="00" data-byte-hint="Байт 2 из 4 константы 7. Вся константа: 07 00 00 00, младший байт первым (little-endian).">
+<rect class="byte-hit" x="315" y="156" width="40" height="34" rx="4" fill="transparent"/>
+<text x="320" y="183" fill="#91a99a" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">00</text>
+</g>
+<g data-byte="00" data-byte-hint="Байт 3 из 4 константы 7. Вся константа: 07 00 00 00, младший байт первым (little-endian).">
+<rect class="byte-hit" x="360" y="156" width="40" height="34" rx="4" fill="transparent"/>
+<text x="365" y="183" fill="#91a99a" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">00</text>
+</g>
+<g data-byte="00" data-byte-hint="Байт 4 из 4 константы 7. Вся константа: 07 00 00 00, младший байт первым (little-endian).">
+<rect class="byte-hit" x="405" y="156" width="40" height="34" rx="4" fill="transparent"/>
+<text x="410" y="183" fill="#91a99a" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">00</text>
+</g>
+<text x="45" y="231" fill="#91a99a" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">0x40100A</text>
+<text x="510" y="231" fill="#91a99a" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">cmp eax, ebx</text>
+<text x="852" y="231" fill="#91a99a" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">2</text>
+<g data-byte="39" data-byte-hint="CMP: сравнить первый операнд со вторым через вычитание. Разность не записывается, обновляются флаги.">
+<rect class="byte-hit" x="225" y="204" width="40" height="34" rx="4" fill="transparent"/>
+<text x="230" y="231" fill="#91a99a" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">39</text>
+</g>
+<g data-byte="D8" data-byte-hint="ModR/M: 11 | 011 | 000 — оба операнда в регистрах, второй EBX, первый EAX. Сравнение вычисляет EAX − EBX.">
+<rect class="byte-hit" x="270" y="204" width="40" height="34" rx="4" fill="transparent"/>
+<text x="275" y="231" fill="#91a99a" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">D8</text>
+</g>
+<text x="45" y="279" fill="#91a99a" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">0x40100C</text>
+<text x="510" y="279" fill="#91a99a" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">mov ebx, 3</text>
+<text x="852" y="279" fill="#91a99a" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">5</text>
+<g data-byte="BB" data-byte-hint="MOV: записать 32-битную константу в EBX. Верхние 32 бита RBX обнуляются. Флаги не меняются.">
+<rect class="byte-hit" x="225" y="252" width="40" height="34" rx="4" fill="transparent"/>
+<text x="230" y="279" fill="#91a99a" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">BB</text>
+</g>
+<g data-byte="03" data-byte-hint="Байт 1 из 4 константы 3. Вся константа: 03 00 00 00, младший байт первым (little-endian).">
+<rect class="byte-hit" x="270" y="252" width="40" height="34" rx="4" fill="transparent"/>
+<text x="275" y="279" fill="#91a99a" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">03</text>
+</g>
+<g data-byte="00" data-byte-hint="Байт 2 из 4 константы 3. Вся константа: 03 00 00 00, младший байт первым (little-endian).">
+<rect class="byte-hit" x="315" y="252" width="40" height="34" rx="4" fill="transparent"/>
+<text x="320" y="279" fill="#91a99a" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">00</text>
+</g>
+<g data-byte="00" data-byte-hint="Байт 3 из 4 константы 3. Вся константа: 03 00 00 00, младший байт первым (little-endian).">
+<rect class="byte-hit" x="360" y="252" width="40" height="34" rx="4" fill="transparent"/>
+<text x="365" y="279" fill="#91a99a" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">00</text>
+</g>
+<g data-byte="00" data-byte-hint="Байт 4 из 4 константы 3. Вся константа: 03 00 00 00, младший байт первым (little-endian).">
+<rect class="byte-hit" x="405" y="252" width="40" height="34" rx="4" fill="transparent"/>
+<text x="410" y="279" fill="#91a99a" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">00</text>
+</g>
+<rect x="25" y="293" width="904" height="46" rx="6" fill="#153020"/>
+<path d="M26 293V339" stroke="#89f9b0" stroke-width="4"/>
+<text x="45" y="327" fill="#89f9b0" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">0x401011</text>
+<text x="510" y="327" fill="#89f9b0" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">cmp eax, ebx</text>
+<text x="852" y="327" fill="#89f9b0" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">2</text>
+<g data-byte="39" data-byte-hint="CMP: сравнить первый операнд со вторым через вычитание. Разность не записывается, обновляются флаги.">
+<rect class="byte-hit" x="225" y="300" width="40" height="34" rx="4" fill="transparent"/>
+<text x="230" y="327" fill="#89f9b0" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">39</text>
+</g>
+<g data-byte="D8" data-byte-hint="ModR/M: 11 | 011 | 000 — оба операнда в регистрах, второй EBX, первый EAX. Сравнение вычисляет EAX − EBX.">
+<rect class="byte-hit" x="270" y="300" width="40" height="34" rx="4" fill="transparent"/>
+<text x="275" y="327" fill="#89f9b0" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">D8</text>
+</g>
+<text x="45" y="375" fill="#e4eee6" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">0x401013</text>
+<text x="510" y="375" fill="#e4eee6" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">дальше…</text>
+<text x="852" y="375" fill="#e4eee6" font-size="27" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">—</text>
+<text x="230" y="375" fill="#e4eee6" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="start">…</text>
+<rect x="1030" y="48" width="346" height="106" rx="10" fill="#153020" stroke="#89f9b0" stroke-width="3"/>
+<text x="1203" y="85" fill="#89f9b0" font-size="28" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">RIP</text>
+<text x="1203" y="129" fill="#e4eee6" font-size="34" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">0x401011</text>
+<path d="M1030 111H978V316H932" fill="none" stroke="#89f9b0" stroke-width="3" stroke-linejoin="round" marker-end="url(#green)"/>
+<rect x="1030" y="175" width="346" height="99" rx="10" fill="#153020" stroke="#89f9b0" stroke-width="2"/>
+<path d="M1203 175V274" stroke="#40614b"/>
+<text x="1117" y="208" fill="#89f9b0" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">EAX</text>
+<text x="1289" y="208" fill="#89f9b0" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">EBX</text>
+<text x="1117" y="253" fill="#e4eee6" font-size="38" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">7</text>
+<text x="1289" y="253" fill="#e4eee6" font-size="38" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">3</text>
+<rect x="1030" y="296" width="346" height="102" rx="10" fill="#0c1510" stroke="#40614b" stroke-width="2"/>
+<text x="1098" y="333" fill="#89f9b0" font-size="25" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">ZF</text>
+<text x="1098" y="383" fill="#e4eee6" font-size="40" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">1</text>
+<path d="M1170 296V398" stroke="#40614b"/>
+<text x="1238" y="325" fill="#91a99a" font-size="21" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">CF = 0</text>
+<text x="1238" y="355" fill="#91a99a" font-size="21" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">SF = 0</text>
+<text x="1238" y="385" fill="#91a99a" font-size="21" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" text-anchor="middle">OF = 0</text>
+<text x="28" y="426" fill="#91a99a" font-size="20" font-family="Inter, Arial, sans-serif" text-anchor="start">Новые данные в EBX. Флаги пока от предыдущего сравнения.</text>
+</svg>

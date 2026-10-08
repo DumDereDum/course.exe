@@ -1,0 +1,27 @@
+<!-- type: sequence -->
+<div class="tag">02 / VS Code · байты программы</div>
+<h2>Как читать программу в <span class="accent">Hex Editor</span></h2>
+<div class="widget" data-widget="sequence"><div class="sequence-viewport">
+<div class="sequence-frame" data-frame data-caption="1 / После ручной сборки открыть исполняемый abs через Hex Editor.">
+<div class="columns"><div class="stack"><div class="panel-label">На компьютере · VS Code</div><pre class="code command-wrap">examples/asm/build/abs
+ПКМ → Open With… → Hex Editor</pre><p class="caption">Открываем собранный файл <code>abs</code>. Исходный текст находится в <code>abs.asm</code>.</p><p class="caption">В палитре команд: <b>Reopen Editor With… → Hex Editor</b>.</p></div><div class="stack"><div class="panel-label">Перейти к коду в этом примере</div><pre class="code command-wrap">Hex Editor: Go To Offset
+0x1000</pre><p class="caption">Палитра: Windows — <b>Ctrl + Shift + P</b>, macOS — <b>Cmd + Shift + P</b>.</p><p class="caption">Код .text начинается с 0x1000 в показанном файле. Другой ELF может иметь другое смещение.</p></div></div>
+</div>
+<div class="sequence-frame" data-frame data-caption="2 / Слева — смещение строки; сверху — номер байта; справа — символы.">
+<img class="diagram" data-byte-hints src="@ASSETS@/diagrams/hex-editor-grid.svg" alt="Фрагмент Hex Editor: две строки по 16 байт. Строка 0x1000 и колонка 08 дают смещение 0x1008, байт 7D. Справа отображаются символы, точками обозначены непечатные байты.">
+</div>
+<div class="sequence-frame" data-frame data-caption="3 / Сопоставить байты с objdump. Инструкция может пересекать границу строки.">
+<img class="diagram" data-byte-hints src="@ASSETS@/diagrams/hex-editor-code.svg" alt="Семь инструкций abs с файловыми смещениями и машинными байтами. mov eax, 60 занимает байты от 0x100E до 0x1012 и пересекает границу строки редактора.">
+</div>
+<div class="sequence-frame" data-frame data-caption="4 / Выбрать F9 по 0x1001: Data Inspector, Int32, Little Endian → −7.">
+<img class="diagram" data-byte-hints src="@ASSETS@/diagrams/hex-editor-inspector.svg" alt="В mov eax, -7 байт B8 кодирует команду, четыре байта F9 FF FF FF кодируют число. Data Inspector читает с 0x1001 знаковое 32-битное число в little-endian и показывает минус семь.">
+</div>
+</div></div>
+<aside class="notes">
+<p><b>Показ:</b> четыре подготовленных шага, затем повторить в настоящем VS Code. Пробел — вперёд, Shift + пробел — назад, R — сброс. Слайд показывает схему расширения; команды здесь не запускаются. Байты при наведении и фокусе имеют подписи HEX/BIN.</p>
+<p><b>Открытие:</b> вручную собрать abs по предыдущему слайду, заменив sum на abs. Открыть examples/asm/build/abs; внутри Docker это /work/build/abs. ELF содержит также заголовки, выравнивание и служебные данные. Смещение .text зависит от компоновки: readelf -S build/abs, колонка Off. Address — адрес в памяти; в Hex Editor показано положение в файле, а не RIP.</p>
+<p><b>Чтение:</b> каждая пара hex-цифр — один байт, строка — 16 байт. Смещение строки плюс номер колонки даёт положение байта. 0x1000 + 0x08 = 0x1008. Decoded Text — символы, не дизассемблер. Подготовленные байты взяты из файла abs на скриншоте автора; весь код занимает 0x15 = 21 байт. Нули после 0x1014 находятся вне показанного кода .text.</p>
+<p><b>Дизассемблер:</b> внутри Linux вызвать objdump -d -M intel build/abs. Его адреса — адреса в памяти; сопоставлять байты с Hex Editor через Off и Address секции .text. B8 в этой 64-битной программе без префиксов задаёт MOV EAX, imm32. 7D 02 — JGE на два байта вперёд от конца перехода, к 0x100C. MOV EAX,60 начинается в колонке 0E и продолжается на следующей строке.</p>
+<p><b>Инспектор:</b> выбрать F9, первый байт числа, а не B8. Четыре байта F9 FF FF FF в little-endian дают 0xFFFFFFF9: Int32 = −7, Uint32 = 4294967289. В настройках hexeditor.defaultEndianness выбрать little; скрытую панель можно вернуть через hexeditor.inspectorType = aside. Размер Int32 — четыре байта; просмотр не меняет файл. Дополнительный маршрут: objcopy -O binary -j .text build/abs build/abs.text.bin; открыть examples/asm/build/abs.text.bin — только 21 байт кода, начиная с нуля.</p>
+<p><b>Источники:</b> Microsoft Hex Editor: https://marketplace.visualstudio.com/items?itemName=ms-vscode.hexeditor; команды: https://github.com/microsoft/vscode-hexeditor/blob/main/package.nls.json; настройки: https://github.com/microsoft/vscode-hexeditor/blob/main/package.json.</p>
+</aside>

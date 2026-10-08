@@ -70,6 +70,70 @@ class AuthoringTests(unittest.TestCase):
         self.assertIn('&quot;quoted&quot; &amp; description', rendered)
         self.assertNotIn('<test & title>', rendered)
 
+    def test_conditional_jump_requires_fields_and_annotated_diagram(self):
+        content = (build.SRC / 'asm/02-control/slides/04.html').read_text(encoding='utf-8')
+        for marker in ['data-eax', 'data-ebx', 'data-jump-operation', 'data-jump-diagram', 'data-byte-hints']:
+            with self.subTest(marker=marker), self.assertRaisesRegex(ValueError, 'conditional-jump'):
+                read_slide(self.fragment(content.replace(marker, 'data-missing')))
+        # Asset selection uses parsed widget metadata, not a particular quote style.
+        slide = read_slide(self.fragment(content.replace('data-widget="conditional-jump"', "data-widget='conditional-jump'")))
+        self.assertIn('conditional-jump', slide['widgets'])
+
+    def test_test_variant_requires_its_own_mode_and_rejects_unknown_kind(self):
+        content = (build.SRC / 'asm/02-control/slides/05.html').read_text(encoding='utf-8')
+        slide = read_slide(self.fragment(content))
+        self.assertIn('conditional-jump', slide['widgets'])
+        with self.assertRaisesRegex(ValueError, 'data-test-mode'):
+            read_slide(self.fragment(content.replace('data-test-mode', 'data-missing')))
+        with self.assertRaisesRegex(ValueError, 'data-jump-kind'):
+            read_slide(self.fragment(content.replace('data-jump-kind="test"', 'data-jump-kind="unknown"')))
+
+    def test_ordered_variant_has_fixed_operands_and_requires_operation(self):
+        content = (build.SRC / 'asm/02-control/slides/07.html').read_text(encoding='utf-8')
+        slide = read_slide(self.fragment(content))
+        self.assertIn('conditional-jump', slide['widgets'])
+        self.assertNotIn('data-eax', content)
+        self.assertNotIn('data-ebx', content)
+        with self.assertRaisesRegex(ValueError, 'data-jump-operation'):
+            read_slide(self.fragment(content.replace('data-jump-operation','data-missing')))
+
+    def test_max_variant_requires_operands_without_operation_selector(self):
+        content = (build.SRC / 'asm/02-control/slides/09.html').read_text(encoding='utf-8')
+        slide = read_slide(self.fragment(content))
+        self.assertIn('conditional-jump', slide['widgets'])
+        self.assertNotIn('data-jump-operation', content)
+        for marker in ['data-eax', 'data-ebx', 'data-jump-diagram', 'data-byte-hints']:
+            with self.subTest(marker=marker), self.assertRaisesRegex(ValueError, marker):
+                read_slide(self.fragment(content.replace(marker,'data-missing')))
+
+    def test_while_loop_requires_one_of_each_input_and_diagram(self):
+        content = (build.SRC / 'asm/02-control/slides/10.html').read_text(encoding='utf-8')
+        slide = read_slide(self.fragment(content))
+        self.assertIn('while-loop', slide['widgets'])
+        for marker in ['data-eax','data-ebx','data-loop-diagram','data-byte-hints']:
+            with self.subTest(marker=marker), self.assertRaisesRegex(ValueError, marker):
+                read_slide(self.fragment(content.replace(marker,'data-missing')))
+        with self.assertRaisesRegex(ValueError, 'ровно одна'):
+            read_slide(self.fragment(content.replace('<div data-loop-diagram>', '<input data-eax><div data-loop-diagram>')))
+
+    def test_for_variant_requires_only_bound_and_rejects_unknown_loop_kind(self):
+        content = (build.SRC / 'asm/02-control/slides/11.html').read_text(encoding='utf-8')
+        slide = read_slide(self.fragment(content))
+        self.assertIn('while-loop', slide['widgets'])
+        self.assertNotIn('data-eax', content)
+        for marker in ['data-ebx','data-loop-diagram','data-byte-hints']:
+            with self.subTest(marker=marker), self.assertRaisesRegex(ValueError, marker):
+                read_slide(self.fragment(content.replace(marker,'data-missing')))
+        with self.assertRaisesRegex(ValueError, 'data-loop-kind'):
+            read_slide(self.fragment(content.replace('data-loop-kind="for"','data-loop-kind="unknown"')))
+
+    def test_sum_variant_requires_bound_and_diagram(self):
+        content = (build.SRC / 'asm/02-control/slides/12.html').read_text(encoding='utf-8')
+        self.assertIn('while-loop', read_slide(self.fragment(content))['widgets'])
+        for marker in ['data-ebx','data-loop-diagram','data-byte-hints']:
+            with self.subTest(marker=marker), self.assertRaisesRegex(ValueError, marker):
+                read_slide(self.fragment(content.replace(marker,'data-missing')))
+
     def test_templates_are_valid_slide_fragments(self):
         for template in sorted((build.ROOT / 'templates/slides').glob('*.html')):
             with self.subTest(template=template.name):

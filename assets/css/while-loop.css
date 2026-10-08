@@ -1,0 +1,15 @@
+.loop-inputs{display:flex;align-items:center;gap:1.5cqw;font:1.15cqw/1.4 var(--mono)}
+.loop-inputs label{display:flex;align-items:center;gap:.6cqw;color:var(--green)}
+.loop-inputs input{width:5cqw;font:inherit;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:.25cqw;padding:.5cqh .5cqw}
+.loop-inputs input:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.loop-inputs input[aria-invalid="true"]{border-color:var(--bright)}
+.loop-inputs .caption{margin-left:auto;font-size:.8cqw;color:var(--muted)}
+[data-widget="while-loop"] .jump-highlight,[data-widget="while-loop"] .order-highlight{opacity:0}
+[data-widget="while-loop"] .loop-current .jump-highlight,[data-widget="while-loop"] .loop-flag-active .order-highlight{opacity:1}
+[data-widget="while-loop"] .loop-executed text{fill:var(--green)}
+[data-widget="while-loop"] .loop-skipped text{fill:var(--muted)}
+[data-widget="while-loop"] .loop-current text,[data-widget="while-loop"] .loop-flag-active text{fill:var(--green)}
+[data-widget="while-loop"] .loop-code-active{fill:var(--green);font-weight:600}
+[data-widget="while-loop"] .loop-path-active{stroke:var(--green);stroke-width:4}
+[data-widget="while-loop"][data-loop-kind="for"],
+[data-widget="while-loop"][data-loop-kind="sum"]{gap:1cqh}
