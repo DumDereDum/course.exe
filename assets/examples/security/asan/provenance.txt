@@ -1,0 +1,11 @@
+Source: examples/rbpo/sast-lab/task.c (original, before fix)
+Apple clang 16.0.0, macOS arm64
+Compile: clang -O1 -g -fsanitize=address -fno-omit-frame-pointer -c task.c -o /private/tmp/rbpo-block04-asan/task.o
+Link: clang -g -fsanitize=address /private/tmp/rbpo-block04-asan/task.o -o /private/tmp/rbpo-block04-asan/task-asan
+Symbols: dsymutil /private/tmp/rbpo-block04-asan/task-asan
+ASAN_OPTIONS=abort_on_error=0:detect_leaks=0
+normal: exit 0, empty stderr (initial equivalent build)
+retry: exit 1; saved terminal stderr from symbolized run outside sandbox, PID 12782
+-O1 inlined run_task; frames name main at task.c:25.
+Source inspection maps frees to task.c:13 and task.c:15.
+Source snapshot: task.original.c in this directory

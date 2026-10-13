@@ -1,0 +1,10 @@
+Trivy 0.73.0, macOS arm64
+Prepared: 2026-10-12
+Input: manually authored examples/rbpo/sca-report/bom.json, CycloneDX 1.6
+DB version 2; UpdatedAt 2026-08-11T13:06:59.374054902Z
+Command: trivy sbom --cache-dir /private/tmp/rbpo-block06-trivy --skip-db-update --offline-scan --disable-telemetry --skip-version-check --scanners vuln --format json --output assets/examples/security/sca/report.json examples/rbpo/sca-report/bom.json
+Exit code: 0 (default finding behavior)
+Warnings: Third-party SBOM may lead to inaccurate vulnerability detection; Recommend using Trivy to generate SBOMs
+Result: zlib / 1.2.11 / CVE-2022-37434 / FixedVersion 1.2.13 / CRITICAL
+DataSource: GitLab Advisory Database Community
+No actual dependency installation, compiled-product inventory or reachability analysis was performed.

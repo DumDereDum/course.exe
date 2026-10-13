@@ -1,0 +1,46 @@
+task.c:15:5: warning: Attempt to free released memory [unix.Malloc]
+   15 |     free(task);
+      |     ^
+task.c:20:17: note: Assuming 'argc' is equal to 2
+   20 |     int retry = argc == 2 && strcmp(argv[1], "retry") == 0;
+      |                 ^~~~~~~~~
+task.c:20:17: note: Left side of '&&' is true
+task.c:21:9: note: 'argc' is <= 2
+   21 |     if (argc > 2 || (argc == 2 && !retry)) {
+      |         ^~~~
+task.c:21:9: note: Left side of '||' is false
+task.c:21:22: note: 'argc' is equal to 2
+   21 |     if (argc > 2 || (argc == 2 && !retry)) {
+      |                      ^~~~
+task.c:21:22: note: Left side of '&&' is true
+task.c:21:36: note: 'retry' is 1
+   21 |     if (argc > 2 || (argc == 2 && !retry)) {
+      |                                    ^~~~~
+task.c:21:5: note: Taking false branch
+   21 |     if (argc > 2 || (argc == 2 && !retry)) {
+      |     ^
+task.c:25:12: note: Calling 'run_task'
+   25 |     return run_task(retry);
+      |            ^~~~~~~~~~~~~~~
+task.c:6:18: note: Memory is allocated
+    6 |     char *task = malloc(32);
+      |                  ^~~~~~~~~~
+task.c:7:9: note: Assuming 'task' is not equal to NULL
+    7 |     if (task == NULL) return 1;
+      |         ^~~~~~~~~~~~
+task.c:7:5: note: Taking false branch
+    7 |     if (task == NULL) return 1;
+      |     ^
+task.c:11:9: note: 'retry' is 1
+   11 |     if (retry) {
+      |         ^~~~~
+task.c:11:5: note: Taking true branch
+   11 |     if (retry) {
+      |     ^
+task.c:13:9: note: Memory is released
+   13 |         free(task);
+      |         ^~~~~~~~~~
+task.c:15:5: note: Attempt to free released memory
+   15 |     free(task);
+      |     ^~~~~~~~~~
+1 warning generated.

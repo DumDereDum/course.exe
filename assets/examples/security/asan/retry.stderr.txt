@@ -1,0 +1,19 @@
+=================================================================
+==12782==ERROR: AddressSanitizer: attempting double-free on 0x603000001c00 in thread T0:
+    #0 0x1025e8d40 in free+0x98 (libclang_rt.asan_osx_dynamic.dylib:arm64e+0x54d40)
+    #1 0x102177ccc in main task.c:25
+    #2 0x1811bc270  (<unknown module>)
+
+0x603000001c00 is located 0 bytes inside of 32-byte region [0x603000001c00,0x603000001c20)
+freed by thread T0 here:
+    #0 0x1025e8d40 in free+0x98 (libclang_rt.asan_osx_dynamic.dylib:arm64e+0x54d40)
+    #1 0x102177cc4 in main task.c:25
+    #2 0x1811bc270  (<unknown module>)
+
+previously allocated by thread T0 here:
+    #0 0x1025e8c04 in malloc+0x94 (libclang_rt.asan_osx_dynamic.dylib:arm64e+0x54c04)
+    #1 0x102177c8c in main task.c:25
+    #2 0x1811bc270  (<unknown module>)
+
+SUMMARY: AddressSanitizer: double-free (libclang_rt.asan_osx_dynamic.dylib:arm64e+0x54d40) in free+0x98
+==12782==ABORTING

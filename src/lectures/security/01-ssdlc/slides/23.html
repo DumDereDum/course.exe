@@ -1,0 +1,28 @@
+<!-- type: sequence -->
+<div class="tag">23 / источники сведений · CVE и БДУ ФСТЭК</div>
+<h2>Исправление сверяют <span class="accent">с источником</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Соответствие CVE и БДУ подтверждено бюллетенем производителя РЕД ОС.">
+      <div class="cards">
+        <div class="card"><h3>CVE</h3><p>CVE-2022-37434<br>Запись о конкретной<br>уязвимости.</p></div>
+        <div class="card"><h3>БДУ ФСТЭК</h3><p>BDU:2022-05325<br>Запись в российском<br>банке данных.</p></div>
+        <div class="card"><h3>Advisory</h3><p>ROS-20221207-01<br>Пакет и исправление<br>для РЕД ОС 7.3.</p></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Backport: исправление переносится в пакет с прежней базовой версией.">
+      <div class="columns">
+        <div class="panel"><div class="panel-label">Upstream zlib · эта CVE</div><pre class="code">Исправление: 1.2.13</pre><p class="caption"><a href="https://github.com/madler/zlib/releases/tag/v1.2.13" target="_blank" rel="noopener">Release notes ↗</a></p></div>
+        <div class="panel"><div class="panel-label">РЕД ОС 7.3 · пакет обновления</div><pre class="code">zlib-0:1.2.11-15.el7.x86_64</pre><p class="caption"><a href="https://redos.red-soft.ru/support/secure/uyazvimosti/uyazvimost-zlib-cve-2022-37434/" target="_blank" rel="noopener">Бюллетень производителя ↗</a></p></div>
+      </div>
+      <p class="takeaway">Сравниваем полную версию пакета<br>с бюллетенем его дистрибутива.</p>
+    </div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Кадр 1:</b> для одного случая есть CVE, идентификатор БДУ и бюллетень производителя. Соответствие CVE-2022-37434 / BDU:2022-05325 проверено по официальному бюллетеню РЕД ОС ROS-20221207-01 от 07.12.2022. Прямой сайт БДУ при подготовке недоступен; не заявлять, что его карточка была прочитана. Локальный резерв сведений — assets/examples/security/sca/sources.md.</p>
+  <p><b>Кадр 2:</b> upstream исправление опубликовано в zlib 1.2.13. Производитель РЕД ОС 7.3 указывает обновление zlib-0:1.2.11-15.el7.x86_64. Поэтому базовой строки 1.2.11 недостаточно для оценки дистрибутивного пакета: нужны epoch, версия, release и advisory соответствующей платформы. Подробности состава backport в этом блоке не разбираются.</p>
+  <p><b>Разбор:</b> Trivy выбирает источники advisory по типу и происхождению пакета. В нашем примере Conan используется GitLab Advisory Database Community. Для пакетов ОС нужны сведения её поставщика. Их диапазоны нельзя автоматически переносить на upstream или другую ОС. Trivy в этом запуске не запрашивал БДУ; соответствие добавлено отдельно по источнику.</p>
+  <p><b>Граница:</b> CWE описывает класс слабости, CVSS — её техническую тяжесть; они не заменяют идентификацию пакета и проверку применимости. 1.2.13 здесь — историческое исправление выбранной CVE, не рекомендация версии для нового проекта.</p>
+  <p><b>Источники:</b> ссылки в кадре 2; https://trivy.dev/docs/latest/scanner/vulnerability/ . Время: 2 минуты.</p>
+</aside>

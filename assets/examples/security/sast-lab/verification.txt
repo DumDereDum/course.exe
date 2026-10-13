@@ -1,0 +1,13 @@
+Сохранённые проверки: Apple clang 16.0.0, macOS arm64.
+
+mkdir -p reports
+clang --analyze task.c \
+  -Xanalyzer -analyzer-output=text \
+  2> reports/sast.txt
+cat reports/sast.txt
+
+Повторный запуск Clang: код 0, reports/sast.txt пуст.
+
+Ранее выполненная проверка того же исправленного файла:
+$ sh check.sh
+OK: обычный режим и retry работают

@@ -1,0 +1,30 @@
+<!-- type: content -->
+<div class="tag">21 / SCA · разбор находки</div>
+<h2>Компонент и версия<br><span class="accent">сопоставлены с CVE</span></h2>
+<div class="columns">
+  <div class="panel">
+    <div class="panel-label">Trivy 0.73 · сохранённые поля</div>
+    <pre class="code">PkgName: zlib
+InstalledVersion: 1.2.11
+FixedVersion: 1.2.13
+VulnerabilityID: CVE-2022-37434
+Severity: CRITICAL</pre>
+    <p class="caption">Учебный SBOM · база 11.08.2026<br><a href="@ASSETS@/examples/security/sca/report.json" target="_blank" rel="noopener">Полный отчёт ↗</a></p>
+  </div>
+  <div class="panel">
+    <div class="panel-label">Действия после совпадения</div>
+    <ul class="bullets">
+      <li>Найти компонент в выпуске.</li>
+      <li>Сверить версии с advisory.</li>
+      <li>Проверить условия CVE.</li>
+    </ul>
+  </div>
+</div>
+<p class="takeaway">CRITICAL — оценка находки; приоритет требует контекста продукта.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> пять значений извлечены из настоящего JSON-отчёта Trivy, остальные находки в нём сохранены. InstalledVersion отражает версию в переданном SBOM; библиотека в этом примере не устанавливалась. FixedVersion 1.2.13 — версия исправления этой CVE для upstream/Conan, а не рекомендация актуальной версии на 2026 год.</p>
+  <p><b>Происхождение:</b> вручную подготовленный CycloneDX 1.6, пакет pkg:conan/zlib@1.2.11. Trivy 0.73.0, macOS arm64; сохранённая база обновлена 11.08.2026. Источник совпадения — GitLab Advisory Database Community. Полная команда и предупреждение о стороннем SBOM сохранены в provenance.txt. Запуск завершился с кодом 0: по умолчанию найденная уязвимость не делает код ненулевым.</p>
+  <p><b>Граница:</b> это успешное сопоставление учебной ведомости, не инвентаризация реального бинарника. Дату базы обязательно учитывать: свежие advisory могли появиться позже. Severity зависит от источника; CVSS описывает техническую тяжесть, а контекст эксплуатации и последствия для продукта влияют на приоритет.</p>
+  <p><b>Связь:</b> для CVE-2022-37434 требуется использование inflateGetHeader(); эту применимость разберём на слайде 24. Соответствие пакета найдено, но достижимость уязвимого поведения не проверена.</p>
+  <p><b>Источники:</b> сохранённый report.json; https://www.cve.org/CVERecord?id=CVE-2022-37434 ; https://github.com/madler/zlib/releases/tag/v1.2.13 . Время: 2 минуты.</p>
+</aside>

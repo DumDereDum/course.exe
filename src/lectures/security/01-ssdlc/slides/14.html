@@ -1,0 +1,31 @@
+<!-- type: sequence -->
+<div class="tag">14 / сборка · инструментация</div>
+<h2>Сборку выбирают <span class="accent">под проверку</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Инструментация добавляет наблюдение за выполнением программы.">
+      <div class="cards">
+        <div class="card"><h3>Для выпуска</h3><p>Настройки продукта.<br>Функциональные тесты<br>и проверки защиты.</p></div>
+        <div class="card"><h3>Для ASan</h3><p>Проверки памяти.<br>Нарушение во время<br>работы → отчёт.</p></div>
+        <div class="card"><h3>Для AFL++</h3><p>Обратная связь<br>по покрытию.<br>Можно добавить ASan.</p></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="-g — символы; -O1 — оптимизация; ASan проверяет обращения к памяти.">
+      <div class="panel">
+        <div class="panel-label">Прямая команда · пример сборки ASan</div>
+        <pre class="code">clang -O1 -g \
+  -fsanitize=address \
+  -fno-omit-frame-pointer \
+  task.c -o task-asan</pre>
+      </div>
+      <p class="takeaway">ASan замечает ошибку.<br>AFL++ подбирает вход, который к ней приводит.</p>
+    </div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Кадр 1:</b> одна версия исходников может дать несколько сборок. Инструментация ASan добавляет проверки памяти и библиотеку исполнения. Инструментация AFL++ передаёт данные о покрытии. Это разные задачи; их можно объединить. Проверять выпускную конфигурацию также необходимо.</p>
+  <p><b>Кадр 2:</b> показать прямую команду без запуска преподавателем. -fsanitize=address нужен при компиляции и линковке; Clang в этой команде делает оба шага. -g даёт отладочную информацию, -fno-omit-frame-pointer сохраняет указатель кадра для удобной трассы. Для перевода адресов в строки нужна символизация.</p>
+  <p><b>Связь с практикой:</b> для AFL++ будем использовать afl-clang-fast; AFL_USE_ASAN=1 включает ASan при сборке. Команда и подготовка окружения появятся в блоке 5. Существующий образ SAST ещё нужно дополнить AFL++ и runtime ASan: его пригодность для фаззинга не заявлена.</p>
+  <p><b>Граница:</b> ASan выявляет, например, выход за границы, use-after-free и double-free на выполненных путях. UBSan проверяет выбранные виды неопределённого поведения, TSan — гонки; они не включаются одним только -fsanitize=address. Подробности оставлены устному пояснению. ASan runtime предназначен для тестирования.</p>
+  <p><b>Источники:</b> https://clang.llvm.org/docs/AddressSanitizer.html ; https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html ; https://clang.llvm.org/docs/ThreadSanitizer.html ; https://aflplus.plus/docs/fuzzing_in_depth/ . Время: 2 минуты.</p>
+</aside>

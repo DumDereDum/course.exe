@@ -1,0 +1,94 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.7.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.7",
+  "serialNumber": "urn:uuid:dfaeed12-64bb-4611-a56e-af24169ee0e0",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-10-12T19:14:35+00:00",
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "manufacturer": {
+            "name": "Aqua Security Software Ltd."
+          },
+          "group": "aquasecurity",
+          "name": "trivy",
+          "version": "0.73.0"
+        }
+      ]
+    },
+    "component": {
+      "bom-ref": "d69c42ea-999e-4975-b2af-2448068a59c9",
+      "type": "application",
+      "name": "/private/tmp/rbpo-sca-lab/after/project",
+      "properties": [
+        {
+          "name": "aquasecurity:trivy:SchemaVersion",
+          "value": "2"
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "bom-ref": "367a086b-8e72-45ba-a106-7d5fd88f3565",
+      "type": "application",
+      "name": "conan.lock",
+      "properties": [
+        {
+          "name": "aquasecurity:trivy:Class",
+          "value": "lang-pkgs"
+        },
+        {
+          "name": "aquasecurity:trivy:Type",
+          "value": "conan"
+        }
+      ]
+    },
+    {
+      "bom-ref": "pkg:conan/zlib@1.2.13",
+      "type": "library",
+      "name": "zlib",
+      "version": "1.2.13",
+      "licenses": [
+        {
+          "license": {
+            "id": "Zlib"
+          }
+        }
+      ],
+      "purl": "pkg:conan/zlib@1.2.13",
+      "properties": [
+        {
+          "name": "aquasecurity:trivy:PkgID",
+          "value": "zlib/1.2.13"
+        },
+        {
+          "name": "aquasecurity:trivy:PkgType",
+          "value": "conan"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "367a086b-8e72-45ba-a106-7d5fd88f3565",
+      "dependsOn": [
+        "pkg:conan/zlib@1.2.13"
+      ]
+    },
+    {
+      "ref": "d69c42ea-999e-4975-b2af-2448068a59c9",
+      "dependsOn": [
+        "367a086b-8e72-45ba-a106-7d5fd88f3565"
+      ]
+    },
+    {
+      "ref": "pkg:conan/zlib@1.2.13",
+      "dependsOn": []
+    }
+  ],
+  "vulnerabilities": []
+}

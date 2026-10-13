@@ -1,0 +1,55 @@
+<!-- type: sequence -->
+<div class="tag">25 / среда заранее · практика SCA 10 минут</div>
+<h2>Зависимость → <span class="accent">повторный SCA</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="До занятия: скачать архив, собрать образ и открыть контейнер.">
+      <div class="columns">
+        <div class="panel">
+          <div class="panel-label">На компьютере · из папки архива</div>
+          <pre class="code">docker build -t rbpo-sca .
+docker run --rm -it \
+  -v "$PWD:/work" rbpo-sca</pre>
+          <p class="caption"><a href="@ASSETS@/examples/security/sca-lab/sca-lab.zip" target="_blank" rel="noopener">Практика и Dockerfile ↗</a></p>
+        </div>
+        <div class="panel">
+          <div class="panel-label">Дополняем образ из блока SAST</div>
+          <ul class="bullets">
+            <li>Основа: rbpo-sast.</li>
+            <li>Добавляем Trivy и Conan.</li>
+            <li>В project/ — зависимость<br>и lock-файл.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="До занятия, в контейнере: подготовить профиль, рецепты и базу уязвимостей.">
+      <div class="panel">
+        <div class="panel-label">Подготовка с доступом к интернету</div>
+        <pre class="code">conan profile detect
+conan download zlib/1.2.11 \
+  --only-recipe -r=conancenter
+conan download zlib/1.2.13 \
+  --only-recipe -r=conancenter
+trivy image --download-db-only</pre>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="8 минут: отчёт → разбор CVE → обновление зависимости → повторная проверка.">
+      <div class="panel">
+        <div class="panel-label">В контейнере · из /work</div>
+        <pre class="code">mkdir -p reports
+trivy fs --scanners vuln \
+  --skip-db-update --format json \
+  --output reports/before.json project</pre>
+      </div>
+      <p class="takeaway">Найдите CVE-2022-37434.<br>Обновите зависимость по шагам README.</p>
+    </div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Показ:</b> первые два кадра — подготовка заранее, третий оставить на 8 минут работы. Далее слайд 26 — двухминутный разбор. Преподаватель команды не запускает; это инструкция студенту.</p>
+  <p><b>Среда:</b> Docker должен работать, rbpo-sast уже собран. Dockerfile добавляет Trivy 0.73.0 из официального образа, Python venv и Conan 2.21.0. -v подключает папку к /work. Кеши сохраняются в .conan-cache и .trivy-cache этой папки. Файлы редактируют на компьютере. Проверить версии инструментов по README.</p>
+  <p><b>Подготовка:</b> profile detect определяет настройки среды. download --only-recipe получает только рецепты двух версий с указанного remote; бинарники не устанавливаются. Базу Trivy загрузить до занятия. Все шаги должны завершиться успешно; это время не входит в практику.</p>
+  <p><b>Задание:</b> анализировать project/conan.lock, полученный Conan, найти пакет, версии, источник и условие CVE. По одному графу применимость к выполняемому продукту не подтверждается. Выбрать исправление, изменить project/conanfile.txt, пересоздать lock-файл, повторить Trivy и получить SBOM. Команды следующих шагов находятся в README архива.</p>
+  <p><b>Параметры:</b> fs проверяет зависимости проекта; --scanners vuln оставляет проверку уязвимостей; --skip-db-update использует подготовленную базу; --format json и --output задают отчёт. До и после сравниваются на одной базе. Успешный код Trivy по умолчанию допускает находки.</p>
+  <p><b>Граница:</b> проверяется граф перед сборкой, не состав бинарника. Установка, сборка и тесты — дальнейшие действия. Практика проверена локально; контейнерная сборка не проверена, Docker daemon не запущен. Резервные отчёты в assets/examples/security/sca-lab/ не заменяют собственный запуск.</p>
+</aside>

@@ -1,0 +1,14 @@
+Prepared: 2026-10-12, macOS arm64
+Conan 2.21.0; Trivy 0.73.0
+Recipe resolution: official ConanCenter https://center2.conan.io
+Original lock: zlib/1.2.11#bfceb3f8904b735f75c2b0df5713b1e6
+Updated lock: zlib/1.2.13#9df41c65e2c2b6ef47633dc32e0b699a
+CONAN_HOME=/private/tmp/rbpo-sca-conan-home (isolated cache)
+DB version 2; UpdatedAt 2026-08-11T13:06:59.374054902Z
+Before command: trivy fs --scanners vuln --cache-dir /private/tmp/rbpo-block06-trivy --skip-db-update --offline-scan --disable-telemetry --skip-version-check --format json --output assets/examples/security/sca-lab/before.json examples/rbpo/sca-lab/project
+Update command: conan lock create project -nr --lockfile="" --lockfile-out=project/conan.lock (in /private/tmp/rbpo-sca-lab/after, isolated CONAN_HOME)
+After command: same Trivy flags, after.json, /private/tmp/rbpo-sca-lab/after/project
+SBOM command: trivy fs --cache-dir /private/tmp/rbpo-block06-trivy --offline-scan --disable-telemetry --skip-version-check --format cyclonedx --output assets/examples/security/sca-lab/bom.json /private/tmp/rbpo-sca-lab/after/project
+All commands completed with exit code 0.
+Dependency binaries were not installed or built; the resolved dependency graph was checked.
+Docker daemon not running; Dockerfile is an untested container recipe.

@@ -1,0 +1,10 @@
+Trivy 0.73.0; macOS arm64; DB UpdatedAt 2026-08-11T13:06:59.374054902Z
+Rule: --scanners vuln --severity CRITICAL --exit-code 1
+before: JSON findings=1, CRITICAL=1, exit=1
+after: JSON findings=0, CRITICAL=0, exit=0
+Before: examples/rbpo/sca-lab/project, zlib 1.2.11
+After: /private/tmp/rbpo-sca-lab/after/project, zlib 1.2.13
+Full JSON reports: gate-before.json, gate-after.json
+The JSON report in this run includes the selected CRITICAL findings; keep the full unfiltered report separately.
+Additional flags: --cache-dir /private/tmp/rbpo-block06-trivy --skip-db-update --offline-scan --disable-telemetry --skip-version-check --format json --output <report.json>
+This verifies a local scanner exit rule, not a running CI pipeline or a production-release decision.

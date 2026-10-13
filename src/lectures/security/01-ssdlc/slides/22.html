@@ -1,0 +1,43 @@
+<!-- type: sequence -->
+<div class="tag">22 / SBOM · ведомость компонентов</div>
+<h2>SBOM сохраняет <span class="accent">состав выпуска</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Форматы обмена: CycloneDX и SPDX. Состав привязываем к артефакту.">
+      <div class="columns">
+        <div class="panel">
+          <div class="panel-label">Учебный SBOM · поля компонента</div>
+          <pre class="code">name: zlib
+version: 1.2.11
+purl: pkg:conan/zlib@1.2.11
+license: Zlib</pre>
+          <p class="caption"><a href="@ASSETS@/examples/security/sca/bom.json" target="_blank" rel="noopener">CycloneDX JSON ↗</a></p>
+        </div>
+        <div class="panel">
+          <div class="panel-label">Для чего сохраняем</div>
+          <ul class="bullets">
+            <li>Определить пакет и версию.</li>
+            <li>Восстановить связи.</li>
+            <li>Проверить состав снова<br>при появлении новой CVE.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="SBOM — вход для анализа; полнота списка определяет полноту проверки.">
+      <div class="panel">
+        <div class="panel-label">Прямая команда · сканирование SBOM</div>
+        <pre class="code">trivy sbom --scanners vuln \
+  --format json \
+  --output report.json bom.json</pre>
+      </div>
+      <p class="takeaway">Та же ведомость + обновлённая база<br>может дать новые находки.</p>
+    </div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Кадр 1:</b> Software Bill of Materials — машиночитаемая ведомость компонентов и их связей. Поля на экране — читаемая выжимка, не синтаксис JSON. purl задаёт тип пакета, имя и версию. Лицензия Zlib указана в учебном файле; юридическую совместимость она автоматически не определяет. dependencies в полном файле связывает модель приложения с zlib.</p>
+  <p><b>Граница:</b> этот SBOM составлен вручную для иллюстрации. В реальном процессе ведомость получают из инвентаризации, проверяют полноту, связывают с конкретной сборкой и сохраняют её происхождение. Хэш артефакта помогает зафиксировать объект проверки. Сам список компонентов не доказывает безопасность и не обязательно содержит уязвимости.</p>
+  <p><b>Кадр 2:</b> прямой запуск Trivy получает bom.json и сохраняет JSON-отчёт. Без --skip-db-update инструмент проверяет необходимость обновления базы; первый запуск требует доступной базы и обычно сети. Для сохранённого примера использован прежний снимок и дополнительные offline-флаги, записанные в provenance.txt. Команда без этих флагов может дать другой актуальный набор находок.</p>
+  <p><b>Форматы:</b> Trivy умеет читать и создавать SBOM в CycloneDX и SPDX. Генерация состава и сканирование на уязвимости — разные действия. Команды инвентаризации продукта и самостоятельная практика будут в блоке 7.</p>
+  <p><b>Источники:</b> https://cyclonedx.org/capabilities/sbom/ ; https://trivy.dev/docs/latest/supply-chain/sbom/ ; https://github.com/package-url/purl-spec . Время: 2 минуты.</p>
+</aside>

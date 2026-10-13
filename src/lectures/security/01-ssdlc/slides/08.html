@@ -1,0 +1,28 @@
+<!-- type: content -->
+<div class="tag">08 / SAST · карточка находки</div>
+<h2>Находку читают<br><span class="accent">по месту и трассе</span></h2>
+<div class="columns">
+  <div class="panel">
+    <div class="panel-label">Сохранённый отчёт · Clang</div>
+    <pre class="code">ownership.c:8:9
+Attempt to free released memory
+[unix.Malloc]</pre>
+    <p class="caption"><a href="@ASSETS@/examples/security/sast/report.txt" target="_blank" rel="noopener">Полный отчёт ↗</a></p>
+  </div>
+  <div class="panel">
+    <div class="panel-label">Разбор находки</div>
+    <ul class="bullets">
+      <li>Место: ownership.c:8:9</li>
+      <li>Правило: unix.Malloc</li>
+      <li>Условие: retry ≠ 0</li>
+    </ul>
+  </div>
+</div>
+<p class="takeaway">Severity и confidence: опасность и уверенность — разные оценки.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> сообщение переводится как «попытка освободить уже освобождённую память». ownership.c:8:9 — файл, строка и колонка; unix.Malloc — идентификатор группы проверок. Трасса в полном отчёте объясняет выделение, первое освобождение и ветку retry != 0.</p>
+  <p><b>Происхождение:</b> сохранённый запуск Apple clang version 16.0.0 (clang-1600.0.26.6), arm64-apple-darwin24.0.0. Команда: clang --analyze -Xanalyzer -analyzer-output=text ownership.c. На экране три фрагмента одного сообщения с удалёнными служебными словами и переносами для читаемости. Полный неизменённый текст доступен по локальной ссылке.</p>
+  <p><b>Оценки:</b> severity описывает серьёзность или потенциальные последствия; confidence — уверенность инструмента в находке. Наличие и шкалы этих полей зависят от анализатора. В этом текстовом отчёте отдельные численные severity и confidence не представлены. Метка warning не равна CVSS и не является готовой оценкой риска.</p>
+  <p><b>Действие:</b> разработчик или специалист по безопасности открывает контекст, проверяет условия трассы и определяет статус находки. До подтверждения она остаётся сообщением анализатора. Код примера служит только источником отчёта, а не сквозным сюжетом лекции или готовой мини-практикой.</p>
+  <p><b>Источник:</b> https://clang.llvm.org/docs/ClangStaticAnalyzer.html и сохранённый локальный отчёт. Время: 2 минуты.</p>
+</aside>

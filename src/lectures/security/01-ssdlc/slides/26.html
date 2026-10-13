@@ -1,0 +1,54 @@
+<!-- type: sequence -->
+<div class="tag">26 / практика SCA · разбор 2 минуты</div>
+<h2>После обновления <span class="accent">проверяем снова</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Исторический пример: 1.2.13 исправляет выбранную CVE; версию сверяем с advisory.">
+      <div class="columns">
+        <div class="panel"><div class="panel-label">conanfile.txt · до</div><pre class="code">[requires]
+zlib/1.2.11</pre></div>
+        <div class="panel"><div class="panel-label">conanfile.txt · после</div><pre class="code">[requires]
+zlib/1.2.13</pre></div>
+      </div>
+      <p class="takeaway">Меняем зависимость проекта.<br>Lock-файл и SBOM получаем заново.</p>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="-nr — только кеш; пустой --lockfile — новый граф без старых записей.">
+      <div class="panel">
+        <div class="panel-label">Прямые команды · повторная проверка</div>
+        <pre class="code">conan lock create project -nr \
+  --lockfile="" \
+  --lockfile-out=project/conan.lock
+trivy fs --scanners vuln \
+  --skip-db-update --format json \
+  --output reports/after.json project</pre>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Сохранённый результат: версия обновлена, CVE-2022-37434 для zlib больше не найдена.">
+      <div class="columns">
+        <div class="panel">
+          <div class="panel-label">Получить новый SBOM</div>
+          <pre class="code">trivy fs --format cyclonedx \
+  --output reports/bom.json \
+  project</pre>
+          <p class="caption"><a href="@ASSETS@/examples/security/sca-lab/verification.txt" target="_blank" rel="noopener">Сохранённые проверки ↗</a></p>
+        </div>
+        <div class="panel">
+          <div class="panel-label">Критерий завершения</div>
+          <ul class="bullets">
+            <li>zlib 1.2.13 учтена.</li>
+            <li>Выбранной CVE нет.</li>
+            <li>Оба отчёта и новый<br>SBOM сохранены.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Кадр 1:</b> 1.2.13 — историческое исправление CVE-2022-37434, не рекомендация версии для нового проекта. Изменение в conanfile.txt должно сопровождаться новым разрешением зависимостей.</p>
+  <p><b>Кадр 2:</b> Conan 2.21.0 создаёт граф из подготовленного кеша, --lockfile="" не использует старый lock-файл. Без этого старые версии могут остаться в объединённом lock-файле. Команда не устанавливает и не собирает библиотеку. После успешного разрешения повторяют Trivy на project с той же базой.</p>
+  <p><b>Кадр 3:</b> CycloneDX генерируется Trivy по обновлённому lock-файлу. Проверить, что пакет не исчез из состава, нужная версия есть в Packages отчёта и components SBOM, выбранная CVE отсутствует. Ошибка анализа или потерянный компонент не считаются исправлением.</p>
+  <p><b>Сохранённый запуск:</b> macOS arm64, Trivy 0.73.0, Conan 2.21.0, база 11.08.2026. До: zlib 1.2.11, две находки, включая выбранную CVE. После: zlib 1.2.13, находок в этом снимке нет. Все команды завершились с кодом 0. Полные JSON, lock-файлы и параметры сохранены в assets/examples/security/sca-lab/.</p>
+  <p><b>Граница:</b> актуальная база может дать другие находки; критерий относится к выбранной CVE. Безопасность продукта этим не доказана. Для выпуска далее установить зависимости по lock-файлу, собрать, проверить состав артефакта и пройти функциональные и регрессионные тесты. Применимость остальных находок рассматривается отдельно.</p>
+  <p><b>Источники:</b> сохранённые результаты; https://docs.conan.io/2/reference/commands/lock/create.html ; https://trivy.dev/docs/latest/coverage/language/c/ .</p>
+</aside>

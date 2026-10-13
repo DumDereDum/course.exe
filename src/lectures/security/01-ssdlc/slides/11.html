@@ -1,0 +1,57 @@
+<!-- type: sequence -->
+<div class="tag">11 / среда заранее · практика SAST 10 минут</div>
+<h2>Подготовка и <span class="accent">практика SAST</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="До занятия: скачайте архив, распакуйте и запустите Docker.">
+      <div class="panel">
+        <div class="panel-label">Dockerfile · Ubuntu + Clang · <a href="@ASSETS@/examples/security/sast-lab/sast-lab.zip" target="_blank" rel="noopener">Скачать практику ↗</a></div>
+        <pre class="code">FROM ubuntu:24.04
+RUN apt-get update \
+    &amp;&amp; apt-get install -y \
+        --no-install-recommends clang \
+    &amp;&amp; rm -rf /var/lib/apt/lists/*
+WORKDIR /work
+CMD ["/bin/bash"]</pre>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="В контейнере выполните clang --version; затем запускайте анализатор.">
+      <div class="panel">
+        <div class="panel-label">На компьютере · из папки с Dockerfile</div>
+        <pre class="code">docker build -t rbpo-sast .
+docker run --rm -it \
+  -v "$PWD:/work" rbpo-sast</pre>
+      </div>
+      <p class="takeaway">task.c правим на компьютере.<br>Контейнер видит ту же папку в /work.</p>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="8 минут работы + 2 минуты разбора. Готово: находки нет, оба режима работают.">
+      <div class="columns">
+        <div class="panel">
+          <div class="panel-label">В контейнере · инструкция запуска</div>
+          <pre class="code">mkdir -p reports
+clang --analyze task.c \
+  -Xanalyzer -analyzer-output=text \
+  2&gt; reports/sast.txt
+cat reports/sast.txt</pre>
+        </div>
+        <div class="panel">
+          <div class="panel-label">Разбор и действие</div>
+          <ul class="bullets">
+            <li>Место, правило, условие пути.</li>
+            <li>Статус TP и класс CWE.</li>
+            <li>Исправьте, повторите Clang,<br>выполните sh check.sh.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Показ:</b> первые два кадра — подготовка до занятия; третий оставить на 8 минут. Ещё 2 минуты — разбор на слайде 12. Преподаватель команды не выполняет. Это инструкции, не сохранённый успешный вывод Docker.</p>
+  <p><b>Среда:</b> установить и запустить Docker, распаковать архив. Dockerfile: Ubuntu 24.04, установка Clang, очистка индекса пакетов, рабочая папка /work и Bash. Сборку и запуск выполнять на компьютере из папки практики. Точка в docker build задаёт текущий контекст, -t — имя образа. Первой сборке нужен интернет.</p>
+  <p><b>Контейнер:</b> --rm удаляет его при выходе, -it даёт интерактивный терминал, -v подключает папку к /work. Файлы остаются на компьютере. task.c редактируют обычным редактором; образ при изменении кода не пересобирают. clang --version и дальнейшие команды — внутри контейнера. exit завершает сеанс; повторный docker run открывает новый. Команды рассчитаны на Bash/zsh; другие оболочки адаптировать заранее.</p>
+  <p><b>Практика:</b> обработчик выводит task: sample, retry добавляет retry scheduled. По трассе найти повторное освобождение, записать TP, CWE и причину; исправить с сохранением режимов. Подавление правила и удаление retry не подходят. Решения в архиве нет.</p>
+  <p><b>Clang:</b> --analyze включает анализ, -Xanalyzer передаёт настройку, -analyzer-output=text выбирает текст, 2&gt; сохраняет и перезаписывает stderr. Обратный слеш продолжает команду. echo $? сразу после Clang, до cat: ожидается 0. Предупреждение само по себе обычно не меняет код завершения.</p>
+  <p><b>Завершение:</b> повторный анализ успешно выполнен, прежней находки нет. sh check.sh собирает исправленную программу и проверяет оба режима, анализатор не запускает. Сохранить task.c, отчёт и обоснование. Исходную программу не выполнять до исправления.</p>
+  <p><b>Границы:</b> проверено локально на Apple clang 16.0.0. Контейнер не проверен: Docker daemon не запущен. Резерв — assets/examples/security/sast-lab/before.txt; его разбор не считается собственным запуском. Пустой отчёт не доказывает безопасность.</p>
+</aside>

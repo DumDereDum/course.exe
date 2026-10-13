@@ -1,0 +1,4 @@
+before: zlib ['1.2.11']; CVE-2022-37434 findings=1; all findings=2
+after: zlib ['1.2.13']; CVE-2022-37434 findings=0; all findings=0
+SBOM contains zlib 1.2.13
+New lockfile contains only zlib 1.2.13

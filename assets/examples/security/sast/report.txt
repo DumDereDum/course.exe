@@ -1,0 +1,25 @@
+ownership.c:8:9: warning: Attempt to free released memory [unix.Malloc]
+    8 |         free(p);
+      |         ^~~~~~~
+ownership.c:4:15: note: Memory is allocated
+    4 |     char *p = malloc(16);
+      |               ^~~~~~~~~~
+ownership.c:5:9: note: Assuming 'p' is non-null
+    5 |     if (!p) return;
+      |         ^~
+ownership.c:5:5: note: Taking false branch
+    5 |     if (!p) return;
+      |     ^
+ownership.c:6:5: note: Memory is released
+    6 |     free(p);
+      |     ^~~~~~~
+ownership.c:7:9: note: Assuming 'retry' is not equal to 0
+    7 |     if (retry) {
+      |         ^~~~~
+ownership.c:7:5: note: Taking true branch
+    7 |     if (retry) {
+      |     ^
+ownership.c:8:9: note: Attempt to free released memory
+    8 |         free(p);
+      |         ^~~~~~~
+1 warning generated.

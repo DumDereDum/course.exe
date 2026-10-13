@@ -1,0 +1,48 @@
+<!-- type: sequence -->
+<div class="tag">12 / практика SAST · разбор</div>
+<h2>Разбор <span class="accent">исправления</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="При retry ресурс освобождается в ветке и повторно после неё.">
+      <div class="panel">
+        <div class="panel-label">До исправления · фрагмент task.c</div>
+        <pre class="code">if (retry) {
+    puts("retry scheduled");
+    <span class="accent">free(task);</span>
+}
+<span class="accent">free(task);</span></pre>
+      </div>
+      <p class="takeaway">TP · CWE-415 · два освобождения одного ресурса.</p>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Общий участок завершения освобождает ресурс ровно один раз.">
+      <div class="panel">
+        <div class="panel-label">После исправления · фрагмент task.c</div>
+        <pre class="code">if (retry) {
+    puts("retry scheduled");
+}
+<span class="accent">free(task);</span></pre>
+      </div>
+      <p class="takeaway">Поведение retry сохранено; дублирующее free удалено.</p>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Сохранённый запуск: отчёт пуст после успешного анализа; оба режима прошли проверку.">
+      <div class="panel">
+        <div class="panel-label">Сохранённая проверка · Clang 16</div>
+        <pre class="code">$ clang --analyze task.c \
+  -Xanalyzer -analyzer-output=text \
+  2&gt; reports/sast.txt
+$ sh check.sh
+OK: обычный режим и retry работают</pre>
+      </div>
+      <p class="takeaway">Исправление проверено анализом и запуском обоих режимов.</p>
+    </div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Сказать:</b> отмеченная анализатором операция free после условной ветки действительно повторяет освобождение при retry != 0. Причина находится также в ветке выше. Находка подтверждена как TP, класс слабости — CWE-415 Double Free.</p>
+  <p><b>Исправление:</b> удалено освобождение из условной ветки, оставлено общее освобождение. Сообщение retry scheduled и обработка обычного режима сохранены. Вариант отключения режима retry или подавления unix.Malloc не соответствует заданию.</p>
+  <p><b>Проверка:</b> исходный и исправленный варианты проанализированы Apple clang 16.0.0 на macOS arm64. Clang запускался напрямую командой с экрана, без оболочки analyze.sh. После успешного повторного анализа reports/sast.txt пуст. check.sh собрал только исправленную программу и проверил вывод двух режимов. Исходный вариант с дефектом не запускался.</p>
+  <p><b>Материалы:</b> assets/examples/security/sast-lab/before.txt, after.txt, verification.txt и task.fixed.c. Это результаты отдельного сохранённого запуска, а не выполнение команд в браузере. Рецепт Ubuntu-образа включён в архив; контейнер не проверен, поскольку Docker daemon на машине подготовки не запущен.</p>
+  <p><b>Граница:</b> исчезновение этой находки подтверждает результат выбранной проверки. Два запуска проверяют сохранение конкретного поведения, но не доказывают полную безопасность программы.</p>
+  <p><b>Показ:</b> три кадра: причина, изменение, свидетельства проверки. Пробел — дальше; Shift + пробел — назад; R — сброс. После последнего кадра последовательность останавливается. Время: 2 минуты.</p>
+  <p><b>Источники:</b> https://clang.llvm.org/docs/analyzer/user-docs/CommandLineUsage.html и https://cwe.mitre.org/data/definitions/415.html.</p>
+</aside>

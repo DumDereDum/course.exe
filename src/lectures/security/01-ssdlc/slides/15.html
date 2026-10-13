@@ -1,0 +1,30 @@
+<!-- type: content -->
+<div class="tag">15 / ASan · разбор ошибки</div>
+<h2>Ошибка проявилась<br><span class="accent">во время выполнения</span></h2>
+<div class="columns">
+  <div class="panel">
+    <div class="panel-label">Сохранённый ASan · фрагменты</div>
+    <pre class="code">ERROR: AddressSanitizer:
+attempting double-free
+freed by thread T0 here:
+previously allocated
+by thread T0 here:</pre>
+    <p class="caption"><a href="@ASSETS@/examples/security/asan/retry.stderr.txt" target="_blank" rel="noopener">Полный отчёт ↗</a></p>
+  </div>
+  <div class="panel">
+    <div class="panel-label">Исходная версия task.c · retry</div>
+    <ul class="bullets">
+      <li>Вход: режим retry.</li>
+      <li>Первый free: строка 13.</li>
+      <li>Повторный free: строка 15.</li>
+    </ul>
+  </div>
+</div>
+<p class="takeaway">Сохраняем вход, сборку и трассу для воспроизведения.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> это исходная версия задания SAST до исправления. Запущены обычный режим и retry на сборке ASan. Обычный режим завершился успешно; retry сообщил attempting double-free. Показаны фрагменты настоящего отчёта, с удалёнными адресами, PID и остальными кадрами. Полный неизменённый вывод доступен по локальной ссылке.</p>
+  <p><b>Разбор:</b> ошибка зарегистрирована в повторном free на строке 15; секция freed by показывает предыдущее освобождение, в исходнике это строка 13. Секция previously allocated помогает восстановить происхождение ресурса. Класс слабости тот же CWE-415, что и при статическом разборе. Строки в правой колонке — привязка к исходнику, а не отдельные строки цитаты ASan.</p>
+  <p><b>Действие:</b> приложить вход или аргументы, версию исходников, команду и настройки сборки, отчёт. Повторить на той же сборке, определить причину, исправить, выполнить регрессионную проверку. Авария сама по себе не доказывает эксплуатируемость или определённый уровень риска.</p>
+  <p><b>Происхождение:</b> Apple clang 16.0.0, macOS arm64; исходник examples/rbpo/sast-lab/task.c. Параметры и коды завершения — assets/examples/security/asan/provenance.txt. При -O1 run_task встроена в main: кадры отчёта указывают на вызов в строке 25. Строки 13 и 15 найдены в исходнике. Ubuntu-контейнер в этом запуске не использовался.</p>
+  <p><b>Источник:</b> собственный сохранённый отчёт; https://clang.llvm.org/docs/AddressSanitizer.html . Время: 2 минуты.</p>
+</aside>

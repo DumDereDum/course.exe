@@ -18,6 +18,11 @@
           "name": "infrastructure",
           "description": "Виртуальные машины, контейнеры и автоматизация",
           "sections": ["infra"]
+        },
+        {
+          "name": "security",
+          "description": "Разработка безопасного ПО",
+          "sections": ["security"]
         }
       ]
     }

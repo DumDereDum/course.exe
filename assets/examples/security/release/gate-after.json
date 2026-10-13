@@ -1,0 +1,35 @@
+{
+  "SchemaVersion": 2,
+  "Trivy": {
+    "Version": "0.73.0"
+  },
+  "ReportID": "01a1318e-7011-799c-923b-0cee7edbc75d",
+  "CreatedAt": "2026-10-12T22:19:40.81763+03:00",
+  "ArtifactName": "/private/tmp/rbpo-sca-lab/after/project",
+  "ArtifactType": "filesystem",
+  "Results": [
+    {
+      "Target": "conan.lock",
+      "Class": "lang-pkgs",
+      "Type": "conan",
+      "Packages": [
+        {
+          "ID": "zlib/1.2.13",
+          "Name": "zlib",
+          "Identifier": {
+            "PURL": "pkg:conan/zlib@1.2.13",
+            "UID": "278d47b7fa5751f6"
+          },
+          "Version": "1.2.13",
+          "Locations": [
+            {
+              "StartLine": 4,
+              "EndLine": 4
+            }
+          ],
+          "AnalyzedBy": "conan-lock"
+        }
+      ]
+    }
+  ]
+}

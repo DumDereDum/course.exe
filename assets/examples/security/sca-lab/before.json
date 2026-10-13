@@ -1,0 +1,277 @@
+{
+  "SchemaVersion": 2,
+  "Trivy": {
+    "Version": "0.73.0"
+  },
+  "ReportID": "01a13188-97af-7186-9282-77c978c0bccd",
+  "CreatedAt": "2026-10-12T22:13:17.743101+03:00",
+  "ArtifactName": "examples/rbpo/sca-lab/project",
+  "ArtifactType": "filesystem",
+  "Results": [
+    {
+      "Target": "conan.lock",
+      "Class": "lang-pkgs",
+      "Type": "conan",
+      "Packages": [
+        {
+          "ID": "zlib/1.2.11",
+          "Name": "zlib",
+          "Identifier": {
+            "PURL": "pkg:conan/zlib@1.2.11",
+            "UID": "26859e1450eb64aa"
+          },
+          "Version": "1.2.11",
+          "Locations": [
+            {
+              "StartLine": 4,
+              "EndLine": 4
+            }
+          ],
+          "AnalyzedBy": "conan-lock"
+        }
+      ],
+      "Vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2022-37434",
+          "PkgID": "zlib/1.2.11",
+          "PkgName": "zlib",
+          "PkgIdentifier": {
+            "PURL": "pkg:conan/zlib@1.2.11",
+            "UID": "26859e1450eb64aa"
+          },
+          "InstalledVersion": "1.2.11",
+          "FixedVersion": "1.2.13",
+          "Status": "fixed",
+          "SeveritySource": "nvd",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2022-37434",
+          "DataSource": {
+            "ID": "glad",
+            "Name": "GitLab Advisory Database Community",
+            "URL": "https://gitlab.com/gitlab-org/advisories-community"
+          },
+          "Fingerprint": "sha256:593f1a24c0e7b21a91d6c2c69d26e8b562d5921d6790072fab23ca904019c410",
+          "Title": "zlib: heap-based buffer over-read and overflow in inflate() in inflate.c via a large gzip header extra field",
+          "Description": "zlib through 1.2.12 has a heap-based buffer over-read or buffer overflow in inflate in inflate.c via a large gzip header extra field. NOTE: only applications that call inflateGetHeader are affected. Some common applications bundle the affected zlib source code but may be unable to call inflateGetHeader (e.g., see the nodejs/node reference).",
+          "Severity": "CRITICAL",
+          "CweIDs": [
+            "CWE-787",
+            "CWE-120"
+          ],
+          "VendorSeverity": {
+            "alma": 2,
+            "amazon": 3,
+            "azure": 4,
+            "bottlerocket": 2,
+            "cbl-mariner": 4,
+            "julia": 4,
+            "nvd": 4,
+            "oracle-oval": 2,
+            "photon": 4,
+            "redhat": 2,
+            "rocky": 2,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "julia": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:H",
+              "V3Score": 7
+            }
+          },
+          "References": [
+            "http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-37434",
+            "http://seclists.org/fulldisclosure/2022/Oct/37",
+            "http://seclists.org/fulldisclosure/2022/Oct/38",
+            "http://seclists.org/fulldisclosure/2022/Oct/41",
+            "http://seclists.org/fulldisclosure/2022/Oct/42",
+            "http://www.openwall.com/lists/oss-security/2022/08/05/2",
+            "http://www.openwall.com/lists/oss-security/2022/08/09/1",
+            "https://access.redhat.com/errata/RHSA-2022:8291",
+            "https://access.redhat.com/security/cve/CVE-2022-37434",
+            "https://bugzilla.redhat.com/2116639",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2053198",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2077431",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2081296",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2116639",
+            "https://cert-portal.siemens.com/productcert/html/ssa-150063.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-202008.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-398330.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-470355.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-561322.html",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-37434",
+            "https://errata.almalinux.org/9/ALSA-2022-8291.html",
+            "https://errata.rockylinux.org/RLSA-2022:8291",
+            "https://github.com/bottlerocket-os/bottlerocket/security/advisories/GHSA-w5mr-8397-m99w",
+            "https://github.com/curl/curl/issues/9271",
+            "https://github.com/ivd38/zlib_overflow",
+            "https://github.com/madler/zlib/blob/21767c654d31d2dccdde4330529775c6c5fd5389/zlib.h#L1062-L1063",
+            "https://github.com/madler/zlib/commit/1eb7682f845ac9e9bf9ae35bbfb3bad5dacbd91d",
+            "https://github.com/madler/zlib/commit/eff308af425b67093bab25f80f1ae950166bece1",
+            "https://github.com/nodejs/node/blob/75b68c6e4db515f76df73af476eccf382bbcb00a/deps/zlib/inflate.c#L762-L764",
+            "https://linux.oracle.com/cve/CVE-2022-37434.html",
+            "https://linux.oracle.com/errata/ELSA-2023-1095.html",
+            "https://lists.debian.org/debian-lts-announce/2022/09/msg00012.html",
+            "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/JWN4VE3JQR4O2SOUS5TXNLANRPMHWV4I/",
+            "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/NMBOJ77A7T7PQCARMDUK75TE6LLESZ3O/",
+            "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/PAVPQNCG3XRLCLNSQRM3KAN5ZFMVXVTY/",
+            "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/X5U7OTKZSHY2I3ZFJSR2SHFHW72RKGDK/",
+            "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/YRQAI7H4M4RQZ2IWZUEEXECBE5D56BH2/",
+            "https://nvd.nist.gov/vuln/detail/CVE-2022-37434",
+            "https://security.netapp.com/advisory/ntap-20220901-0005/",
+            "https://security.netapp.com/advisory/ntap-20230427-0007/",
+            "https://support.apple.com/kb/HT213488",
+            "https://support.apple.com/kb/HT213489",
+            "https://support.apple.com/kb/HT213490",
+            "https://support.apple.com/kb/HT213491",
+            "https://support.apple.com/kb/HT213493",
+            "https://support.apple.com/kb/HT213494",
+            "https://ubuntu.com/security/notices/USN-5570-1",
+            "https://ubuntu.com/security/notices/USN-5570-2",
+            "https://ubuntu.com/security/notices/USN-5573-1",
+            "https://ubuntu.com/security/notices/USN-6736-1",
+            "https://ubuntu.com/security/notices/USN-6736-2",
+            "https://www.cve.org/CVERecord?id=CVE-2022-37434",
+            "https://www.debian.org/security/2022/dsa-5218"
+          ],
+          "PublishedDate": "2022-08-05T07:15:07.24Z",
+          "LastModifiedDate": "2026-07-14T12:16:47.66Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2018-25032",
+          "PkgID": "zlib/1.2.11",
+          "PkgName": "zlib",
+          "PkgIdentifier": {
+            "PURL": "pkg:conan/zlib@1.2.11",
+            "UID": "26859e1450eb64aa"
+          },
+          "InstalledVersion": "1.2.11",
+          "FixedVersion": "1.2.12",
+          "Status": "fixed",
+          "SeveritySource": "nvd",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2018-25032",
+          "DataSource": {
+            "ID": "glad",
+            "Name": "GitLab Advisory Database Community",
+            "URL": "https://gitlab.com/gitlab-org/advisories-community"
+          },
+          "Fingerprint": "sha256:87177f9cef5031198a88e9e1f81c8d17843c9ad089673ff965fa2b85eff3ffd1",
+          "Title": "zlib: A flaw found in zlib when compressing (not decompressing) certain inputs",
+          "Description": "zlib before 1.2.12 allows memory corruption when deflating (i.e., when compressing) if the input has many distant matches.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-787"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "amazon": 3,
+            "azure": 3,
+            "cbl-mariner": 3,
+            "ghsa": 3,
+            "julia": 3,
+            "nvd": 3,
+            "oracle-oval": 3,
+            "photon": 3,
+            "redhat": 3,
+            "ruby-advisory-db": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "julia": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "nvd": {
+              "V2Vector": "AV:N/AC:L/Au:N/C:N/I:N/A:P",
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V2Score": 5,
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H",
+              "V3Score": 8.2
+            }
+          },
+          "References": [
+            "http://seclists.org/fulldisclosure/2022/May/33",
+            "http://seclists.org/fulldisclosure/2022/May/35",
+            "http://seclists.org/fulldisclosure/2022/May/38",
+            "http://www.openwall.com/lists/oss-security/2022/03/25/2",
+            "http://www.openwall.com/lists/oss-security/2022/03/26/1",
+            "https://access.redhat.com/errata/RHSA-2022:8420",
+            "https://access.redhat.com/hydra/rest/securitydata/cve/CVE-2018-25032.json",
+            "https://access.redhat.com/security/cve/CVE-2018-25032",
+            "https://bugzilla.redhat.com/2067945",
+            "https://cert-portal.siemens.com/productcert/html/ssa-333517.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-398330.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-419740.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-470355.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-565386.html",
+            "https://cert-portal.siemens.com/productcert/html/ssa-942865.html",
+            "https://cert-portal.siemens.com/productcert/pdf/ssa-333517.pdf",
+            "https://errata.almalinux.org/9/ALSA-2022-8420.html",
+            "https://github.com/advisories/GHSA-jc36-42cf-vqwj",
+            "https://github.com/madler/zlib/commit/5c44459c3b28a9bd3283aaceab7c615f8020c531",
+            "https://github.com/madler/zlib/compare/v1.2.11...v1.2.12",
+            "https://github.com/madler/zlib/issues/605",
+            "https://github.com/rubysec/ruby-advisory-db/blob/master/gems/nokogiri/CVE-2018-25032.yml",
+            "https://github.com/sparklemotion/nokogiri/releases/tag/v1.13.4",
+            "https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-v6gp-9mmm-c6p5",
+            "https://groups.google.com/g/ruby-security-ann/c/vX7qSjsvWis/m/TJWN4oOKBwAJ",
+            "https://linux.oracle.com/cve/CVE-2018-25032.html",
+            "https://linux.oracle.com/errata/ELSA-2022-9565.html",
+            "https://lists.debian.org/debian-lts-announce/2022/04/msg00000.html",
+            "https://lists.debian.org/debian-lts-announce/2022/05/msg00008.html",
+            "https://lists.debian.org/debian-lts-announce/2022/09/msg00023.html",
+            "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/DCZFIJBJTZ7CL5QXBFKTQ22Q26VINRUF",
+            "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/DCZFIJBJTZ7CL5QXBFKTQ22Q26VINRUF/",
+            "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/DF62MVMH3QUGMBDCB3DY2ERQ6EBHTADB",
+            "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/DF62MVMH3QUGMBDCB3DY2ERQ6EBHTADB/",
+            "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/JZZPTWRYQULAOL3AW7RZJNVZ2UONXCV4",
+            "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/JZZPTWRYQULAOL3AW7RZJNVZ2UONXCV4/",
+            "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/NS2D2GFPFGOJUL4WQ3DUAY7HF4VWQ77F",
+            "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/NS2D2GFPFGOJUL4WQ3DUAY7HF4VWQ77F/",
+            "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/VOKNP2L734AEL47NRYGVZIKEFOUBQY5Y",
+            "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/VOKNP2L734AEL47NRYGVZIKEFOUBQY5Y/",
+            "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/XOKFMSNQ5D5WGMALBNBXU3GE442V74WU",
+            "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/XOKFMSNQ5D5WGMALBNBXU3GE442V74WU/",
+            "https://nvd.nist.gov/vuln/detail/CVE-2018-25032",
+            "https://security.gentoo.org/glsa/202210-42",
+            "https://security.netapp.com/advisory/ntap-20220526-0009",
+            "https://security.netapp.com/advisory/ntap-20220526-0009/",
+            "https://security.netapp.com/advisory/ntap-20220729-0004",
+            "https://security.netapp.com/advisory/ntap-20220729-0004/",
+            "https://support.apple.com/kb/HT213255",
+            "https://support.apple.com/kb/HT213256",
+            "https://support.apple.com/kb/HT213257",
+            "https://ubuntu.com/security/notices/USN-5355-1",
+            "https://ubuntu.com/security/notices/USN-5355-2",
+            "https://ubuntu.com/security/notices/USN-5359-1",
+            "https://ubuntu.com/security/notices/USN-5359-2",
+            "https://ubuntu.com/security/notices/USN-5739-1",
+            "https://ubuntu.com/security/notices/USN-6736-1",
+            "https://ubuntu.com/security/notices/USN-6736-2",
+            "https://www.cve.org/CVERecord?id=CVE-2018-25032",
+            "https://www.debian.org/security/2022/dsa-5111",
+            "https://www.openwall.com/lists/oss-security/2022/03/24/1",
+            "https://www.openwall.com/lists/oss-security/2022/03/28/1",
+            "https://www.openwall.com/lists/oss-security/2022/03/28/3",
+            "https://www.oracle.com/security-alerts/cpujul2022.html"
+          ],
+          "PublishedDate": "2022-03-25T09:15:08.187Z",
+          "LastModifiedDate": "2026-07-14T12:16:46.733Z"
+        }
+      ]
+    }
+  ]
+}

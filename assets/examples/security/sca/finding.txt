@@ -1,0 +1,5 @@
+PkgName: zlib
+InstalledVersion: 1.2.11
+FixedVersion: 1.2.13
+VulnerabilityID: CVE-2022-37434
+Severity: CRITICAL
