@@ -1,8 +1,20 @@
-<!-- type: content -->
-<div class="tag">02 / полные программы</div>
-<h2>Четыре примера <span class="accent">для работы.</span></h2>
-<div class="cards four"><div class="card"><h3>max.asm</h3><p>max(7, 3) → 7</p><a class="btn" href="../../examples/asm/max.asm" download="max.asm">Исходник ↓</a></div><div class="card"><h3>abs.asm</h3><p>|−7| → 7</p><a class="btn" href="../../examples/asm/abs.asm" download="abs.asm">Исходник ↓</a></div><div class="card"><h3>sum.asm</h3><p>1 + 2 + 3 + 4 → 10</p><a class="btn" href="../../examples/asm/sum.asm" download="sum.asm">Исходник ↓</a></div><div class="card"><h3>for.asm</h3><p>3 итерации, +2 → 6</p><a class="btn" href="../../examples/asm/for.asm" download="for.asm">Исходник ↓</a></div></div>
-<div class="resource-actions"><a class="btn primary" href="@ASSETS@/examples/asm/control-examples.zip" download="control-examples.zip">Все примеры ↓</a><a class="btn" href="#s-15">Пошаговый запуск →</a></div>
-<p class="lead">Папка в репозитории: <code>examples/asm/</code></p>
-<p class="caption">Исходник → объектный файл → исполняемый ELF.</p>
-<aside class="notes"><p>Четыре полных примера: max=7, abs=7, sum=10, for=6. Студенты открывают весь репозиторий в VS Code и работают в examples/asm. Следующий слайд — инструкция перехода в examples/asm и ручного запуска на Windows/macOS. Небольшие результаты читаются через код завершения.</p></aside>
+<!-- type: split -->
+<div class="tag">02 / if и else</div>
+<h2>Выбираем <span class="accent">максимум двух чисел.</span></h2>
+<div class="widget" data-widget="conditional-jump" data-jump-kind="max">
+  <div class="jump-inputs">
+    <label>EAX <input data-eax type="number" min="-2147483648" max="2147483647" step="1" value="7" aria-label="Начальное знаковое число в EAX"></label>
+    <label>EBX <input data-ebx type="number" min="-2147483648" max="2147483647" step="1" value="3" aria-label="Начальное знаковое число в EBX"></label>
+    <span class="caption">signed · 32 бита · результат в ECX</span>
+  </div>
+  <div data-jump-diagram>
+    <img class="diagram" data-byte-hints src="@ASSETS@/diagrams/max-step-0.svg" alt="IF/ELSE на C и ассемблере: CMP, JL use_b, выбор EAX или EBX в ECX, JMP done. Адреса, байты, RIP и флаги SF/OF.">
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Мысль:</b> знакомый IF/ELSE состоит из сравнения, условного перехода и общего продолжения. EAX=a, EBX=b, ECX=result. Операнды — знаковые 32-битные целые; в регистре нет отметки типа.</p>
+  <p><b>Показ:</b> 7/3 — CMP, JL пропускается, MOV ECX,EAX, JMP done. Затем 3/7 — JL на use_b, MOV ECX,EBX и done. Наконец 7/7 — JL не срабатывает, выбираем EAX. Показать −3/−7: максимум −3. Затем 2147483647/−1: разность в 32 битах 80000000, SF=1 и OF=1, JL не срабатывает. Это объясняет, почему для знакового «меньше» нужен SF≠OF, а не только SF=1. Изменение поля возвращает к началу.</p>
+  <p><b>Объяснить:</b> в C условие a≥b, в машинном коде JL проверяет противоположное a&lt;b и отправляет в ELSE. SF≠OF учитывает переполнение вычитания. CMP сохраняет операнды, MOV/JL/JMP сохраняют флаги. JMP done нужен, чтобы запись EBX не перезаписала выбранный EAX. Метки не занимают байтов.</p>
+  <p><b>Байты:</b> CMP 39 D8; JL 7C 04; MOV ECX,EAX 89 C1; JMP EB 02; MOV ECX,EBX 89 D9. Адреса 401000, 401002, 401004, 401006, 401008, 40100A. Относительные смещения считаются от конца перехода. Каждая пара hex-цифр имеет подпись HEX/BIN.</p>
+  <p><b>Управление:</b> пробел — инструкция, Shift + пробел — назад, R — начало с текущими числами. В конце остановка. До MOV значение ECX неизвестно. Модель фиксированного фрагмента, начальные значения EAX/EBX подготовлены заранее. Время: 6–7 минут.</p>
+</aside>

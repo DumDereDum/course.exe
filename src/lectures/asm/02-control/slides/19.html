@@ -1,0 +1,30 @@
+<!-- type: content -->
+<div class="tag">02 / разбор · сумма 1…N</div>
+<h2>Сумма 1…N: <span class="accent">включаем границу.</span></h2>
+<div class="columns">
+  <div class="stack">
+    <div class="panel-label">1 · На C</div>
+    <pre class="code"><code>sum = 0;
+for (i = 1; i &lt;= N; i++) {
+    sum += i;
+}</code></pre>
+    <p class="caption">EAX = i · EBX = N · ECX = sum = 0 заранее</p>
+  </div>
+  <div class="stack">
+    <div class="panel-label">2 · На NASM</div>
+    <pre class="code"><code>mov eax, 1
+check: cmp eax, ebx
+jg done
+add ecx, eax
+inc eax
+jmp check
+done:</code></pre>
+  </div>
+</div>
+<p class="takeaway"><code>jg done</code>: i &gt; N → выход. При i = N: ZF = 1, переход пропущен — последнее слагаемое входит в сумму.</p>
+<aside class="notes">
+  <p><b>Пройти три блока:</b> EAX = i (очередное слагаемое), EBX = N, ECX = sum. Отличия от слайда 17: начало с 1, граница ≤ вместо &lt; и прибавление текущего i вместо константы 2. ECX=0 подготовлен до показанного машинного фрагмента; эта загрузка есть в полной программе. Здесь N=0…5, переполнения счётчика и суммы нет; результат EAX=N+1 относится к этим границам.</p>
+  <p><b>Спросить:</b> что даст замена jg на jge при N = 4? <b>Ответ:</b> 6 вместо 10 — сравнение при i = 4 даст ZF = 1, и переход выйдет, не добавив последнее слагаемое.</p>
+  <p><b>Спросить:</b> где лежит результат после цикла? <b>Ответ:</b> в ECX; EAX к этому моменту равен N + 1 — первому числу за границей.</p>
+  <p><b>Далее:</b> слайд 20 проходит сумму пошагово с историями EAX и ECX, выделением ZF = 1 при i = N и байтами B8…, 39 D8, 7F 06, 01 C1, FF C0, EB F6.</p>
+</aside>

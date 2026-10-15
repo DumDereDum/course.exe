@@ -71,7 +71,7 @@ class ByteHintTests(unittest.TestCase):
         rendered = build.render_lecture(lecture)
         parsed = References()
         parsed.feed(rendered)
-        self.assertEqual(parsed.hints, 335)
+        self.assertEqual(parsed.hints, 393)
         self.assertEqual(len(parsed.ids), len(set(parsed.ids)))
         self.assertTrue(set(parsed.refs) <= set(parsed.ids))
         self.assertIn('byte-hints.js', rendered)

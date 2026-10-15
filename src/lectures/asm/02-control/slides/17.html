@@ -1,0 +1,30 @@
+<!-- type: content -->
+<div class="tag">02 / разбор · for</div>
+<h2><code>for</code>: <span class="accent">инициализация один раз.</span></h2>
+<div class="columns">
+  <div class="stack">
+    <div class="panel-label">1 · На C</div>
+    <pre class="code"><code>value = 0;
+for (i = 0; i &lt; limit; i++) {
+    value += 2;
+}</code></pre>
+    <p class="caption">EAX = i · EBX = limit · ECX = value = 0 заранее</p>
+  </div>
+  <div class="stack">
+    <div class="panel-label">2 · На NASM</div>
+    <pre class="code"><code>mov eax, 0
+check: cmp eax, ebx
+jge done
+add ecx, 2
+inc eax
+jmp check
+done:</code></pre>
+  </div>
+</div>
+<p class="takeaway"><code>jge</code> выходит при i ≥ limit. Возврат на <code>check</code> минует MOV; тело ADD стоит перед INC.</p>
+<aside class="notes">
+  <p><b>Пройти три блока:</b> EAX = i, EBX = limit, ECX = value. Порядок в теле: сначала работа (add ecx, 2), затем изменение счётчика (inc eax), затем возврат к проверке.</p>
+  <p><b>Спросить:</b> почему mov eax, 0 нельзя ставить после метки check? <b>Ответ:</b> jmp check вернулся бы на mov, при положительной границе счётчик снова стал бы нулём — цикл не завершился бы. При limit=0 выход остаётся немедленным.</p>
+  <p><b>Спросить:</b> при limit = 0 что выполнится? <b>Ответ:</b> mov и проверка; тело и inc пропущены — инициализация выполняется всегда.</p>
+  <p><b>Далее:</b> слайд 18 проходит for пошагово с историями EAX/ECX и байтами B8…, 39 D8, 7D 07, 83 C1 02, FF C0, EB F5.</p>
+</aside>

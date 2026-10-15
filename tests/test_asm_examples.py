@@ -20,7 +20,7 @@ class ExampleDownloads(unittest.TestCase):
     def test_archive_matches_source_files_and_instructions(self):
         expected = {f'control/{p.name}': p.read_bytes() for p in EXAMPLES.iterdir() if p.is_file()}
         self.assertEqual(set(expected), {'control/' + name for name in
-                         ['max.asm', 'abs.asm', 'sum.asm', 'for.asm', 'README.md']})
+                         ['max.asm', 'abs.asm', 'sum.asm', 'for.asm', 'text.asm', 'README.md']})
         with zipfile.ZipFile(EXAMPLES.parent / 'control-examples.zip') as archive:
             self.assertEqual(set(archive.namelist()), set(expected))
             for name, data in expected.items():

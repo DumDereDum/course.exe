@@ -1,0 +1,63 @@
+<!-- type: sequence -->
+<div class="tag">02 / поиск текста в бинаре</div>
+<h2>Повторяющийся <code>20</code> — <span class="accent">повод искать текст.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Приём поиска: пробелы повторяются между словами, но интервалы не обязаны быть одинаковыми.">
+      <div class="columns">
+        <div class="stack">
+          <div class="panel-label">В Hex Editor · файл build/text</div>
+          <pre class="code">Поиск по байтам: 20
+… 20 … 20 … 20 … 20 …</pre>
+          <p class="lead">Несколько <code>20</code> через небольшие промежутки? Посмотрите соседние байты и Decoded Text.</p>
+        </div>
+        <div class="panel">
+          <div class="panel-label">Проверяем гипотезу</div>
+          <p>Рядом буквы и знаки <code>20–7E</code>, складывающиеся в слова? Вероятно, нашли текст.</p>
+          <p>Один <code>20</code> может быть частью команды или числа. Текст бывает и без пробелов.</p>
+        </div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Сохранённый фрагмент ELF: строка начинается по 0x2000. Для разбора здесь восемь байт в строке.">
+      <div class="columns">
+        <div class="stack">
+          <div class="panel-label">Файловое смещение · HEX</div>
+          <pre class="code">2000: 48 65 6C 6C 6F <span class="accent">20</span> 66 72
+2008: 6F 6D <span class="accent">20</span> 74 68 65 <span class="accent">20</span> 41
+2010: 53 4D <span class="accent">20</span> 6C 61 62 0A</pre>
+          <p class="caption">Пробелы: 2005, 200A, 200E, 2012 hex.<br>Расстояния: 5, 4 и 4 байта.</p>
+        </div>
+        <div class="stack">
+          <div class="panel-label">Те же байты · ASCII</div>
+          <pre class="code">Hello from the ASM lab
+↵ = 0A / LF</pre>
+          <p class="lead">22 символа + LF.<br>Это данные в <code>.rodata</code>.</p>
+        </div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Подтверждение: strings даёт файловое смещение, readelf и objdump показывают секцию .rodata.">
+      <div class="columns">
+        <div class="stack">
+          <div class="panel-label">Внутри Linux · проверить свою сборку</div>
+          <pre class="code command-wrap text-search">strings -a -t x build/text
+readelf -S build/text
+objdump -s -j .rodata build/text</pre>
+          <div class="resource-actions"><button class="btn" data-copy=".text-search">Копировать</button><span class="copy-status" aria-live="polite"></span></div>
+          <p class="caption"><code>-a</code>: весь файл · <code>-t x</code>: смещения в hex. В strings могут встретиться и служебные имена.</p>
+        </div>
+        <div class="stack">
+          <div class="panel-label">Сохранённый вывод · нужная строка</div>
+          <pre class="code">2000 Hello from the ASM lab</pre>
+          <p class="lead"><code>.rodata</code>: Off = 2000 hex<br>Addr = 402000 hex</p>
+          <p class="caption">В Hex Editor — <b>Go To Offset 0x2000</b>. Это положение в файле, не адрес в памяти.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Приём автора:</b> искать HEX-байт 20, а не текст «20» (32 30). Повторяющиеся пробелы могут обозначать границы слов; проверить соседние печатные знаки и читаемые слова. Интервалы зависят от длины слов, строгой периодичности нет. Наличие строки не доказывает, что программа её использует или выводит.</p>
+  <p><b>Показ:</b> собрать text.asm, открыть examples/asm/build/text. Пройти три сохранённых кадра, повторить поиск в Hex Editor и Go To Offset 0x2000. Второй кадр — резерв, все 23 байта сгруппированы по восемь; в редакторе по умолчанию обычно 16. Третий кадр — команды Linux; в выводе strings выбрать нужную строку, остальные результаты могут быть именами символов и секций.</p>
+  <p><b>Граница:</b> NASM 2.16.01 + ld 2.40: .rodata Off=0x2000, Addr=0x402000, Size=0x17. В своей сборке читать Off из readelf. Байт 20 бывает частью кода или числа; текст бывает без пробелов, сжатым или в иной кодировке. Строка в .rodata — данные, не инструкции. Пробел/Shift+пробел/R — кадры, назад, сброс; около 5 минут.</p>
+  <p><b>Проверка:</b> данные ELF и команды Linux проверены в Docker; живое расширение VS Code не запускалось. GNU strings: https://sourceware.org/binutils/docs/binutils/strings.html.</p>
+</aside>

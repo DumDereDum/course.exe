@@ -1,0 +1,56 @@
+<!-- type: sequence -->
+<div class="tag">02 / пятый пример · вывод текста</div>
+<h2>Печатаем <span class="accent">строку из памяти.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="WRITE получает адрес и длину: 22 символа + перевод строки = 23 байта.">
+      <div class="columns">
+        <div class="stack">
+          <div class="panel-label">Данные · фрагмент text.asm</div>
+          <pre class="code">section .rodata
+msg: db "Hello from the ASM lab"
+     db 10
+len equ $ - msg</pre>
+          <p class="caption"><code>db</code> задаёт байты. <code>10</code> в decimal = <code>0A</code> в hex: перевод строки LF.</p>
+        </div>
+        <div class="stack">
+          <div class="panel-label">Linux x86-64 · системный вызов</div>
+          <pre class="code">mov eax, 1
+mov edi, 1
+lea rsi, [rel msg]
+mov edx, len
+syscall</pre>
+          <p class="caption">RAX = write · RDI = stdout<br>RSI = адрес · RDX = длина в байтах.</p>
+        </div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Сохранённый результат реального запуска в Docker: текст в stdout, код завершения 0.">
+      <div class="columns">
+        <div class="stack">
+          <div class="panel-label">Внутри Linux · ручная сборка</div>
+          <pre class="code command-wrap text-build">mkdir -p build
+nasm -f elf64 text.asm \
+  -o build/text.o
+ld -o build/text build/text.o</pre>
+          <div class="resource-actions"><button class="btn" data-copy=".text-build">Копировать</button><span class="copy-status" aria-live="polite"></span></div>
+        </div>
+        <div class="stack">
+          <div class="panel-label">Сохранённый пример · команда и вывод</div>
+          <pre class="code">$ ./build/text
+Hello from the ASM lab
+$ echo "$?"
+0</pre>
+          <p class="caption">Текст и код завершения — два разных результата. В полном исходнике CMP/JNE проверяют запись 23 байт.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="resource-actions"><a class="btn" href="../../examples/asm/text.asm" download="text.asm">Полный text.asm ↓</a><a class="btn" href="#s-27">Как буква становится байтом →</a></div>
+<aside class="notes">
+  <p><b>Сказать:</b> раньше показывали число через код завершения. Теперь WRITE отправляет настоящие байты в stdout; успешный код завершения — 0. Исходник целиком доступен по ссылке и в архиве. Здесь показаны фрагменты: db строки и db 10 разделены для компоновки, в исходнике это одна директива с теми же байтами.</p>
+  <p><b>Регистры:</b> для Linux x86-64 RAX=1 — write, RDI=1 — файловый дескриптор stdout, RSI — адрес буфера, RDX=23 — размер. LEA загружает адрес msg, а не первый байт строки. rel задаёт адресацию относительно RIP; метка msg не является инструкцией. .rodata — данные, .text — код. Эти номера вызовов относятся к Linux x86-64.</p>
+  <p><b>Спросить:</b> нужен ли нулевой байт в конце? <b>Ответ:</b> для write нет, размер задан явно. LF — отдельный байт 0A. Почему после write проверяем RAX? Это число записанных байтов либо отрицательный код ошибки. CMP/JNE ведут к выходу 1, если записаны не все 23 байта. Повтор короткой записи этот небольшой пример не реализует.</p>
+  <p><b>Показ:</b> два подготовленных кадра; затем собрать и запустить в настоящем терминале. До занятия инструменты должны быть готовы. Реальный запуск в Docker с NASM 2.16.01 и ld 2.40 проверен: stdout содержит ровно 23 байта, exit=0; при закрытом stdout — exit=1. Команды слайд сам не исполняет. Пробел — кадр, Shift+пробел — назад, R — сброс. Около 5 минут.</p>
+  <p><b>Источник:</b> таблица вызовов Linux: https://github.com/torvalds/linux/blob/master/arch/x86/entry/syscalls/syscall_64.tbl.</p>
+</aside>

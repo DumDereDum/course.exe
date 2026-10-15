@@ -1,27 +1,22 @@
-<!-- type: sequence -->
-<div class="tag">02 / VS Code · байты программы</div>
-<h2>Как читать программу в <span class="accent">Hex Editor</span></h2>
-<div class="widget" data-widget="sequence"><div class="sequence-viewport">
-<div class="sequence-frame" data-frame data-caption="1 / После ручной сборки открыть исполняемый abs через Hex Editor.">
-<div class="columns"><div class="stack"><div class="panel-label">На компьютере · VS Code</div><pre class="code command-wrap">examples/asm/build/abs
-ПКМ → Open With… → Hex Editor</pre><p class="caption">Открываем собранный файл <code>abs</code>. Исходный текст находится в <code>abs.asm</code>.</p><p class="caption">В палитре команд: <b>Reopen Editor With… → Hex Editor</b>.</p></div><div class="stack"><div class="panel-label">Перейти к коду в этом примере</div><pre class="code command-wrap">Hex Editor: Go To Offset
-0x1000</pre><p class="caption">Палитра: Windows — <b>Ctrl + Shift + P</b>, macOS — <b>Cmd + Shift + P</b>.</p><p class="caption">Код .text начинается с 0x1000 в показанном файле. Другой ELF может иметь другое смещение.</p></div></div>
+<!-- type: split -->
+<div class="tag">02 / while</div>
+<h2><code>while</code>: <span class="accent">возврат к проверке.</span></h2>
+<div class="widget" data-widget="while-loop">
+  <div class="loop-inputs">
+    <label>EAX · счётчик <input data-eax type="number" min="0" max="5" step="1" value="0" aria-label="Начальный счётчик в EAX, от 0 до 5"></label>
+    <label>EBX · граница <input data-ebx type="number" min="0" max="5" step="1" value="3" aria-label="Граница цикла в EBX, от 0 до 5"></label>
+    <span class="caption">0…5 · один шаг — одна инструкция</span>
+  </div>
+  <div data-loop-diagram>
+    <img class="diagram" data-byte-hints src="@ASSETS@/diagrams/while-step-0.svg" alt="Цикл WHILE на C и ассемблере. Проверка CMP, выход JGE, тело INC, возврат JMP; байты, RIP, счётчик, граница и флаги.">
+  </div>
 </div>
-<div class="sequence-frame" data-frame data-caption="2 / Слева — смещение строки; сверху — номер байта; справа — символы.">
-<img class="diagram" data-byte-hints src="@ASSETS@/diagrams/hex-editor-grid.svg" alt="Фрагмент Hex Editor: две строки по 16 байт. Строка 0x1000 и колонка 08 дают смещение 0x1008, байт 7D. Справа отображаются символы, точками обозначены непечатные байты.">
-</div>
-<div class="sequence-frame" data-frame data-caption="3 / Сопоставить байты с objdump. Инструкция может пересекать границу строки.">
-<img class="diagram" data-byte-hints src="@ASSETS@/diagrams/hex-editor-code.svg" alt="Семь инструкций abs с файловыми смещениями и машинными байтами. mov eax, 60 занимает байты от 0x100E до 0x1012 и пересекает границу строки редактора.">
-</div>
-<div class="sequence-frame" data-frame data-caption="4 / Выбрать F9 по 0x1001: Data Inspector, Int32, Little Endian → −7.">
-<img class="diagram" data-byte-hints src="@ASSETS@/diagrams/hex-editor-inspector.svg" alt="В mov eax, -7 байт B8 кодирует команду, четыре байта F9 FF FF FF кодируют число. Data Inspector читает с 0x1001 знаковое 32-битное число в little-endian и показывает минус семь.">
-</div>
-</div></div>
 <aside class="notes">
-<p><b>Показ:</b> четыре подготовленных шага, затем повторить в настоящем VS Code. Пробел — вперёд, Shift + пробел — назад, R — сброс. Слайд показывает схему расширения; команды здесь не запускаются. Байты при наведении и фокусе имеют подписи HEX/BIN.</p>
-<p><b>Открытие:</b> вручную собрать abs по предыдущему слайду, заменив sum на abs. Открыть examples/asm/build/abs; внутри Docker это /work/build/abs. ELF содержит также заголовки, выравнивание и служебные данные. Смещение .text зависит от компоновки: readelf -S build/abs, колонка Off. Address — адрес в памяти; в Hex Editor показано положение в файле, а не RIP.</p>
-<p><b>Чтение:</b> каждая пара hex-цифр — один байт, строка — 16 байт. Смещение строки плюс номер колонки даёт положение байта. 0x1000 + 0x08 = 0x1008. Decoded Text — символы, не дизассемблер. Подготовленные байты взяты из файла abs на скриншоте автора; весь код занимает 0x15 = 21 байт. Нули после 0x1014 находятся вне показанного кода .text.</p>
-<p><b>Дизассемблер:</b> внутри Linux вызвать objdump -d -M intel build/abs. Его адреса — адреса в памяти; сопоставлять байты с Hex Editor через Off и Address секции .text. B8 в этой 64-битной программе без префиксов задаёт MOV EAX, imm32. 7D 02 — JGE на два байта вперёд от конца перехода, к 0x100C. MOV EAX,60 начинается в колонке 0E и продолжается на следующей строке.</p>
-<p><b>Инспектор:</b> выбрать F9, первый байт числа, а не B8. Четыре байта F9 FF FF FF в little-endian дают 0xFFFFFFF9: Int32 = −7, Uint32 = 4294967289. В настройках hexeditor.defaultEndianness выбрать little; скрытую панель можно вернуть через hexeditor.inspectorType = aside. Размер Int32 — четыре байта; просмотр не меняет файл. Дополнительный маршрут: objcopy -O binary -j .text build/abs build/abs.text.bin; открыть examples/asm/build/abs.text.bin — только 21 байт кода, начиная с нуля.</p>
-<p><b>Источники:</b> Microsoft Hex Editor: https://marketplace.visualstudio.com/items?itemName=ms-vscode.hexeditor; команды: https://github.com/microsoft/vscode-hexeditor/blob/main/package.nls.json; настройки: https://github.com/microsoft/vscode-hexeditor/blob/main/package.json.</p>
+  <p><b>Мысль:</b> WHILE состоит из проверки, выхода при ложном условии, тела и возврата к проверке. Начальные EAX/EBX уже подготовлены; показанный код их не инициализирует. i — EAX, limit — EBX. Числа — signed32, для короткой демонстрации ограничены 0…5.</p>
+  <p><b>Показ:</b> 0/3: CMP → JGE пропущена → INC → JMP check. Повторить для 1 и 2. При EAX=3 CMP и JGE приводят на done. Итог 3 итерации, EAX=3, EBX=3. История EAX показывает 0→1→2→3. Каждый шаг — одна инструкция; полного оборота цикла одной кнопкой нет.</p>
+  <p><b>Граница:</b> 3/3 — тело не выполняется, ноль итераций. Также 4/3 — сразу выход, EAX остаётся 4. В C условие продолжения i&lt;limit, в ассемблере JGE проверяет противоположное условие выхода i≥limit, то есть SF=OF.</p>
+  <p><b>Флаги:</b> CMP выставляет SF/OF по вычитанию и сохраняет EAX/EBX. INC меняет EAX, а также SF/OF и другие флаги, кроме CF. В диапазоне 0…5 после INC SF=OF=0. JMP сохраняет флаги; следующий CMP заново готовит их для JGE. Подпись у флагов показывает последнюю изменившую их инструкцию. Подсветка SF/OF включается перед JGE.</p>
+  <p><b>Байты:</b> 39 D8, 7D 04, FF C0, EB F8. Адреса 401000,002,004,006,008. F8 — signed8 −8, а не положительное смещение 248; 401008−8=401000. Метки не имеют байтов. Подсказки HEX/BIN у каждого байта.</p>
+  <p><b>Управление:</b> пробел — шаг, Shift + пробел — назад, R — начало с текущими числами. Изменение поля сбрасывает показ. До CMP флаги неизвестны. Счётчик итераций и история — пояснения демонстрации, не машинные регистры. На done остановка; это фиксированная модель, не эмулятор. Время: 6–7 минут.</p>
+  <p><b>Источник:</b> Intel SDM, Volume 2, INC и Jcc: https://cdrdv2-public.intel.com/782156/325383-sdm-vol-2abcd.pdf.</p>
 </aside>
