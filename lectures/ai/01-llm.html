@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Инженер + LLM — Саратовцев Артём</title>
+<meta name="description" content="Как пользоваться ИИ и не завалиться">
+<link rel="stylesheet" href="../../assets/css/site.css">
+<link rel="stylesheet" href="../../assets/css/deck.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<script defer src="../../assets/js/widgets/sequence.js"></script>
+<script defer src="../../assets/js/widgets/registers.js"></script>
+<script defer src="../../assets/js/widgets/register-map.js"></script>
+<script defer src="../../assets/js/widgets/command-lab.js"></script>
+<script defer src="../../assets/js/widgets/syscall-explorer.js"></script>
+<script defer src="../../assets/js/widgets/endian.js"></script>
+<script defer src="../../assets/js/resources.js"></script>
+<script defer src="../../assets/js/deck.js"></script>
+</head>
+<body class="lecture">
+<div class="deck">
+<header class="deck-header"><a href="../../index.html" title="Вернуться к каталогу">↖ Сборник</a><span>Инженер + LLM</span></header>
+<main class="stage" aria-label="Слайды лекции">
+<section class="slide slide--sequence active" id="s-03" aria-label="Ответ появляется токен за токеном.">
+<div class="tag">LLM / 1 · генерация</div>
+<h2>Ответ появляется<br><span class="accent">токен за токеном.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Запрос — это весь контекст. Модель ещё ничего не написала.">
+      <img class="diagram" src="../../assets/diagrams/llm-gen-1.svg" alt="Слева запрос «Объясни в одном предложении, что такое Git» и пустая строка ответа с курсором. Справа кандидаты на первый токен: Git 0,71, это 0,12, Система 0,06.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Первый токен выбран и дописан в конец.">
+      <img class="diagram" src="../../assets/diagrams/llm-gen-2.svg" alt="Дописан токен Git, он подсвечен, курсор сдвинулся. Справа новые кандидаты: « —» 0,84, « — это» 0,05.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Знак — тоже токен. Выбор повторяется для каждого.">
+      <img class="diagram" src="../../assets/diagrams/llm-gen-3.svg" alt="Дописан токен « —». Справа кандидаты на следующее слово: « система» 0,47, « это» 0,31.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Перед каждым выбором модель заново читает весь текст.">
+      <img class="diagram" src="../../assets/diagrams/llm-gen-4.svg" alt="Дописан токен « система». Справа кандидаты: « контроля» 0,62, « управления» 0,14.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Готовый ответ — цепочка из шести выборов.">
+      <img class="diagram" src="../../assets/diagrams/llm-gen-5.svg" alt="Собран ответ «Git — система контроля версий.». Справа итог: шесть токенов, шесть выборов.">
+    </div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Сказать:</b> модель не ищет готовый ответ в базе. Она получает весь текст запроса и продолжает его: выбирает следующий токен, дописывает и повторяет. Ответ — не одна мысль, а цепочка маленьких выборов.</p>
+  <p><b>Показ:</b> пять кадров, пробел — вперёд, Shift + пробел — назад, R — сброс. Справа на каждом кадре показано распределение для следующего шага: оно пересчитывается после каждого выбора. Числа — учебный пример, а не замер конкретной модели.</p>
+  <p><b>Спросить:</b> почему модель не может «передумать» и переписать начало ответа? <b>Ответ:</b> каждый следующий токен выбирается с учётом уже дописанного; назад она не возвращается.</p>
+  <p><b>Живой повтор:</b> в чате DeepSeek или Kimi ответ печатается по мере генерации — это тот же процесс, только быстрее. Подготовленные кадры остаются резервом, если сети нет.</p>
+  <p><b>Граница:</b> внутренние слои и attention не разбираем. Важна только последовательность: токен, ещё токен, ещё.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-04" aria-label="Токен — не слово. Это кусок текста." inert aria-hidden="true">
+<div class="tag">LLM / 1 · токены</div>
+<h2>Токен — не слово.<br><span class="accent">Это кусок текста.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Одиннадцать единиц вместо шести слов: модель видит не слова.">
+      <img class="diagram" src="../../assets/diagrams/llm-tok-ru.svg" alt="Фраза «Съешь ещё этих мягких французских булок» разбита на одиннадцать блоков: Съ, ешь, ещё, этих, мяг, ких, фран, цуз, ских, бул, ок.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Пробел и символы — отдельные единицы; код тоже текст.">
+      <img class="diagram" src="../../assets/diagrams/llm-tok-code.svg" alt="Строка return s[::-1] разбита на семь блоков: re, turn, s, открывающая скобка, срез, 1, закрывающая скобка.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Группы цифр: модель не считает по разрядам.">
+      <img class="diagram" src="../../assets/diagrams/llm-tok-num.svg" alt="Число 1234567 разбито на три блока: 123, 456, 7.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="В этом примере — три токена против двух.">
+      <img class="diagram" src="../../assets/diagrams/llm-tok-cmp.svg" alt="Русское «контекстное окно» разбито на три блока: контекст, ное, окно. Английское «context window» — на два: context, window.">
+    </div>
+  </div>
+</div>
+<p class="takeaway">Лимит контекста и цена считаются в токенах, а не в словах.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> у модели есть словарь токенов, и текст режется по нему. Частые слова и пробелы идут целиком, редкие формы и русские слова дробятся. Код и числа режутся иначе: символы и группы цифр — отдельные токены.</p>
+  <p><b>Показ:</b> четыре кадра. После первого спросить, сколько токенов получилось; после второго — почему код режется не по словам; после третьего — почему длинная арифметика даётся плохо.</p>
+  <p><b>Спросить:</b> что дороже для модели — страница на русском или та же страница на английском? <b>Ответ:</b> обычно русская: на тот же смысл уходит больше токенов, а окно и цена измеряются в токенах. В примере на слайде — три блока против двух.</p>
+  <p><b>Граница:</b> сравнение «контекстное окно» / «context window» — учебный пример, а не замер конкретной модели. Разбиение на слайде условное и приведено для наглядности. У DeepSeek, Kimi и Qwen свои словари; числа и границы могут отличаться. Точные значения смотреть в токенизаторе конкретной модели.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-05" aria-label="Модель видит только текст перед собой." inert aria-hidden="true">
+<div class="tag">LLM / 1 · контекст</div>
+<h2>Модель видит только<br><span class="accent">текст перед собой.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Файла в контексте нет: ответ правдоподобный, но выдуманный.">
+      <img class="diagram" src="../../assets/diagrams/llm-ctx-1.svg" alt="Окно контекста: только вопрос «Что делает parse_config?». Справа список того, чего модель не видит: другие файлы, история git, прошлые чаты, диск и сеть. Внизу ответ «Читает config.yaml и возвращает словарь» с пометкой «выдумано».">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Файл добавили в запрос — теперь он часть контекста.">
+      <img class="diagram" src="../../assets/diagrams/llm-ctx-2.svg" alt="В окне контекста появился код функции parse_config. Старый ответ перечёркнут: он больше не опирается на контекст.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Ответ изменился: модель читает только то, что лежит в окне.">
+      <img class="diagram" src="../../assets/diagrams/llm-ctx-3.svg" alt="Ответ по файлу: «Читает JSON по пути path и возвращает dict». Рядом пометка «по файлу».">
+    </div>
+  </div>
+</div>
+<p class="takeaway">Контекст — единственная память модели. Остальное она достроит сама.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> у модели нет доступа к проекту, диску или прошлым сессиям. Всё, что она «знает» в момент ответа, — это текст в окне контекста: запрос, приложенные файлы и предыдущие сообщения диалога. Поэтому вопрос без файла она закрывает правдоподобной выдумкой: это не ложь и не сбой, а продолжение текста.</p>
+  <p><b>Показ:</b> три кадра. После первого спросить, откуда взялось «config.yaml»; после второго — что изменилось в запросе; после третьего — почему ответ стал другим.</p>
+  <p><b>Спросить:</b> почему нельзя сказать «сделай как в прошлый раз» в новом чате? <b>Ответ:</b> прошлого текста в контексте нет; модель его не помнит.</p>
+  <p><b>Следствие:</b> чем точнее приложен контекст — файл, версия, пример, — тем меньше модель додумывает. Об этом будет блок про постановку задачи.</p>
+  <p><b>Граница:</b> контекстное окно ограничено и измеряется в токенах; старое вытесняется или обрезается. Точный размер зависит от модели.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-06" aria-label="Модель выбирает из многих. Температура меняет шансы." inert aria-hidden="true">
+<div class="tag">LLM / 1 · выбор</div>
+<h2>Модель выбирает из многих.<br><span class="accent">Температура меняет шансы.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="После «Git — это» у модели есть десятки кандидатов.">
+      <img class="diagram" src="../../assets/diagrams/llm-prob-1.svg" alt="Столбчатая диаграмма кандидатов после «Git — это»: система 0,52, инструмент 0,18, программа 0,09, набор 0,06, штука 0,04, способ 0,03, утилита 0,02, остальные 0,06.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Один токен выбран и дописан; остальные отброшены.">
+      <img class="diagram" src="../../assets/diagrams/llm-prob-2.svg" alt="Токен «система» подсвечен как выбранный, остальные варианты приглушены.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="После выбора распределение пересчитывается заново.">
+      <img class="diagram" src="../../assets/diagrams/llm-prob-3.svg" alt="Новое распределение после «Git — это система»: контроля 0,61, управления 0,15, версий 0,06, для 0,05.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Температура сужает или расширяет выбор. Правильность она не гарантирует.">
+      <img class="diagram" src="../../assets/diagrams/llm-temp.svg" alt="Три панели с одними кандидатами: при температуре 0,2 почти всегда выбирается «система»; при 1,0 доли как есть; при 1,8 слабые варианты получают заметные шансы.">
+    </div>
+  </div>
+</div>
+<p class="takeaway">Модель выбирает вероятное, а не правильное.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> на каждом шаге модель считает вероятность для всех токенов словаря и выбирает один. На слайде шесть кандидатов и строка «остальные»: настоящий выбор идёт по десяткам тысяч токенов словаря.</p>
+  <p><b>Температура:</b> логиты делят на температуру перед softmax. Ниже единицы распределение обостряется — почти всегда берётся самый вероятный токен; выше единицы — сглаживается, и слабые варианты получают заметные шансы. Значения на панелях пересчитаны из одних и тех же пяти долей, поэтому их можно сравнивать.</p>
+  <p><b>Спросить:</b> почему один и тот же вопрос даёт разные ответы? <b>Ответ:</b> выбор случайный в пределах распределения, а не фиксированный текст.</p>
+  <p><b>Следствие:</b> низкая температура не делает ответ верным — она делает его устойчивее. Для кода и проверок это удобно, но проверять всё равно нужно.</p>
+  <p><b>Граница:</b> доли — учебный пример, а не замер конкретной модели. Кроме температуры есть top-k и top-p: они отсекают маловероятные варианты до выбора.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-07" aria-label="Контекстное окно — фиксированный объём." inert aria-hidden="true">
+<div class="tag">LLM / 2 · окно</div>
+<h2>Контекстное окно —<br><span class="accent">фиксированный объём.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="В окно попадает только то, что положили. Пока пусто.">
+      <img class="diagram" src="../../assets/diagrams/llm-ctxwin-1.svg" alt="Пустое окно контекста на 128 000 токенов. Заполнение 0 процентов.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Каждый файл и сообщение занимают место в токенах.">
+      <img class="diagram" src="../../assets/diagrams/llm-ctxwin-2.svg" alt="В окне системная инструкция, вопрос и файл config.py. Заполнение 4 процента.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Окно почти заполнено: растут цена и задержка.">
+      <img class="diagram" src="../../assets/diagrams/llm-ctxwin-3.svg" alt="В окне уже двенадцать файлов, история чата и результаты команд. Заполнение 84 процента.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Старое вытесняется: модель теряет начало разговора.">
+      <img class="diagram" src="../../assets/diagrams/llm-ctxwin-4.svg" alt="Окно заполнено на 100 процентов. Блок «лог сборки» вытеснен за верхнюю границу.">
+    </div>
+  </div>
+</div>
+<p class="takeaway">Окно — рабочий стол, а не память.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> контекстное окно — это фиксированное число токенов, которые модель читает за один раз. Всё, что вы положили, занимает место: системная инструкция, вопрос, файлы, история диалога, результаты инструментов. Чем больше окно, тем дороже и медленнее каждый запрос.</p>
+  <p><b>Показ:</b> четыре кадра. После второго спросить, что произойдёт, если добавить ещё десять файлов; после третьего — что случится с системной инструкцией при переполнении.</p>
+  <p><b>Спросить:</b> почему длинный чат со временем начинает «тупить»? <b>Ответ:</b> старое вытесняется или обрезается, и модель теряет часть условий.</p>
+  <p><b>Приёмы:</b> короткая история, суммаризация, отдельные чаты под задачи, загрузка только нужных файлов. Всё это — управление тем, что лежит в окне.</p>
+  <p><b>Граница:</b> 128 000 токенов — пример, у моделей разные окна. Точные правила вытеснения зависят от провайдера; проценты на слайде учебные.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-08" aria-label="Не влезло — найди и положи нужное." inert aria-hidden="true">
+<div class="tag">LLM / 2 · RAG</div>
+<h2>Не влезло —<br><span class="accent">найди и положи нужное.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Вся база не помещается в окно.">
+      <img class="diagram" src="../../assets/diagrams/llm-rag-1.svg" alt="База из десяти тысяч документов и окно контекста; пунктирная стрелка показывает, что вся база в окно не влезает.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Документы режутся на фрагменты и индексируются.">
+      <img class="diagram" src="../../assets/diagrams/llm-rag-2.svg" alt="База отдаёт фрагменты в индекс; в индексе четыре фрагмента.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Вопрос ищет похожие фрагменты: top-3.">
+      <img class="diagram" src="../../assets/diagrams/llm-rag-3.svg" alt="Вопрос и база ведут в индекс; три верхних фрагмента подсвечены.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Фрагменты в окне, ответ со ссылкой на источник.">
+      <img class="diagram" src="../../assets/diagrams/llm-rag-4.svg" alt="Три фрагмента лежат в окне контекста, ответ ссылается на config.py.">
+    </div>
+  </div>
+</div>
+<p class="takeaway">RAG не добавляет знаний модели — он добавляет текст в окно.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> RAG — это поиск перед ответом. База режется на фрагменты, по ним строится индекс, вопрос ищет похожие фрагменты, и только они попадают в окно. Модель отвечает по тексту, который нашёлся.</p>
+  <p><b>Показ:</b> четыре кадра. После второго спросить, почему нельзя просто положить всю базу; после третьего — что будет, если поиск найдёт не те фрагменты.</p>
+  <p><b>Спросить:</b> чем RAG отличается от «модель знает»? <b>Ответ:</b> знания остаются в базе; в окно попадает только найденное, и это можно проверить по ссылке.</p>
+  <p><b>Границы:</b> качество RAG определяется поиском и нарезкой, а не моделью. Нашли не то — ответ будет уверенно неверным. Ссылка на источник обязательна.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-09" aria-label="Агент не умнее — у него есть инструменты." inert aria-hidden="true">
+<div class="tag">LLM / 2 · агент</div>
+<h2>Агент не умнее —<br><span class="accent">у него есть инструменты.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="В чате модель отвечает текстом и ничего не может сделать.">
+      <img class="diagram" src="../../assets/diagrams/llm-agent-1.svg" alt="Чат и модель: результат — только текст, инструменты недоступны.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Агенту дали файлы, терминал, тесты и браузер.">
+      <img class="diagram" src="../../assets/diagrams/llm-agent-2.svg" alt="Модель получает инструменты: файлы, терминал, тесты, браузер.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Цикл: вызвал инструмент → получил результат → продолжил.">
+      <img class="diagram" src="../../assets/diagrams/llm-agent-3.svg" alt="Модель вызывает инструмент, получает результат и продолжает работу по кругу.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Инструменты работают в песочнице; права ограничены.">
+      <img class="diagram" src="../../assets/diagrams/llm-agent-4.svg" alt="Модель и инструменты обведены песочницей: доступ только к этому проекту.">
+    </div>
+  </div>
+</div>
+<p class="takeaway">Агент — это цикл «вызвал → получил → продолжил», а не магия.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> агент отличается от чата не «умом», а доступом к инструментам и циклом. Модель вызывает функцию, получает результат и решает, что делать дальше. Один и тот же цикл лежит в основе opencode, DSH и других агентов.</p>
+  <p><b>Показ:</b> четыре кадра. После третьего спросить, сколько шагов может сделать агент без человека; после четвёртого — что ограничивает песочница.</p>
+  <p><b>Спросить:</b> почему агенту опасно давать неограниченный терминал? <b>Ответ:</b> он может удалить файлы, отправить данные наружу или поставить лишнюю зависимость.</p>
+  <p><b>Следствие:</b> права, diff, тесты и ревью — не бюрократия, а условие работы агента. Подробно цикл разберём в блоке opencode.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-10" aria-label="Агент не читает файлы — он вызывает инструмент." inert aria-hidden="true">
+<div class="tag">LLM / 2 · трасса</div>
+<h2>Агент не читает файлы —<br><span class="accent">он вызывает инструмент.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Задача попала в контекст. Пока это просто текст.">
+      <img class="diagram" src="../../assets/diagrams/llm-trace-1.svg" alt="Трасса агента: строка «исправь падающий тест». В контексте только задача.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Модель решила вызвать инструмент и написала вызов.">
+      <img class="diagram" src="../../assets/diagrams/llm-trace-2.svg" alt="В трассе появился вызов read_file для src/parse.py; в контексте задача и вызов инструмента.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Инструмент вернул файл — файл стал частью контекста.">
+      <img class="diagram" src="../../assets/diagrams/llm-trace-3.svg" alt="Инструмент вернул 42 строки; в контекст добавился файл parse.py на 900 токенов.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Модель предложила diff, инструмент применил его.">
+      <img class="diagram" src="../../assets/diagrams/llm-trace-4.svg" alt="Вызов edit и результат «diff применён»; в контексте появился diff.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Тесты — тоже инструмент. Результат снова в контексте.">
+      <img class="diagram" src="../../assets/diagrams/llm-trace-5.svg" alt="Вызов run_tests и результат «1 passed»; в контексте вывод тестов, внизу «готово».">
+    </div>
+  </div>
+</div>
+<p class="takeaway">Каждый результат возвращается в контекст и становится входом для следующего шага.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> агент не «смотрит на диск». Он вызывает инструмент, инструмент возвращает текст, и этот текст дописывается в контекст. Следующий шаг модель делает уже с файлом перед глазами — ровно как в слайде про контекст.</p>
+  <p><b>Показ:</b> пять кадров. Слева растёт трасса, справа — контекст. После третьего кадра спросить, почему файл целиком, а не «модель сама знает проект»; после пятого — что будет, если тест упал.</p>
+  <p><b>Спросить:</b> почему вызов инструмента — это JSON, а не просто просьба? <b>Ответ:</b> агент передаёт имя инструмента и аргументы, а клиент решает, можно ли его выполнять.</p>
+  <p><b>Следствие:</b> права и песочница важны: инструмент read_file может читать что угодно, edit — писать, run_tests — запускать код. Всё это ограничивают на уровне клиента.</p>
+  <p><b>Граница:</b> трасса подготовлена как учебный пример; имена инструментов зависят от клиента. В opencode и DSH цикл тот же, но вызовы выглядят иначе.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-11" aria-label="MCP — один протокол вместо N×M интеграций." inert aria-hidden="true">
+<div class="tag">LLM / 2 · MCP</div>
+<h2>MCP — один протокол<br><span class="accent">вместо N×M интеграций.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Без стандарта каждая пара «клиент — сервер» требует своей интеграции.">
+      <img class="diagram" src="../../assets/diagrams/llm-mcp-1.svg" alt="Три клиента и четыре сервера, все пары соединены линиями: двенадцать отдельных интеграций.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="MCP: по одной реализации с каждой стороны, соединения — напрямую.">
+      <img class="diagram" src="../../assets/diagrams/llm-mcp-2.svg" alt="Клиенты и серверы один раз реализуют протокол MCP; семь реализаций вместо двенадцати интеграций.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Подключение — несколько строк конфига; сервер видит только разрешённое.">
+      <img class="diagram" src="../../assets/diagrams/llm-mcp-3.svg" alt="Конфиг MCP на пять строк; сервер файлов видит только папку проекта.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Результат инструмента — недоверенный ввод: там может быть чужая инструкция.">
+      <img class="diagram" src="../../assets/diagrams/llm-mcp-4.svg" alt="Сервер возвращает текст «ignore previous instructions»; это недоверенный ввод.">
+    </div>
+  </div>
+</div>
+<p class="takeaway">MCP стандартизирует доступ, но не делает инструменты безопасными.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> клиент — это агент: модель плюс инструменты. MCP — общий протокол между клиентом и серверами инструментов. Вместо того чтобы писать отдельную интеграцию под каждую пару «клиент — сервер», каждая сторона один раз реализует протокол: три клиента и четыре сервера дают семь реализаций вместо двенадцати интеграций.</p>
+  <p><b>Показ:</b> четыре кадра. После первого спросить, что будет при десяти клиентах и десяти серверах; после третьего — что видит сервер файлов.</p>
+  <p><b>Спросить:</b> почему результат инструмента нельзя считать безопасным? <b>Ответ:</b> в файле или ответе сервера может лежать текст, который модель воспримет как инструкцию.</p>
+  <p><b>Границы:</b> MCP не проверяет качество и безопасность серверов. Права, песочница и ревью остаются на человеке. Конфиг на слайде — пример, а не готовый стенд.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-12" aria-label="Сначала доступ, потом модель." inert aria-hidden="true">
+<div class="tag">LLM / 3 · доступ</div>
+<h2>Сначала доступ,<br><span class="accent">потом модель.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Китайские сервисы открываются напрямую; западные — через VPN.">
+      <img class="diagram" src="../../assets/diagrams/llm-prov-1.svg" alt="Слева без VPN: DeepSeek, Kimi, Qwen, GLM. Справа нужен VPN: ChatGPT, Claude, Gemini.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Оплата — отдельная задача: карта РФ, зарубежная карта или посредник.">
+      <img class="diagram" src="../../assets/diagrams/llm-prov-2.svg" alt="Та же карта доступа и полоса оплаты: карта РФ, зарубежная карта, посредник. Посредник — ещё один получатель данных.">
+    </div>
+  </div>
+</div>
+<p class="takeaway">Выбирайте не «лучшую модель», а допустимый путь доступа и оплаты.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> карта на октябрь 2026: китайские сервисы — DeepSeek, Kimi, Qwen, GLM — открываются из РФ напрямую и имеют бесплатные веб-версии. ChatGPT, Claude и Gemini требуют VPN и зарубежной оплаты. Это не рейтинг качества, а карта доступа.</p>
+  <p><b>Оплата:</b> карта РФ проходит не везде; варианты — карта РФ у части сервисов, зарубежная карта, посредник. Посредник — это ещё один получатель ваших данных и ещё одни правила, поэтому его выбирают осознанно.</p>
+  <p><b>Спросить:</b> что важнее — открыть сервис или оплатить подписку? <b>Ответ:</b> это разные задачи; сервис может открываться, а оплата не проходить.</p>
+  <p><b>Граница:</b> доступ и способы оплаты меняются за месяцы. Дата проверки — октябрь 2026; перед занятием карту нужно перепроверить. Отечественные модели в обзор не входят по решению автора.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-13" aria-label="Сравнивайте по критериям, а не по чартам." inert aria-hidden="true">
+<div class="tag">LLM / 3 · критерии</div>
+<h2>Сравнивайте по критериям,<br><span class="accent">а не по чартам.</span></h2>
+<div class="cards four">
+  <div class="card"><span class="number">01</span><h3>Доступ</h3><p>Открывается без VPN? Есть веб-версия и API?</p></div>
+  <div class="card"><span class="number">02</span><h3>Оплата</h3><p>Карта РФ, зарубежная карта или посредник — и сколько это стоит.</p></div>
+  <div class="card"><span class="number">03</span><h3>Данные</h3><p>Куда уходят файлы, обучают ли на них, что разрешают ToS.</p></div>
+  <div class="card"><span class="number">04</span><h3>API и агент</h3><p>OpenAI-совместимость, вызов инструментов, лимиты контекста.</p></div>
+</div>
+<p class="takeaway">Десять-двадцать своих запросов важнее любого рейтинга.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> единого «лучшего» сервиса нет. Сначала отсекаем по доступу и оплате, потом сравниваем на своих задачах: код, русский текст, длинные файлы, вызов инструментов. Отдельно смотрим, что сервис делает с данными.</p>
+  <p><b>Спросить:</b> почему нельзя выбрать модель по одному бенчмарку? <b>Ответ:</b> бенчмарк не знает вашу задачу, ваш язык и ваши ограничения по данным.</p>
+  <p><b>Проверка:</b> взять 10–20 реальных запросов из своего проекта, прогнать на двух-трёх сервисах, сравнить результат и цену. Это быстрее, чем читать обзоры.</p>
+  <p><b>Границы:</b> качество на коде зависит от языка и фреймворка; лимиты и цены меняются. На слайде — критерии, а не рейтинг.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-14" aria-label="Западные сервисы — в отдельной ВМ." inert aria-hidden="true">
+<div class="tag">LLM / 3 · западные</div>
+<h2>Западные сервисы —<br><span class="accent">в отдельной ВМ.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="VPN и браузер — внутри ВМ, не на рабочем хосте.">
+      <img class="diagram" src="../../assets/diagrams/llm-west-1.svg" alt="Слева рабочий хост с файлами и ключами. Справа виртуальная машина с VPN и отдельным браузером. Между ними граница «не смешивать».">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Аккаунт отдельный: не рабочий и не личный.">
+      <img class="diagram" src="../../assets/diagrams/llm-west-2.svg" alt="В виртуальной машине появляется отдельный аккаунт для западных сервисов.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Ничего рабочего и чужого; ToS проверяем до загрузки.">
+      <img class="diagram" src="../../assets/diagrams/llm-west-3.svg" alt="Справа список того, что нельзя заливать: код компании, ключи и пароли, персональные данные. Внизу — ToS: что разрешено.">
+    </div>
+  </div>
+</div>
+<p class="takeaway">Это гигиена, а не запрет: изолируйте доступ и данные.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> западные сервисы требуют VPN и зарубежной оплаты. Подход простой: держать их в отдельной виртуальной машине или отдельном профиле браузера, с отдельным аккаунтом, и не смешивать с рабочим окружением.</p>
+  <p><b>Показать:</b> на хосте — рабочие файлы, ключи и рабочий браузер. В ВМ — VPN, отдельный браузер и аккаунт. Данные между ними не переносятся.</p>
+  <p><b>Спросить:</b> почему не стоит заходить в западный сервис из рабочего браузера? <b>Ответ:</b> вместе с сессией и куки утекает контекст, а аккаунт может быть заблокирован по региону.</p>
+  <p><b>Границы:</b> это не инструкция по обходу правил, а гигиена доступа: ToS, регион, блокировки аккаунтов и запрет на чужие данные остаются на человеке. Конкретные настройки VPN и ВМ здесь не разбираем.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-15" aria-label="Провайдер — это две строки, а не переписывание проекта." inert aria-hidden="true">
+<div class="tag">LLM / 3 · портативность</div>
+<h2>Провайдер — это две строки,<br><span class="accent">а не переписывание проекта.</span></h2>
+<pre class="code small">client = OpenAI(base_url="https://api.deepseek.com/v1", api_key=KEY)
+resp = client.chat.completions.create(model="deepseek-chat", ...)</pre>
+<div class="cards">
+  <div class="card"><span class="number">01</span><h3>Меняется</h3><p>base_url, model, цена, лимиты и набор инструментов.</p></div>
+  <div class="card"><span class="number">02</span><h3>Не меняется</h3><p>Код, SDK и вызовы; перенос — правка конфига.</p></div>
+  <div class="card"><span class="number">03</span><h3>Проверить</h3><p>Вызов инструментов, JSON-режим, картинки и длина контекста.</p></div>
+</div>
+<p class="takeaway">Смена провайдера — это смена base_url и model, а не проекта.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> большинство провайдеров дают OpenAI-совместимый API. Поэтому код приложения не переписывается: меняются base_url, ключ и имя модели. Это снижает зависимость от одного сервиса.</p>
+  <p><b>Показать:</b> один и тот же вызов chat.completions; в конфиге — адрес и модель. Переключение на Kimi, Qwen, OpenRouter или локальную модель — это правка конфига.</p>
+  <p><b>Спросить:</b> что может сломаться при смене провайдера? <b>Ответ:</b> вызов инструментов, JSON-режим, работа с картинками, длина контекста и формат ошибок.</p>
+  <p><b>Границы:</b> совместимость неполная: у части провайдеров свои расширения. Перед переключением — прогнать свои 10–20 запросов. Агрегатор добавляет посредника и меняет правила по данным.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-16" aria-label="opencode — агент в терминале." inert aria-hidden="true">
+<div class="tag">LLM / 4 · opencode</div>
+<h2>opencode — агент<br><span class="accent">в терминале.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Ставится одной командой — или через npm.">
+      <img class="diagram" src="../../assets/diagrams/llm-open-1.svg" alt="Терминал: установка opencode скриптом, затем запуск opencode. Справа шаг «установить».">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Ключ провайдера и модель — через /connect.">
+      <img class="diagram" src="../../assets/diagrams/llm-open-2.svg" alt="В opencode команда /connect, выбор провайдера и ввод ключа. Справа шаг «добавить ключ провайдера».">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Запускается в папке проекта и видит файлы репозитория.">
+      <img class="diagram" src="../../assets/diagrams/llm-open-3.svg" alt="Запуск opencode в папке project; агент видит файлы репозитория. Справа шаг «открыть в папке проекта».">
+    </div>
+  </div>
+</div>
+<p class="takeaway">opencode — терминальный агент: команда, ключ, папка проекта.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> opencode ставится скриптом с сайта или через npm. Внутри терминала команда /connect добавляет провайдера и ключ; модель выбирается там же. Запускать нужно в папке проекта — агент видит файлы репозитория.</p>
+  <p><b>Команды:</b> curl -fsSL https://opencode.ai/install | bash; npm install -g opencode-ai; затем opencode и /connect. Точные команды зависят от версии, перед занятием проверить.</p>
+  <p><b>Спросить:</b> почему важно запускать в папке проекта? <b>Ответ:</b> агент работает с файлами, которые видит; вне проекта он их не найдёт.</p>
+  <p><b>Границы:</b> установка и ключи — домашняя практика; в классе только показ. Ключ хранится локально; не коммитить его в репозиторий.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-17" aria-label="Задача, план, diff, тесты, коммит." inert aria-hidden="true">
+<div class="tag">LLM / 4 · цикл</div>
+<h2>Задача, план, diff,<br><span class="accent">тесты, коммит.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Задача — одна строка в терминале.">
+      <img class="diagram" src="../../assets/diagrams/llm-cycle-1.svg" alt="Слева агент получает задачу «исправь падающий тест»; справа экран пока пуст.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Сначала план: агент показывает шаги до правок.">
+      <img class="diagram" src="../../assets/diagrams/llm-cycle-2.svg" alt="Агент показывает план из четырёх шагов; справа — план.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Правки видны как diff: что удалено, что добавлено.">
+      <img class="diagram" src="../../assets/diagrams/llm-cycle-3.svg" alt="Агент правит src/parse.py; справа diff: удалена строка с минусом, добавлена с плюсом.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Тесты — отдельный шаг; результат в терминале.">
+      <img class="diagram" src="../../assets/diagrams/llm-cycle-4.svg" alt="Агент запускает тесты; справа pytest и три пройденных теста.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Коммит — после проверки; сообщение и хеш.">
+      <img class="diagram" src="../../assets/diagrams/llm-cycle-5.svg" alt="Агент коммитит; справа команда git commit и строка с хешем.">
+    </div>
+  </div>
+</div>
+<p class="takeaway">Цикл один и тот же: задача, план, diff, тесты, коммит.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> на экране всегда видны три вещи: что просили, что агент собирается делать и что он реально изменил. Diff — главный экран: без него правку нельзя принять.</p>
+  <p><b>Показ:</b> пять кадров. После плана спросить, что будет проверкой; после diff — где доказательство, что стало лучше.</p>
+  <p><b>Спросить:</b> почему коммит идёт последним? <b>Ответ:</b> коммит фиксирует уже проверенное состояние; до тестов это просто черновик.</p>
+  <p><b>Следствие:</b> если агент не показал план или diff — просить. Если тесты не запускались — не коммитить.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-18" aria-label="DSH — оболочка вокруг модели." inert aria-hidden="true">
+<div class="tag">LLM / 4 · DSH</div>
+<h2>DSH — оболочка<br><span class="accent">вокруг модели.</span></h2>
+<p class="lead">DeepSeek Harness — открытая оболочка вокруг модели: веб-интерфейс, где модель, инструменты, сессии и права собираются из плагинов.</p>
+<div class="cards">
+  <div class="card"><span class="number">01</span><h3>Интерфейс</h3><p>opencode — TUI в терминале. DSH — веб-интерфейс в браузере.</p></div>
+  <div class="card"><span class="number">02</span><h3>Устройство</h3><p>У opencode ключи и конфиг в файле; у DSH модели, инструменты и сессии — плагины.</p></div>
+  <div class="card"><span class="number">03</span><h3>Зрелость</h3><p>opencode — рабочий инструмент; DSH — developer preview, возможны ломающие изменения.</p></div>
+</div>
+<p class="takeaway">Harness — это оболочка: модель одна, оболочки разные.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> harness — это оболочка вокруг модели: она даёт инструменты, сессии, права и проверки. DSH — открытый harness от DeepSeek: запускается командой npx @deepseek-ai/dsh web и открывается в браузере на 127.0.0.1. Идея та же, что у opencode: модель одна, оболочки разные.</p>
+  <p><b>Устройство:</b> в DSH почти всё — плагины: модели, инструменты, сессии, интерфейс. Поэтому один и тот же агент у двух людей может выглядеть по-разному.</p>
+  <p><b>Спросить:</b> что меняется для студента при переходе с TUI на веб? <b>Ответ:</b> способ взаимодействия и история сессий, а цикл работы остаётся тем же.</p>
+  <p><b>Границы:</b> без рекламы: DSH — developer preview, возможны ломающие изменения. Для занятия важна идея, а не конкретная оболочка.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-19" aria-label="SDD — от спецификации к коду." inert aria-hidden="true">
+<div class="tag">LLM / 4 · SDD</div>
+<h2>SDD — от спецификации<br><span class="accent">к коду.</span></h2>
+<p class="caption">Spec-driven development: цель, требования и критерии приёмки — потом код и проверки.</p>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Без спеки модель достраивает требования сама.">
+      <img class="diagram" src="../../assets/diagrams/llm-sdd-1.svg" alt="Слева задача «сделай красиво», справа знак вопроса: модель догадывается сама.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Спека: цель, требования и критерии приёмки.">
+      <img class="diagram" src="../../assets/diagrams/llm-sdd-2.svg" alt="Спека с разделами: цель, требования, критерии приёмки. Справа — спека как контракт.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Из спеки получаются план и задачи.">
+      <img class="diagram" src="../../assets/diagrams/llm-sdd-3.svg" alt="Спека слева, справа план из шагов и задач.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Код и тесты; спека обновляется вместе с ними.">
+      <img class="diagram" src="../../assets/diagrams/llm-sdd-4.svg" alt="Спека слева, справа код, pytest, три пройденных теста и пометка «спека обновлена».">
+    </div>
+  </div>
+</div>
+<p class="takeaway">Спека — контракт: по ней можно проверить результат.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> SDD — spec-driven development, разработка от спецификации: сначала пишем, что и зачем делаем, какие требования и как проверим, и только потом просим код. Спека становится контрактом между человеком и агентом. Идея та же, что у harness: модель — движок, а правила и проверки — отдельно.</p>
+  <p><b>Показ:</b> четыре кадра. После второго спросить, чем критерий приёмки отличается от требования; после четвёртого — что делать, если спека разошлась с кодом.</p>
+  <p><b>Спросить:</b> почему спека важнее промпта? <b>Ответ:</b> её можно проверить, обсудить и сохранить; промпт живёт один разговор.</p>
+  <p><b>Связь дальше:</b> подробно бриф и критерии разберём в блоке про постановку задачи. Здесь важен принцип: спека первична, код вторичен.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-20" aria-label="Один баг — два брифа." inert aria-hidden="true">
+<div class="tag">LLM / 5 · бриф</div>
+<h2>Один баг —<br><span class="accent">два брифа.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Расплывчатая задача: модель сама решает, что чинить.">
+      <img class="diagram" src="../../assets/diagrams/llm-brief-1.svg" alt="Запрос «исправь падающий тест»; справа знак вопроса и «модель решает сама».">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Она переписала файл, добавила зависимость и поправила тест.">
+      <img class="diagram" src="../../assets/diagrams/llm-brief-2.svg" alt="Что сделала модель: переписала parse_config, добавила зависимость, поправила тест. Тест зелёный, поведение — нет.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Конкретный бриф: минимальная правка и проверяемый результат.">
+      <img class="diagram" src="../../assets/diagrams/llm-brief-3.svg" alt="Конкретный запрос: пустой файл, вернуть {}, тест не менять, без зависимостей, критерий pytest. Результат: правка на две строки, тесты проходят.">
+    </div>
+  </div>
+</div>
+<p class="takeaway">Чем меньше догадок, тем меньше правок, которые придётся откатывать.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> одна и та же задача с багом. В первом варианте модель не знает границ: переписывает файл, добавляет зависимость, правит тест. Тест зелёный, а поведение системы изменилось. Во втором варианте границы заданы, и правка минимальна.</p>
+  <p><b>Показ:</b> три кадра. После второго спросить, почему зелёный тест не доказывает исправление; после третьего — что именно ограничило модель.</p>
+  <p><b>Спросить:</b> что было самым важным в хорошем брифе? <b>Ответ:</b> критерий проверки и запрет менять тест.</p>
+  <p><b>Границы:</b> пример учебный; в реальном проекте контекст и ограничения зависят от команды.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-21" aria-label="Бриф — это ТЗ для агента." inert aria-hidden="true">
+<div class="tag">LLM / 5 · бриф</div>
+<h2>Бриф — это ТЗ<br><span class="accent">для агента.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Шесть полей: артефакт, зачем, контекст, ограничения, критерий, отчёт.">
+      <img class="diagram" src="../../assets/diagrams/llm-brief6-1.svg" alt="Бриф из шести полей с пустыми значениями.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Заполненный бриф на баг с пустым файлом.">
+      <img class="diagram" src="../../assets/diagrams/llm-brief6-2.svg" alt="Пример брифа: артефакт — parse_config на пустом файле; зачем — тест падает; контекст — два файла; ограничения — тест не менять; критерий — pytest; отчёт — diff и тесты.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Каждое поле закрывает свою дыру.">
+      <img class="diagram" src="../../assets/diagrams/llm-brief6-3.svg" alt="Справа: без контекста — догадки, без критерия — «готово» на словах, без запретов — лишние зависимости.">
+    </div>
+  </div>
+</div>
+<p class="takeaway">Бриф помещается в десять строк и экономит часы.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> бриф — это техническое задание для агента. Шесть полей: что получить, зачем, что дать, что нельзя, как проверить и что показать в отчёте. Заполняется за пять минут и снимает большую часть догадок.</p>
+  <p><b>Показ:</b> три кадра. После первого спросить, какое поле чаще всего забывают; после второго — какое поле сильнее всего ограничивает агента.</p>
+  <p><b>Спросить:</b> чем критерий отличается от «сделай хорошо»? <b>Ответ:</b> критерий — команда или проверка, которую можно запустить.</p>
+  <p><b>Связь:</b> это практическая версия SDD из слайда 19: спека первична, бриф — её короткая форма.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-22" aria-label="Приёмы, которые снимают догадки." inert aria-hidden="true">
+<div class="tag">LLM / 5 · приёмы</div>
+<h2>Приёмы, которые<br><span class="accent">снимают догадки.</span></h2>
+<div class="cards four">
+  <div class="card"><span class="number">01</span><h3>План до кода</h3><p>Сначала список шагов, потом правки. План можно поправить дешевле.</p></div>
+  <div class="card"><span class="number">02</span><h3>«Покажи, как понял»</h3><p>Пересказ задачи до работы: сразу видно, где модель поняла не так.</p></div>
+  <div class="card"><span class="number">03</span><h3>«Объясни diff»</h3><p>Что изменено и почему. Если объяснить нельзя — правку не принимаем.</p></div>
+  <div class="card"><span class="number">04</span><h3>«Не трогай X»</h3><p>Явные запреты: тесты, публичный API, зависимости, конфиги.</p></div>
+</div>
+<p class="takeaway">Приём — это вопрос, который заставляет агента показать работу.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> четыре приёма, которые работают с любым агентом. План до кода, пересказ задачи, объяснение diff и явные запреты. Они не улучшают модель — они улучшают постановку и проверку.</p>
+  <p><b>Спросить:</b> какой приём дешевле всего? <b>Ответ:</b> «покажи, как понял»: одна фраза до работы, а не час после.</p>
+  <p><b>Ещё приёмы:</b> «покажи тесты», «предложи два варианта», «сначала воспроизведи баг». Их можно добавить в бриф.</p>
+  <p><b>Границы:</b> приёмы не заменяют тесты и ревью; они только уменьшают число итераций.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-23" aria-label="Шаг, который нельзя проверить, — не шаг." inert aria-hidden="true">
+<div class="tag">LLM / 5 · готовность</div>
+<h2>Шаг, который нельзя проверить, —<br><span class="accent">не шаг.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Один большой запрос: diff на 120 строк и никакой проверки.">
+      <img class="diagram" src="../../assets/diagrams/llm-task-1.svg" alt="Один запрос «почини всё»; справа diff на 120 строк и тесты не запускались.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Три шага, у каждого — своя проверка.">
+      <img class="diagram" src="../../assets/diagrams/llm-task-2.svg" alt="Три шага: воспроизвести тест, починить parse_config, прогнать все тесты. У каждого шага своя проверка.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Коммит после тестов; история из трёх понятных шагов.">
+      <img class="diagram" src="../../assets/diagrams/llm-task-3.svg" alt="История из трёх коммитов и pytest: три теста прошли. Коммит после проверки.">
+    </div>
+  </div>
+</div>
+<p class="takeaway">Декомпозиция — это не про размер, а про проверяемость.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> большой запрос даёт большой diff, который никто не проверит. Разбиваем на шаги так, чтобы у каждого была своя проверка: воспроизвести тест, починить, прогнать всё. Один шаг — один коммит.</p>
+  <p><b>Показ:</b> три кадра. После второго спросить, что будет проверкой для шага «починить»; после третьего — зачем три коммита вместо одного.</p>
+  <p><b>Спросить:</b> как понять, что шаг слишком большой? <b>Ответ:</b> для него нельзя назвать одну команду или тест, который докажет результат.</p>
+  <p><b>Следствие:</b> критерий готовности — это команда, а не ощущение. Если проверить нечем — задачу надо переформулировать.</p>
+</aside>
+</section>
+</main>
+<footer class="deck-footer">
+<div class="nav-controls"><button data-prev aria-label="Предыдущий слайд">←</button><span id="counter" aria-live="polite">01 / 21</span><button data-next aria-label="Следующий слайд">→</button></div>
+<span id="interaction-hint">← → слайды</span>
+<div class="deck-tools"><button data-fullscreen title="Полный экран (F)">Экран <kbd>F</kbd></button><button data-dialog="help" aria-label="Клавиши управления">?</button></div>
+</footer>
+<div class="progress-track" aria-hidden="true"><div id="progress"></div></div>
+</div>
+<dialog id="help" aria-labelledby="help-title"><div class="dialog-top"><h2 id="help-title">Управление</h2><button data-close aria-label="Закрыть">×</button></div><dl class="key-list"><dt>← → / Page Up, Down</dt><dd>Предыдущий / следующий слайд</dd><dt>Пробел / Shift + пробел</dt><dd>Вперёд / назад внутри демонстрации</dd><dt>R</dt><dd>Сбросить демонстрацию</dd><dt>F</dt><dd>Полный экран</dd><dt>Esc</dt><dd>Закрыть панель</dd></dl></dialog>
+<noscript>Для переключения слайдов и демонстраций включите JavaScript.</noscript>
+</body>
+</html>

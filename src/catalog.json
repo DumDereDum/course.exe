@@ -23,6 +23,11 @@
           "name": "security",
           "description": "Разработка безопасного ПО",
           "sections": ["security"]
+        },
+        {
+          "name": "ai",
+          "description": "LLM, агенты и постановка задачи",
+          "sections": ["ai"]
         }
       ]
     }

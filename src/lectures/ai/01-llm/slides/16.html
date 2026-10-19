@@ -1,0 +1,23 @@
+<!-- type: sequence -->
+<div class="tag">LLM / 4 · opencode</div>
+<h2>opencode — агент<br><span class="accent">в терминале.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Ставится одной командой — или через npm.">
+      <img class="diagram" src="@ASSETS@/diagrams/llm-open-1.svg" alt="Терминал: установка opencode скриптом, затем запуск opencode. Справа шаг «установить».">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Ключ провайдера и модель — через /connect.">
+      <img class="diagram" src="@ASSETS@/diagrams/llm-open-2.svg" alt="В opencode команда /connect, выбор провайдера и ввод ключа. Справа шаг «добавить ключ провайдера».">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Запускается в папке проекта и видит файлы репозитория.">
+      <img class="diagram" src="@ASSETS@/diagrams/llm-open-3.svg" alt="Запуск opencode в папке project; агент видит файлы репозитория. Справа шаг «открыть в папке проекта».">
+    </div>
+  </div>
+</div>
+<p class="takeaway">opencode — терминальный агент: команда, ключ, папка проекта.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> opencode ставится скриптом с сайта или через npm. Внутри терминала команда /connect добавляет провайдера и ключ; модель выбирается там же. Запускать нужно в папке проекта — агент видит файлы репозитория.</p>
+  <p><b>Команды:</b> curl -fsSL https://opencode.ai/install | bash; npm install -g opencode-ai; затем opencode и /connect. Точные команды зависят от версии, перед занятием проверить.</p>
+  <p><b>Спросить:</b> почему важно запускать в папке проекта? <b>Ответ:</b> агент работает с файлами, которые видит; вне проекта он их не найдёт.</p>
+  <p><b>Границы:</b> установка и ключи — домашняя практика; в классе только показ. Ключ хранится локально; не коммитить его в репозиторий.</p>
+</aside>
