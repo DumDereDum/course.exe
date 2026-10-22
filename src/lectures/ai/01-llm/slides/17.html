@@ -1,0 +1,29 @@
+<!-- type: sequence -->
+<div class="tag">LLM / 4 · цикл</div>
+<h2>Задача, план, diff,<br><span class="accent">тесты, коммит.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Задача — одна строка в терминале.">
+      <img class="diagram" src="@ASSETS@/diagrams/llm-cycle-1.svg" alt="Слева агент получает задачу «исправь падающий тест»; справа экран пока пуст.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Сначала план: агент показывает шаги до правок.">
+      <img class="diagram" src="@ASSETS@/diagrams/llm-cycle-2.svg" alt="Агент показывает план из четырёх шагов; справа — план.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Правки видны как diff: что удалено, что добавлено.">
+      <img class="diagram" src="@ASSETS@/diagrams/llm-cycle-3.svg" alt="Агент правит src/parse.py; справа diff: удалена строка с минусом, добавлена с плюсом.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Тесты — отдельный шаг; результат в терминале.">
+      <img class="diagram" src="@ASSETS@/diagrams/llm-cycle-4.svg" alt="Агент запускает тесты; справа pytest и три пройденных теста.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Коммит — после проверки; сообщение и хеш.">
+      <img class="diagram" src="@ASSETS@/diagrams/llm-cycle-5.svg" alt="Агент коммитит; справа команда git commit и строка с хешем.">
+    </div>
+  </div>
+</div>
+<p class="takeaway">Цикл один и тот же: задача, план, diff, тесты, коммит.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> на экране всегда видны три вещи: что просили, что агент собирается делать и что он реально изменил. Diff — главный экран: без него правку нельзя принять.</p>
+  <p><b>Показ:</b> пять кадров. После плана спросить, что будет проверкой; после diff — где доказательство, что стало лучше.</p>
+  <p><b>Спросить:</b> почему коммит идёт последним? <b>Ответ:</b> коммит фиксирует уже проверенное состояние; до тестов это просто черновик.</p>
+  <p><b>Следствие:</b> если агент не показал план или diff — просить. Если тесты не запускались — не коммитить.</p>
+</aside>

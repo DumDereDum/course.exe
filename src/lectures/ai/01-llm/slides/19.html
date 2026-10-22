@@ -1,0 +1,27 @@
+<!-- type: sequence -->
+<div class="tag">LLM / 4 · SDD</div>
+<h2>SDD — от спецификации<br><span class="accent">к коду.</span></h2>
+<p class="caption">Spec-driven development: цель, требования и критерии приёмки — потом код и проверки.</p>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="Без спеки модель достраивает требования сама.">
+      <img class="diagram" src="@ASSETS@/diagrams/llm-sdd-1.svg" alt="Слева задача «сделай красиво», справа знак вопроса: модель догадывается сама.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Спека: цель, требования и критерии приёмки.">
+      <img class="diagram" src="@ASSETS@/diagrams/llm-sdd-2.svg" alt="Спека с разделами: цель, требования, критерии приёмки. Справа — спека как контракт.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Из спеки получаются план и задачи.">
+      <img class="diagram" src="@ASSETS@/diagrams/llm-sdd-3.svg" alt="Спека слева, справа план из шагов и задач.">
+    </div>
+    <div class="sequence-frame" data-frame data-caption="Код и тесты; спека обновляется вместе с ними.">
+      <img class="diagram" src="@ASSETS@/diagrams/llm-sdd-4.svg" alt="Спека слева, справа код, pytest, три пройденных теста и пометка «спека обновлена».">
+    </div>
+  </div>
+</div>
+<p class="takeaway">Спека — контракт: по ней можно проверить результат.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> SDD — spec-driven development, разработка от спецификации: сначала пишем, что и зачем делаем, какие требования и как проверим, и только потом просим код. Спека становится контрактом между человеком и агентом. Идея та же, что у harness: модель — движок, а правила и проверки — отдельно.</p>
+  <p><b>Показ:</b> четыре кадра. После второго спросить, чем критерий приёмки отличается от требования; после четвёртого — что делать, если спека разошлась с кодом.</p>
+  <p><b>Спросить:</b> почему спека важнее промпта? <b>Ответ:</b> её можно проверить, обсудить и сохранить; промпт живёт один разговор.</p>
+  <p><b>Связь дальше:</b> подробно бриф и критерии разберём в блоке про постановку задачи. Здесь важен принцип: спека первична, код вторичен.</p>
+</aside>
