@@ -1,0 +1,11 @@
+<!-- type: content -->
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2><code>syscall</code> запускает<br><span class="accent">подготовленный read.</span></h2>
+<div class="columns"><pre class="code">syscall</pre><div class="stack"><p class="lead">Linux читает ввод в <code>inbuf</code>. После возврата RAX содержит количество прочитанных байтов.</p><p class="caption">Байты команды: <code>0F 05</code>.</p></div></div><div class="columns"><div class="stack"><div class="panel-label">Перед вызовом</div><pre class="ascii">RAX = 0   read
+RDI = 0   stdin
+RSI → inbuf
+RDX = 32  максимум</pre></div><div class="stack"><div class="panel-label">После ввода 21 и Enter</div><pre class="ascii">inbuf: 32 31 0A  (hex)
+        2  1  LF
+RAX = 3 байта</pre></div></div>
+<p class="takeaway"><code>0F 05</code> — байты команды. <code>32 31 0A</code> — прочитанные данные.</p>
+<aside class="notes"><p><b>Сказать:</b> Это сохранённое состояние для корректного ввода 21 и LF одним успешным read. В RAX вернулось 3, а не 21. Число 21 ещё предстоит собрать. Linux read может получить меньше запрошенного или ошибку; в учебной модели считаем, что вся короткая строка с LF пришла сразу. В реальном терминале LF относится к обычному режиму Linux. Syscall также изменяет RCX и R11; к этому вернёмся при двух write.</p><p><b>Спросить:</b> В каком месте находится текст 21 после read? <b>Ответ:</b> В памяти inbuf; в RAX лежит только число прочитанных байтов.</p></aside>

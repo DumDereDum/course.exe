@@ -1,0 +1,7 @@
+<!-- type: content -->
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Считаем цифры<br><span class="accent">и повторяем деление.</span></h2>
+<div class="columns"><pre class="code">inc ecx</pre><div class="stack"><p class="lead">Увеличить число записанных цифр: после первой записи <code>ECX = 1</code>.</p><p class="caption">Байты команды: <code>FF C1</code>.</p></div></div><div class="columns"><pre class="code">test eax, eax</pre><div class="stack"><p class="lead">Проверить, стало ли частное нулём. EAX не меняется; при нуле ZF = 1.</p><p class="caption">Байты команды: <code>85 C0</code>.</p></div></div><div class="columns"><pre class="code">jnz digits</pre><div class="stack"><p class="lead">Если ZF = 0, цифры ещё остались: вернуться к <code>xor edx, edx</code>.</p><p class="caption">Байты команды: <code>75</code> + 1 байт смещения до метки.</p></div></div>
+
+<p class="takeaway">Проверка стоит после тела: даже число 0 даст одну цифру <code>'0'</code>.</p>
+<aside class="notes"><p><b>Сказать:</b> После первого DIV для 42 в EAX остаётся 4: TEST даёт ZF=0, продолжаем. После второго DIV в EAX=0: ZF=1, JNZ не выполняется. Это цикл с проверкой после тела. Для исходного нуля тело всё равно один раз запишет символ 0; иначе получилась бы пустая строка. TEST выполняет AND для флагов, не записывая результат. Его смысл здесь — проверка на ноль.</p><p><b>Спросить:</b> Сколько раз тело выполнится, если результат равен нулю? <b>Ответ:</b> Один раз: получим цифру 0, затем завершим цикл.</p></aside>

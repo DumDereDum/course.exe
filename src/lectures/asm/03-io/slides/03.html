@@ -1,0 +1,8 @@
+<!-- type: content -->
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2><code>xor eax, eax</code><br><span class="accent">обнуляет регистр.</span></h2>
+<div class="columns"><pre class="code">xor eax, eax</pre><div class="stack"><p class="lead">XOR одинаковых битов даёт ноль. Поэтому любое значение EAX превращается в <code>0</code>.</p><p class="caption">Байты команды: <code>31 C0</code>.</p></div></div><div class="columns"><div class="stack"><div class="panel-label">До → после</div><pre class="ascii">EAX: любое → 0
+RAX: любое → 0</pre></div><div class="stack"><div class="panel-label">Зачем перед read</div><pre class="ascii">RAX = 0
+номер вызова read</pre></div></div>
+<p class="takeaway">Запись в EAX обнуляет верхние 32 бита RAX. Чтение начнётся только на <code>syscall</code>.</p>
+<aside class="notes"><p><b>Сказать:</b> EAX — младшие 32 бита 64-битного RAX. Запись в EAX очищает и старшую половину. То же правило действует для EDI/RDI и EDX/RDX. XOR с собой здесь даёт тот же результат в регистре, что mov eax, 0; изменения флагов пока не используем. Точка с запятой начинает комментарий: подпись «read» не меняет смысла XOR. 31 C0 — машинные байты инструкции NASM; 31 — операция XOR, C0 выбирает регистровые операнды EAX/EAX.</p><p><b>Спросить:</b> Что прочитано после xor eax, eax? <b>Ответ:</b> Пока ничего: в RAX только записан номер будущего системного вызова.</p></aside>

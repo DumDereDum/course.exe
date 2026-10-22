@@ -1,0 +1,6 @@
+<!-- type: content -->
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Сначала выделим<br><span class="accent">место для ввода.</span></h2>
+<div class="columns"><pre class="code">section .bss</pre><div class="stack"><p class="lead">Начинаем область памяти для данных без начальных байтов в файле.</p></div></div><div class="columns"><pre class="code">inbuf: resb 32</pre><div class="stack"><p class="lead"><code>resb 32</code> резервирует 32 байта. Имя <code>inbuf</code> обозначает адрес начала.</p></div></div><div class="columns"><pre class="code">section .text</pre><div class="stack"><p class="lead">Дальше записываем инструкции, которые будет выполнять процессор.</p></div></div>
+<p class="takeaway">Это указания сборщику. Процессор не выполняет <code>section</code> и <code>resb</code>.</p>
+<aside class="notes"><p><b>Сказать:</b> Буфер — участок памяти. При загрузке Linux заполняет .bss нулями; 32 нулевых байта не хранятся в ELF. Метка — имя адреса, а не отдельная команда. В памяти есть место, но ввода ещё нет.</p><p><b>Спросить:</b> Какие байты уже прочитаны после resb 32? <b>Ответ:</b> Никакие. Мы только описали место для будущего ввода.</p></aside>
