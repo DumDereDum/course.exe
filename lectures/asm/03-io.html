@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ассемблер · Лекция 03 — Саратовцев Артём</title>
+<meta name="description" content="Ввод, вывод и числа">
+<link rel="stylesheet" href="../../assets/css/site.css">
+<link rel="stylesheet" href="../../assets/css/deck.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<script defer src="../../assets/js/widgets/sequence.js"></script>
+<script defer src="../../assets/js/widgets/registers.js"></script>
+<script defer src="../../assets/js/widgets/register-map.js"></script>
+<script defer src="../../assets/js/widgets/command-lab.js"></script>
+<script defer src="../../assets/js/widgets/syscall-explorer.js"></script>
+<script defer src="../../assets/js/widgets/endian.js"></script>
+<script defer src="../../assets/js/resources.js"></script>
+<script defer src="../../assets/js/deck.js"></script>
+</head>
+<body class="lecture">
+<div class="deck">
+<header class="deck-header"><a href="../../index.html" title="Вернуться к каталогу">↖ Сборник</a><span>Ассемблер · Лекция 03</span></header>
+<main class="stage" aria-label="Слайды лекции">
+<section class="slide slide--title active" id="s-01" aria-label="Числа в тексте.">
+<div class="tag">x86-64 · Linux · NASM</div>
+<h1>Числа<br><span class="accent">в тексте.</span></h1>
+<p class="lead">Прочитать число, удвоить, напечатать.</p>
+<p class="takeaway"><code>21</code> → <code>Result: 42</code> — маршрут: stdin → буфер → число → буфер → stdout.</p>
+<div class="title-line">Саратовцев Артём · ВШЭ НН</div>
+<span class="title-number" aria-hidden="true">03</span>
+<aside class="notes">
+  <p><b>Сказать:</b> до сих пор данные были константами, а результат уходил в код завершения. Теперь программа сама читает строку, превращает её в число и печатает ответ.</p>
+  <p><b>Спросить:</b> что получает программа от терминала — число или байты? <b>Ответ:</b> байты; число появится только после разбора.</p>
+  <p><b>Показ:</b> 1–2 минуты. Сначала показать готовый запуск, затем вернуться к маршруту и разобрать его по блокам.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-02" aria-label="read кладёт байты в память процесса." inert aria-hidden="true">
+<div class="tag">03 / ввод · read и буфер</div>
+<h2><code>read</code> кладёт байты<br><span class="accent">в память процесса.</span></h2>
+<div class="columns">
+  <div class="stack">
+    <div class="panel-label">NASM · Linux x86-64</div>
+    <pre class="code small">section .bss
+inbuf:  resb 32
+section .text
+  xor eax, eax      ; read
+  xor edi, edi      ; stdin
+  lea rsi, [rel inbuf]
+  mov edx, 32
+  syscall</pre>
+  </div>
+  <div class="stack">
+    <div class="panel-label">После ввода 21⏎</div>
+    <pre class="ascii">inbuf
+32 31 0A 00 00
+'2' '1' LF</pre>
+    <div class="panel"><p><code>RAX = 3</code> — прочитано три байта.</p></div>
+  </div>
+</div>
+<p class="takeaway"><code>read</code> возвращает число байтов, а не число. Enter — это байт <code>0A</code> в конце строки.</p>
+<aside class="notes">
+  <p><b>Сказать:</b> read — такой же syscall, как write, только данные едут в обратную сторону. RAX=0 выбирает read, RDI=0 — stdin, RSI — адрес буфера, RDX — максимум байтов. После возврата RAX содержит, сколько байтов ядро действительно записало в память.</p>
+  <p><b>Разобрать:</b> ввод 21 и Enter — это три байта: 32, 31, 0A. Числа 21 в памяти нет: есть две цифры и перевод строки. Секция .bss хранит только размер; в исполняемом файле этих нулей нет, они появляются при загрузке.</p>
+  <p><b>Спросить:</b> почему RDX=32, а не 3? <b>Ответ:</b> это максимум, который разрешено прочитать; сколько пришло, программа узнаёт из RAX. read может вернуть 0 (EOF) или меньше запрошенного.</p>
+  <p><b>Граница:</b> одного read достаточно для строки до 31 байта. Цикл чтения, повтор при коротком чтении и обработка ошибок в задаче не нужны.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-03" aria-label="Число собирается из цифр слева направо." inert aria-hidden="true">
+<div class="tag">03 / разбор · текст → число</div>
+<h2>Число собирается<br><span class="accent">из цифр слева направо.</span></h2>
+<div class="columns">
+  <div class="stack">
+    <div class="panel-label">Цикл разбора</div>
+    <pre class="code small">next: movzx ecx, byte [rsi]
+  cmp ecx, 10
+  je done
+  sub ecx, '0'
+  imul eax, eax, 10
+  add eax, ecx
+  inc rsi
+  jmp next
+done:</pre>
+  </div>
+  <div class="stack">
+    <div class="panel-label">Трасса · ввод 21⏎</div>
+    <pre class="ascii">байт  d   acc
+32    2   0 → 2
+31    1   2 → 21
+0A    —   стоп</pre>
+    <div class="panel"><p><code>acc = acc × 10 + d</code></p><p><code>d = байт − 0x30</code></p></div>
+  </div>
+</div>
+<p class="takeaway">Цикл: <code>d = байт − '0'</code>, затем <code>acc = acc × 10 + d</code>; LF останавливает разбор.</p>
+<aside class="notes">
+  <p><b>Подготовка:</b> перед циклом <code>lea rsi, [rel inbuf]</code> и <code>xor eax, eax</code> — указатель на первый байт и нулевой накопитель.</p>
+  <p><b>Сказать:</b> цифра в памяти — это код символа, а не число. «2» — байт 0x32, «1» — 0x31. Вычитание 0x30 превращает код в значение цифры.</p>
+  <p><b>Разобрать:</b> acc хранит уже собранное число. Для «2»: 0×10+2=2. Для следующей «1»: 2×10+1=21. Цикл идёт слева направо, поэтому старые цифры каждый раз сдвигаются на десятичный разряд.</p>
+  <p><b>Спросить:</b> почему нельзя просто сложить байты? <b>Ответ:</b> 0x32+0x31=0x63 — это код «c», а не 21. Нужно сначала вычесть 0x30, затем умножить накопленное на 10.</p>
+  <p><b>Граница:</b> проверки диапазона '0'…'9' в слайде нет: вход обещан корректным. В полном решении можно остановиться на любом нецифровом байте. Переполнение для 0…99 не возникает.</p>
+</aside>
+</section>
+
+<section class="slide slide--sequence" id="s-04" aria-label="Деление на 10 даёт последнюю цифру." inert aria-hidden="true">
+<div class="tag">03 / печать · число → текст</div>
+<h2>Деление на 10 даёт<br><span class="accent">последнюю цифру.</span></h2>
+<div class="widget" data-widget="sequence">
+  <div class="sequence-viewport">
+    <div class="sequence-frame" data-frame data-caption="42 в EAX, EDX обнулён. div делит пару EDX:EAX на 10.">
+      <div class="columns">
+        <div class="stack"><div class="panel-label">Регистры</div><pre class="ascii">EAX = 42
+EDX = 0
+EBX = 10</pre></div>
+        <div class="stack"><div class="panel-label">numbuf · пишем с конца</div><pre class="ascii">_ _ _ _ _
+        ↑</pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="42 / 10 = 4, остаток 2. Остаток + '0' — цифра '2'; она идёт в последнюю ячейку.">
+      <div class="columns">
+        <div class="stack"><div class="panel-label">После div</div><pre class="ascii">EAX = 4
+EDX = 2
+EBX = 10</pre></div>
+        <div class="stack"><div class="panel-label">numbuf</div><pre class="ascii">_ _ _ 2 _
+      ↑</pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="4 / 10 = 0, остаток 4. Цифра '4' встаёт перед '2'.">
+      <div class="columns">
+        <div class="stack"><div class="panel-label">После div</div><pre class="ascii">EAX = 0
+EDX = 4
+EBX = 10</pre></div>
+        <div class="stack"><div class="panel-label">numbuf</div><pre class="ascii">_ _ 4 2 _
+    ↑</pre></div>
+      </div>
+    </div>
+    <div class="sequence-frame" data-frame data-caption="EAX = 0 — цифры кончились. LF, затем write: префикс и число.">
+      <div class="columns">
+        <div class="stack"><div class="panel-label">Готово</div><pre class="ascii">EAX = 0
+EDX = 4</pre></div>
+        <div class="stack"><div class="panel-label">numbuf + LF</div><pre class="ascii">_ _ 4 2 0A
+    ↑
+write → Result: 42</pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+<aside class="notes">
+  <p><b>Сказать:</b> div делит EDX:EAX на операнд. Частное остаётся в EAX, остаток — в EDX. Поэтому перед каждым делением EDX обнуляют: xor edx, edx. Остаток — это последняя цифра числа.</p>
+  <p><b>Разобрать:</b> 42 / 10 = 4 и 2 в остатке. К остатку прибавляем '0' и получаем код цифры. 4 / 10 = 0 и 4 в остатке — вторая цифра. Когда EAX стал нулём, цикл закончен. Цифры выходят с конца, поэтому буфер заполняется справа налево.</p>
+  <p><b>Спросить:</b> почему нельзя писать цифры слева направо? <b>Ответ:</b> деление даёт сначала младшую цифру: для 42 это 2, потом 4; при записи слева получилось бы «24».</p>
+  <p><b>Крайний случай:</b> для числа 0 цикл выполняется один раз и даёт цифру '0'. После цикла пишется LF, а длина — это число цифр плюс один байт. Префикс `Result: ` лежит в .rodata, цифры — в буфере .bss; в задании это два write: сначала префикс, затем цифры и LF.</p>
+</aside>
+</section>
+
+<section class="slide slide--content" id="s-05" aria-label="Пять блоков — и программа готова." inert aria-hidden="true">
+<div class="tag">03 / сборка · домашнее задание</div>
+<h2>Пять блоков —<br><span class="accent">и программа готова.</span></h2>
+<div class="flow">
+  <div class="flow-node">read<small>32 байта</small></div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-node">разбор<small>acc·10 + d</small></div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-node">×2<small>add eax, eax</small></div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-node">печать<small>div 10 + write</small></div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-node">exit<small>код 0</small></div>
+</div>
+<p class="takeaway">Вход <code>0…99</code>. Выход: <code>Result: N</code> и LF, без ведущих нулей.</p>
+<pre class="ascii"> 0 → Result: 0      21 → Result: 42
+ 7 → Result: 14     49 → Result: 98</pre>
+<div class="resource-actions">
+  <a class="btn primary" href="../../assets/examples/asm/io/skeleton.asm" download="double.asm">Скелет ↓</a>
+  <a class="btn" href="../../assets/examples/asm/io/README.md">ТЗ</a>
+  <a class="btn" href="../../assets/examples/asm/io/io-examples.zip" download="io-examples.zip">Скелет и ТЗ ↓</a>
+</div>
+<aside class="notes">
+  <p><b>Сказать:</b> программа состоит из пяти блоков, и каждый уже разобран. read приносит строку, разбор превращает цифры в число, add eax,eax удваивает, печать делит на 10 и складывает цифры с конца, exit завершает процесс.</p>
+  <p><b>Контракт:</b> на входе одна строка 0…99, на выходе ровно Result: N и перевод строки. Ведущих нулей нет: 0 печатается как Result: 0, 21 — как Result: 42, 99 — как Result: 198.</p>
+  <p><b>Сдать:</b> исходник, прогоны 0, 1, 7, 21, 49 и короткий отчёт по бинарю: где лежит Result:, где блок div и что находится в .bss. Скелет и полное ТЗ — по ссылкам; в скелете отмечены пять мест для кода.</p>
+  <p><b>Граница:</b> отрицательные числа, мусор на входе, переполнение и повтор короткого чтения не требуются. Один read, линейный код, без функций и стека. Время на объяснение задания — 4–5 минут.</p>
+</aside>
+</section>
+</main>
+<footer class="deck-footer">
+<div class="nav-controls"><button data-prev aria-label="Предыдущий слайд">←</button><span id="counter" aria-live="polite">01 / 05</span><button data-next aria-label="Следующий слайд">→</button></div>
+<span id="interaction-hint">← → слайды</span>
+<div class="deck-tools"><button data-fullscreen title="Полный экран (F)">Экран <kbd>F</kbd></button><button data-dialog="help" aria-label="Клавиши управления">?</button></div>
+</footer>
+<div class="progress-track" aria-hidden="true"><div id="progress"></div></div>
+</div>
+<dialog id="help" aria-labelledby="help-title"><div class="dialog-top"><h2 id="help-title">Управление</h2><button data-close aria-label="Закрыть">×</button></div><dl class="key-list"><dt>← → / Page Up, Down</dt><dd>Предыдущий / следующий слайд</dd><dt>Пробел / Shift + пробел</dt><dd>Вперёд / назад внутри демонстрации</dd><dt>R</dt><dd>Сбросить демонстрацию</dd><dt>F</dt><dd>Полный экран</dd><dt>Esc</dt><dd>Закрыть панель</dd></dl></dialog>
+<noscript>Для переключения слайдов и демонстраций включите JavaScript.</noscript>
+</body>
+</html>
