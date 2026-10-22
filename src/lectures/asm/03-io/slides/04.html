@@ -3,7 +3,7 @@
 <h2>Деление на 10 даёт<br><span class="accent">последнюю цифру.</span></h2>
 <div class="widget" data-widget="sequence">
   <div class="sequence-viewport">
-    <div class="sequence-frame" data-frame data-caption="42 в EAX, EDX обнулён. div делит пару EDX:EAX на 10.">
+    <div class="sequence-frame" data-frame data-caption="xor edx, edx → div ebx: делим EDX:EAX на 10. EDX обнуляем перед каждым делением.">
       <div class="columns">
         <div class="stack"><div class="panel-label">Регистры</div><pre class="ascii">EAX = 42
 EDX = 0
@@ -12,7 +12,7 @@ EBX = 10</pre></div>
         ↑</pre></div>
       </div>
     </div>
-    <div class="sequence-frame" data-frame data-caption="42 / 10 = 4, остаток 2. Остаток + '0' — цифра '2'; она идёт в последнюю ячейку.">
+    <div class="sequence-frame" data-frame data-caption="42 / 10 = 4, остаток 2. add dl, '0' даёт цифру '2'; пишем её перед местом для LF.">
       <div class="columns">
         <div class="stack"><div class="panel-label">После div</div><pre class="ascii">EAX = 4
 EDX = 2
@@ -21,7 +21,7 @@ EBX = 10</pre></div>
       ↑</pre></div>
       </div>
     </div>
-    <div class="sequence-frame" data-frame data-caption="4 / 10 = 0, остаток 4. Цифра '4' встаёт перед '2'.">
+    <div class="sequence-frame" data-frame data-caption="Снова xor edx, edx → div ebx: 4 / 10 = 0, остаток 4. Цифра '4' встаёт перед '2'.">
       <div class="columns">
         <div class="stack"><div class="panel-label">После div</div><pre class="ascii">EAX = 0
 EDX = 4
@@ -32,8 +32,9 @@ EBX = 10</pre></div>
     </div>
     <div class="sequence-frame" data-frame data-caption="EAX = 0 — цифры кончились. LF, затем write: префикс и число.">
       <div class="columns">
-        <div class="stack"><div class="panel-label">Готово</div><pre class="ascii">EAX = 0
-EDX = 4</pre></div>
+        <div class="stack"><div class="panel-label">Для write числа</div><pre class="ascii">RSI → '4'
+RDX = 3
+байты: 34 32 0A</pre></div>
         <div class="stack"><div class="panel-label">numbuf + LF</div><pre class="ascii">_ _ 4 2 0A
     ↑
 write → Result: 42</pre></div>

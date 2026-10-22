@@ -63,7 +63,7 @@ section .text
   <p><b>Сказать:</b> read — такой же syscall, как write, только данные едут в обратную сторону. RAX=0 выбирает read, RDI=0 — stdin, RSI — адрес буфера, RDX — максимум байтов. После возврата RAX содержит, сколько байтов ядро действительно записало в память.</p>
   <p><b>Разобрать:</b> ввод 21 и Enter — это три байта: 32, 31, 0A. Числа 21 в памяти нет: есть две цифры и перевод строки. Секция .bss хранит только размер; в исполняемом файле этих нулей нет, они появляются при загрузке.</p>
   <p><b>Спросить:</b> почему RDX=32, а не 3? <b>Ответ:</b> это максимум, который разрешено прочитать; сколько пришло, программа узнаёт из RAX. read может вернуть 0 (EOF) или меньше запрошенного.</p>
-  <p><b>Граница:</b> одного read достаточно для строки до 31 байта. Цикл чтения, повтор при коротком чтении и обработка ошибок в задаче не нужны.</p>
+  <p><b>Граница:</b> в учебных прогонах предполагаем, что один read успешно получает всю строку с LF. Размер буфера сам по себе этого не гарантирует: read может вернуть только часть строки. Цикл чтения и обработка ошибок в задаче не нужны.</p>
 </aside>
 </section>
 
@@ -107,7 +107,7 @@ done:</pre>
 <h2>Деление на 10 даёт<br><span class="accent">последнюю цифру.</span></h2>
 <div class="widget" data-widget="sequence">
   <div class="sequence-viewport">
-    <div class="sequence-frame" data-frame data-caption="42 в EAX, EDX обнулён. div делит пару EDX:EAX на 10.">
+    <div class="sequence-frame" data-frame data-caption="xor edx, edx → div ebx: делим EDX:EAX на 10. EDX обнуляем перед каждым делением.">
       <div class="columns">
         <div class="stack"><div class="panel-label">Регистры</div><pre class="ascii">EAX = 42
 EDX = 0
@@ -116,7 +116,7 @@ EBX = 10</pre></div>
         ↑</pre></div>
       </div>
     </div>
-    <div class="sequence-frame" data-frame data-caption="42 / 10 = 4, остаток 2. Остаток + '0' — цифра '2'; она идёт в последнюю ячейку.">
+    <div class="sequence-frame" data-frame data-caption="42 / 10 = 4, остаток 2. add dl, '0' даёт цифру '2'; пишем её перед местом для LF.">
       <div class="columns">
         <div class="stack"><div class="panel-label">После div</div><pre class="ascii">EAX = 4
 EDX = 2
@@ -125,7 +125,7 @@ EBX = 10</pre></div>
       ↑</pre></div>
       </div>
     </div>
-    <div class="sequence-frame" data-frame data-caption="4 / 10 = 0, остаток 4. Цифра '4' встаёт перед '2'.">
+    <div class="sequence-frame" data-frame data-caption="Снова xor edx, edx → div ebx: 4 / 10 = 0, остаток 4. Цифра '4' встаёт перед '2'.">
       <div class="columns">
         <div class="stack"><div class="panel-label">После div</div><pre class="ascii">EAX = 0
 EDX = 4
@@ -136,8 +136,9 @@ EBX = 10</pre></div>
     </div>
     <div class="sequence-frame" data-frame data-caption="EAX = 0 — цифры кончились. LF, затем write: префикс и число.">
       <div class="columns">
-        <div class="stack"><div class="panel-label">Готово</div><pre class="ascii">EAX = 0
-EDX = 4</pre></div>
+        <div class="stack"><div class="panel-label">Для write числа</div><pre class="ascii">RSI → '4'
+RDX = 3
+байты: 34 32 0A</pre></div>
         <div class="stack"><div class="panel-label">numbuf + LF</div><pre class="ascii">_ _ 4 2 0A
     ↑
 write → Result: 42</pre></div>
@@ -153,23 +154,21 @@ write → Result: 42</pre></div>
 </aside>
 </section>
 
-<section class="slide slide--content" id="s-05" aria-label="Пять блоков — и программа готова." inert aria-hidden="true">
+<section class="slide slide--content" id="s-05" aria-label="Соберите блоки — и программа готова." inert aria-hidden="true">
 <div class="tag">03 / сборка · домашнее задание</div>
-<h2>Пять блоков —<br><span class="accent">и программа готова.</span></h2>
+<h2>Соберите блоки —<br><span class="accent">и программа готова.</span></h2>
 <div class="flow">
-  <div class="flow-node">read<small>32 байта</small></div>
+  <div class="flow-node">read<small>до 32 байт</small></div>
   <span class="flow-arrow">→</span>
   <div class="flow-node">разбор<small>acc·10 + d</small></div>
   <span class="flow-arrow">→</span>
   <div class="flow-node">×2<small>add eax, eax</small></div>
   <span class="flow-arrow">→</span>
-  <div class="flow-node">печать<small>div 10 + write</small></div>
-  <span class="flow-arrow">→</span>
-  <div class="flow-node">exit<small>код 0</small></div>
+  <div class="flow-node">вывод и exit<small>div ebx · write · exit</small></div>
 </div>
 <p class="takeaway">Вход <code>0…99</code>. Выход: <code>Result: N</code> и LF, без ведущих нулей.</p>
 <pre class="ascii"> 0 → Result: 0      21 → Result: 42
- 7 → Result: 14     49 → Result: 98</pre>
+ 7 → Result: 14     99 → Result: 198</pre>
 <div class="resource-actions">
   <a class="btn primary" href="../../assets/examples/asm/io/skeleton.asm" download="double.asm">Скелет ↓</a>
   <a class="btn" href="../../assets/examples/asm/io/README.md">ТЗ</a>
@@ -178,7 +177,7 @@ write → Result: 42</pre></div>
 <aside class="notes">
   <p><b>Сказать:</b> программа состоит из пяти блоков, и каждый уже разобран. read приносит строку, разбор превращает цифры в число, add eax,eax удваивает, печать делит на 10 и складывает цифры с конца, exit завершает процесс.</p>
   <p><b>Контракт:</b> на входе одна строка 0…99, на выходе ровно Result: N и перевод строки. Ведущих нулей нет: 0 печатается как Result: 0, 21 — как Result: 42, 99 — как Result: 198.</p>
-  <p><b>Сдать:</b> исходник, прогоны 0, 1, 7, 21, 49 и короткий отчёт по бинарю: где лежит Result:, где блок div и что находится в .bss. Скелет и полное ТЗ — по ссылкам; в скелете отмечены пять мест для кода.</p>
+  <p><b>Сдать:</b> исходник, прогоны 0, 1, 7, 21, 49, 99 и короткий отчёт по бинарю: где лежит Result:, где блок div и что находится в .bss. Скелет и полное ТЗ — по ссылкам; в скелете отмечены пять мест для кода. После каждого syscall RCX и R11 потеряны; длину числа перед write префикса сохраняем в R9, как указано в скелете.</p>
   <p><b>Граница:</b> отрицательные числа, мусор на входе, переполнение и повтор короткого чтения не требуются. Один read, линейный код, без функций и стека. Время на объяснение задания — 4–5 минут.</p>
 </aside>
 </section>
