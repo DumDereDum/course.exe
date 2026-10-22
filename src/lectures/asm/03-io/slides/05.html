@@ -1,26 +1,11 @@
 <!-- type: content -->
-<div class="tag">03 / сборка · домашнее задание</div>
-<h2>Соберите блоки —<br><span class="accent">и программа готова.</span></h2>
-<div class="flow">
-  <div class="flow-node">read<small>до 32 байт</small></div>
-  <span class="flow-arrow">→</span>
-  <div class="flow-node">разбор<small>acc·10 + d</small></div>
-  <span class="flow-arrow">→</span>
-  <div class="flow-node">×2<small>add eax, eax</small></div>
-  <span class="flow-arrow">→</span>
-  <div class="flow-node">вывод и exit<small>div ebx · write · exit</small></div>
-</div>
-<p class="takeaway">Вход <code>0…99</code>. Выход: <code>Result: N</code> и LF, без ведущих нулей.</p>
-<pre class="ascii"> 0 → Result: 0      21 → Result: 42
- 7 → Result: 14     99 → Result: 198</pre>
-<div class="resource-actions">
-  <a class="btn primary" href="@ASSETS@/examples/asm/io/skeleton.asm" download="double.asm">Скелет ↓</a>
-  <a class="btn" href="@ASSETS@/examples/asm/io/README.md">ТЗ</a>
-  <a class="btn" href="@ASSETS@/examples/asm/io/io-examples.zip" download="io-examples.zip">Скелет и ТЗ ↓</a>
-</div>
-<aside class="notes">
-  <p><b>Сказать:</b> программа состоит из пяти блоков, и каждый уже разобран. read приносит строку, разбор превращает цифры в число, add eax,eax удваивает, печать делит на 10 и складывает цифры с конца, exit завершает процесс.</p>
-  <p><b>Контракт:</b> на входе одна строка 0…99, на выходе ровно Result: N и перевод строки. Ведущих нулей нет: 0 печатается как Result: 0, 21 — как Result: 42, 99 — как Result: 198.</p>
-  <p><b>Сдать:</b> исходник, прогоны 0, 1, 7, 21, 49, 99 и короткий отчёт по бинарю: где лежит Result:, где блок div и что находится в .bss. Скелет и полное ТЗ — по ссылкам; в скелете отмечены пять мест для кода. После каждого syscall RCX и R11 потеряны; длину числа перед write префикса сохраняем в R9, как указано в скелете.</p>
-  <p><b>Граница:</b> отрицательные числа, мусор на входе, переполнение и повтор короткого чтения не требуются. Один read, линейный код, без функций и стека. Время на объяснение задания — 4–5 минут.</p>
-</aside>
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2><code>syscall</code> запускает<br><span class="accent">подготовленный read.</span></h2>
+<div class="columns"><pre class="code">syscall</pre><div class="stack"><p class="lead">Linux читает ввод в <code>inbuf</code>. После возврата RAX содержит количество прочитанных байтов.</p><p class="caption">Байты команды: <code>0F 05</code>.</p></div></div><div class="columns"><div class="stack"><div class="panel-label">Перед вызовом</div><pre class="ascii">RAX = 0   read
+RDI = 0   stdin
+RSI → inbuf
+RDX = 32  максимум</pre></div><div class="stack"><div class="panel-label">После ввода 21 и Enter</div><pre class="ascii">inbuf: 32 31 0A  (hex)
+        2  1  LF
+RAX = 3 байта</pre></div></div>
+<p class="takeaway"><code>0F 05</code> — байты команды. <code>32 31 0A</code> — прочитанные данные.</p>
+<aside class="notes"><p><b>Сказать:</b> Это сохранённое состояние для корректного ввода 21 и LF одним успешным read. В RAX вернулось 3, а не 21. Число 21 ещё предстоит собрать. Linux read может получить меньше запрошенного или ошибку; в учебной модели считаем, что вся короткая строка с LF пришла сразу. В реальном терминале LF относится к обычному режиму Linux. Syscall также изменяет RCX и R11; к этому вернёмся при двух write.</p><p><b>Спросить:</b> В каком месте находится текст 21 после read? <b>Ответ:</b> В памяти inbuf; в RAX лежит только число прочитанных байтов.</p></aside>

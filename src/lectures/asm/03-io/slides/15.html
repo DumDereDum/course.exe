@@ -1,0 +1,8 @@
+<!-- type: content -->
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2><code>div ebx</code> даёт<br><span class="accent">частное и остаток.</span></h2>
+<div class="columns"><pre class="code">digits: xor edx, edx</pre><div class="stack"><p class="lead">Начало цикла: <code>EDX = 0</code>. Подготовить старшую половину делимого.</p><p class="caption">Байты команды: <code>31 D2</code>.</p></div></div><div class="columns"><pre class="code">div ebx</pre><div class="stack"><p class="lead">Разделить пару <code>EDX:EAX</code> на EBX. Частное → EAX, остаток → EDX.</p><p class="caption">Байты команды: <code>F7 F3</code>.</p></div></div><div class="columns"><div class="stack"><div class="panel-label">Перед DIV</div><pre class="ascii">EDX:EAX = 0:42
+EBX = 10</pre></div><div class="stack"><div class="panel-label">После DIV</div><pre class="ascii">EAX = 4
+EDX = 2</pre></div></div>
+
+<aside class="notes"><p><b>Сказать:</b> Двоеточие в EDX:EAX означает одну 64-битную величину из двух 32-битных половин. Когда EDX=0, делим именно число из EAX. Для 42 получается 4 целых и 2 в остатке. DIV — беззнаковое деление, подходящее для 0…198. Перед каждым повтором обнуляем EDX, потому что после предыдущего DIV там остаток, а после ADD DL ещё и код символа. Метка digits стоит именно перед XOR, чтобы возврат не пропустил подготовку.</p><p><b>Спросить:</b> Что получится при делении 4 на 10? <b>Ответ:</b> Частное EAX=0 и остаток EDX=4.</p></aside>

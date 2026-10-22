@@ -1,50 +1,6 @@
-<!-- type: sequence -->
-<div class="tag">03 / печать · число → текст</div>
-<h2>Деление на 10 даёт<br><span class="accent">последнюю цифру.</span></h2>
-<div class="widget" data-widget="sequence">
-  <div class="sequence-viewport">
-    <div class="sequence-frame" data-frame data-caption="xor edx, edx → div ebx: делим EDX:EAX на 10. EDX обнуляем перед каждым делением.">
-      <div class="columns">
-        <div class="stack"><div class="panel-label">Регистры</div><pre class="ascii">EAX = 42
-EDX = 0
-EBX = 10</pre></div>
-        <div class="stack"><div class="panel-label">numbuf · пишем с конца</div><pre class="ascii">_ _ _ _ _
-        ↑</pre></div>
-      </div>
-    </div>
-    <div class="sequence-frame" data-frame data-caption="42 / 10 = 4, остаток 2. add dl, '0' даёт цифру '2'; пишем её перед местом для LF.">
-      <div class="columns">
-        <div class="stack"><div class="panel-label">После div</div><pre class="ascii">EAX = 4
-EDX = 2
-EBX = 10</pre></div>
-        <div class="stack"><div class="panel-label">numbuf</div><pre class="ascii">_ _ _ 2 _
-      ↑</pre></div>
-      </div>
-    </div>
-    <div class="sequence-frame" data-frame data-caption="Снова xor edx, edx → div ebx: 4 / 10 = 0, остаток 4. Цифра '4' встаёт перед '2'.">
-      <div class="columns">
-        <div class="stack"><div class="panel-label">После div</div><pre class="ascii">EAX = 0
-EDX = 4
-EBX = 10</pre></div>
-        <div class="stack"><div class="panel-label">numbuf</div><pre class="ascii">_ _ 4 2 _
-    ↑</pre></div>
-      </div>
-    </div>
-    <div class="sequence-frame" data-frame data-caption="EAX = 0 — цифры кончились. LF, затем write: префикс и число.">
-      <div class="columns">
-        <div class="stack"><div class="panel-label">Для write числа</div><pre class="ascii">RSI → '4'
-RDX = 3
-байты: 34 32 0A</pre></div>
-        <div class="stack"><div class="panel-label">numbuf + LF</div><pre class="ascii">_ _ 4 2 0A
-    ↑
-write → Result: 42</pre></div>
-      </div>
-    </div>
-  </div>
-</div>
-<aside class="notes">
-  <p><b>Сказать:</b> div делит EDX:EAX на операнд. Частное остаётся в EAX, остаток — в EDX. Поэтому перед каждым делением EDX обнуляют: xor edx, edx. Остаток — это последняя цифра числа.</p>
-  <p><b>Разобрать:</b> 42 / 10 = 4 и 2 в остатке. К остатку прибавляем '0' и получаем код цифры. 4 / 10 = 0 и 4 в остатке — вторая цифра. Когда EAX стал нулём, цикл закончен. Цифры выходят с конца, поэтому буфер заполняется справа налево.</p>
-  <p><b>Спросить:</b> почему нельзя писать цифры слева направо? <b>Ответ:</b> деление даёт сначала младшую цифру: для 42 это 2, потом 4; при записи слева получилось бы «24».</p>
-  <p><b>Крайний случай:</b> для числа 0 цикл выполняется один раз и даёт цифру '0'. После цикла пишется LF, а длина — это число цифр плюс один байт. Префикс `Result: ` лежит в .rodata, цифры — в буфере .bss; в задании это два write: сначала префикс, затем цифры и LF.</p>
-</aside>
+<!-- type: content -->
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Объясним каждый<br><span class="accent">аргумент read.</span></h2>
+<div class="columns"><pre class="code">xor edi, edi</pre><div class="stack"><p class="lead"><code>RDI = 0</code>: читать из стандартного ввода, обычно из терминала.</p><p class="caption">Байты команды: <code>31 FF</code>.</p></div></div><div class="columns"><pre class="code">lea rsi, [rel inbuf]</pre><div class="stack"><p class="lead"><code>RSI = адрес inbuf</code>: сюда Linux должен записать прочитанные байты.</p><p class="caption">Байты команды: <code>48 8D 35</code> + 4 байта смещения.</p></div></div><div class="columns"><pre class="code">mov edx, 32</pre><div class="stack"><p class="lead"><code>RDX = 32</code>: разрешено прочитать максимум 32 байта.</p><p class="caption">Байты команды: <code>BA 20 00 00 00</code>.</p></div></div>
+
+<aside class="notes"><p><b>Сказать:</b> Предыдущая команда уже установила RAX=0, то есть read. Теперь задаём откуда читать, куда и сколько. LEA вычисляет адрес и не читает память. rel означает адресацию относительно RIP; disp32 — четырёхбайтовое смещение, которое уточнит компоновщик. Это обозначение поля, а не готовые четыре байта. Число 32 — 0x20; непосредственный операнд MOV записан little-endian. Обнуляем EDI, и RDI тоже становится нулём.</p><p><b>Спросить:</b> RDX=32 означает, что обязательно придут 32 байта? <b>Ответ:</b> Нет. Это верхняя граница; действительное количество вернётся в RAX.</p></aside>

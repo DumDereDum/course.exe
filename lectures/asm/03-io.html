@@ -31,130 +31,221 @@
 <aside class="notes">
   <p><b>Сказать:</b> до сих пор данные были константами, а результат уходил в код завершения. Теперь программа сама читает строку, превращает её в число и печатает ответ.</p>
   <p><b>Спросить:</b> что получает программа от терминала — число или байты? <b>Ответ:</b> байты; число появится только после разбора.</p>
-  <p><b>Показ:</b> 1–2 минуты. Сначала показать готовый запуск, затем вернуться к маршруту и разобрать его по блокам.</p>
+  <p><b>Показ:</b> Одна минута. Показать ожидаемый результат как сохранённый пример, затем пройти команды по отдельности. Живой запуск использовать только в заранее проверенной среде.</p>
 </aside>
 </section>
 
-<section class="slide slide--content" id="s-02" aria-label="read кладёт байты в память процесса." inert aria-hidden="true">
-<div class="tag">03 / ввод · read и буфер</div>
-<h2><code>read</code> кладёт байты<br><span class="accent">в память процесса.</span></h2>
-<div class="columns">
-  <div class="stack">
-    <div class="panel-label">NASM · Linux x86-64</div>
-    <pre class="code small">section .bss
-inbuf:  resb 32
-section .text
-  xor eax, eax      ; read
-  xor edi, edi      ; stdin
-  lea rsi, [rel inbuf]
-  mov edx, 32
-  syscall</pre>
-  </div>
-  <div class="stack">
-    <div class="panel-label">После ввода 21⏎</div>
-    <pre class="ascii">inbuf
-32 31 0A 00 00
-'2' '1' LF</pre>
-    <div class="panel"><p><code>RAX = 3</code> — прочитано три байта.</p></div>
-  </div>
-</div>
-<p class="takeaway"><code>read</code> возвращает число байтов, а не число. Enter — это байт <code>0A</code> в конце строки.</p>
-<aside class="notes">
-  <p><b>Сказать:</b> read — такой же syscall, как write, только данные едут в обратную сторону. RAX=0 выбирает read, RDI=0 — stdin, RSI — адрес буфера, RDX — максимум байтов. После возврата RAX содержит, сколько байтов ядро действительно записало в память.</p>
-  <p><b>Разобрать:</b> ввод 21 и Enter — это три байта: 32, 31, 0A. Числа 21 в памяти нет: есть две цифры и перевод строки. Секция .bss хранит только размер; в исполняемом файле этих нулей нет, они появляются при загрузке.</p>
-  <p><b>Спросить:</b> почему RDX=32, а не 3? <b>Ответ:</b> это максимум, который разрешено прочитать; сколько пришло, программа узнаёт из RAX. read может вернуть 0 (EOF) или меньше запрошенного.</p>
-  <p><b>Граница:</b> в учебных прогонах предполагаем, что один read успешно получает всю строку с LF. Размер буфера сам по себе этого не гарантирует: read может вернуть только часть строки. Цикл чтения и обработка ошибок в задаче не нужны.</p>
-</aside>
+<section class="slide slide--content" id="s-02" aria-label="Сначала выделим место для ввода." inert aria-hidden="true">
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Сначала выделим<br><span class="accent">место для ввода.</span></h2>
+<div class="columns"><pre class="code">section .bss</pre><div class="stack"><p class="lead">Начинаем область памяти для данных без начальных байтов в файле.</p></div></div><div class="columns"><pre class="code">inbuf: resb 32</pre><div class="stack"><p class="lead"><code>resb 32</code> резервирует 32 байта. Имя <code>inbuf</code> обозначает адрес начала.</p></div></div><div class="columns"><pre class="code">section .text</pre><div class="stack"><p class="lead">Дальше записываем инструкции, которые будет выполнять процессор.</p></div></div>
+<p class="takeaway">Это указания сборщику. Процессор не выполняет <code>section</code> и <code>resb</code>.</p>
+<aside class="notes"><p><b>Сказать:</b> Буфер — участок памяти. При загрузке Linux заполняет .bss нулями; 32 нулевых байта не хранятся в ELF. Метка — имя адреса, а не отдельная команда. В памяти есть место, но ввода ещё нет.</p><p><b>Спросить:</b> Какие байты уже прочитаны после resb 32? <b>Ответ:</b> Никакие. Мы только описали место для будущего ввода.</p></aside>
 </section>
 
-<section class="slide slide--content" id="s-03" aria-label="Число собирается из цифр слева направо." inert aria-hidden="true">
-<div class="tag">03 / разбор · текст → число</div>
-<h2>Число собирается<br><span class="accent">из цифр слева направо.</span></h2>
-<div class="columns">
-  <div class="stack">
-    <div class="panel-label">Цикл разбора</div>
-    <pre class="code small">next: movzx ecx, byte [rsi]
-  cmp ecx, 10
-  je done
-  sub ecx, '0'
-  imul eax, eax, 10
-  add eax, ecx
-  inc rsi
-  jmp next
-done:</pre>
-  </div>
-  <div class="stack">
-    <div class="panel-label">Трасса · ввод 21⏎</div>
-    <pre class="ascii">байт  d   acc
-32    2   0 → 2
-31    1   2 → 21
-0A    —   стоп</pre>
-    <div class="panel"><p><code>acc = acc × 10 + d</code></p><p><code>d = байт − 0x30</code></p></div>
-  </div>
-</div>
-<p class="takeaway">Цикл: <code>d = байт − '0'</code>, затем <code>acc = acc × 10 + d</code>; LF останавливает разбор.</p>
-<aside class="notes">
-  <p><b>Подготовка:</b> перед циклом <code>lea rsi, [rel inbuf]</code> и <code>xor eax, eax</code> — указатель на первый байт и нулевой накопитель.</p>
-  <p><b>Сказать:</b> цифра в памяти — это код символа, а не число. «2» — байт 0x32, «1» — 0x31. Вычитание 0x30 превращает код в значение цифры.</p>
-  <p><b>Разобрать:</b> acc хранит уже собранное число. Для «2»: 0×10+2=2. Для следующей «1»: 2×10+1=21. Цикл идёт слева направо, поэтому старые цифры каждый раз сдвигаются на десятичный разряд.</p>
-  <p><b>Спросить:</b> почему нельзя просто сложить байты? <b>Ответ:</b> 0x32+0x31=0x63 — это код «c», а не 21. Нужно сначала вычесть 0x30, затем умножить накопленное на 10.</p>
-  <p><b>Граница:</b> проверки диапазона '0'…'9' в слайде нет: вход обещан корректным. В полном решении можно остановиться на любом нецифровом байте. Переполнение для 0…99 не возникает.</p>
-</aside>
+<section class="slide slide--content" id="s-03" aria-label="xor eax, eax обнуляет регистр." inert aria-hidden="true">
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2><code>xor eax, eax</code><br><span class="accent">обнуляет регистр.</span></h2>
+<div class="columns"><pre class="code">xor eax, eax</pre><div class="stack"><p class="lead">XOR одинаковых битов даёт ноль. Поэтому любое значение EAX превращается в <code>0</code>.</p><p class="caption">Байты команды: <code>31 C0</code>.</p></div></div><div class="columns"><div class="stack"><div class="panel-label">До → после</div><pre class="ascii">EAX: любое → 0
+RAX: любое → 0</pre></div><div class="stack"><div class="panel-label">Зачем перед read</div><pre class="ascii">RAX = 0
+номер вызова read</pre></div></div>
+<p class="takeaway">Запись в EAX обнуляет верхние 32 бита RAX. Чтение начнётся только на <code>syscall</code>.</p>
+<aside class="notes"><p><b>Сказать:</b> EAX — младшие 32 бита 64-битного RAX. Запись в EAX очищает и старшую половину. То же правило действует для EDI/RDI и EDX/RDX. XOR с собой здесь даёт тот же результат в регистре, что mov eax, 0; изменения флагов пока не используем. Точка с запятой начинает комментарий: подпись «read» не меняет смысла XOR. 31 C0 — машинные байты инструкции NASM; 31 — операция XOR, C0 выбирает регистровые операнды EAX/EAX.</p><p><b>Спросить:</b> Что прочитано после xor eax, eax? <b>Ответ:</b> Пока ничего: в RAX только записан номер будущего системного вызова.</p></aside>
 </section>
 
-<section class="slide slide--sequence" id="s-04" aria-label="Деление на 10 даёт последнюю цифру." inert aria-hidden="true">
-<div class="tag">03 / печать · число → текст</div>
-<h2>Деление на 10 даёт<br><span class="accent">последнюю цифру.</span></h2>
-<div class="widget" data-widget="sequence">
-  <div class="sequence-viewport">
-    <div class="sequence-frame" data-frame data-caption="xor edx, edx → div ebx: делим EDX:EAX на 10. EDX обнуляем перед каждым делением.">
-      <div class="columns">
-        <div class="stack"><div class="panel-label">Регистры</div><pre class="ascii">EAX = 42
-EDX = 0
-EBX = 10</pre></div>
-        <div class="stack"><div class="panel-label">numbuf · пишем с конца</div><pre class="ascii">_ _ _ _ _
-        ↑</pre></div>
-      </div>
-    </div>
-    <div class="sequence-frame" data-frame data-caption="42 / 10 = 4, остаток 2. add dl, '0' даёт цифру '2'; пишем её перед местом для LF.">
-      <div class="columns">
-        <div class="stack"><div class="panel-label">После div</div><pre class="ascii">EAX = 4
-EDX = 2
-EBX = 10</pre></div>
-        <div class="stack"><div class="panel-label">numbuf</div><pre class="ascii">_ _ _ 2 _
-      ↑</pre></div>
-      </div>
-    </div>
-    <div class="sequence-frame" data-frame data-caption="Снова xor edx, edx → div ebx: 4 / 10 = 0, остаток 4. Цифра '4' встаёт перед '2'.">
-      <div class="columns">
-        <div class="stack"><div class="panel-label">После div</div><pre class="ascii">EAX = 0
-EDX = 4
-EBX = 10</pre></div>
-        <div class="stack"><div class="panel-label">numbuf</div><pre class="ascii">_ _ 4 2 _
-    ↑</pre></div>
-      </div>
-    </div>
-    <div class="sequence-frame" data-frame data-caption="EAX = 0 — цифры кончились. LF, затем write: префикс и число.">
-      <div class="columns">
-        <div class="stack"><div class="panel-label">Для write числа</div><pre class="ascii">RSI → '4'
-RDX = 3
-байты: 34 32 0A</pre></div>
-        <div class="stack"><div class="panel-label">numbuf + LF</div><pre class="ascii">_ _ 4 2 0A
-    ↑
-write → Result: 42</pre></div>
-      </div>
-    </div>
-  </div>
-</div>
-<aside class="notes">
-  <p><b>Сказать:</b> div делит EDX:EAX на операнд. Частное остаётся в EAX, остаток — в EDX. Поэтому перед каждым делением EDX обнуляют: xor edx, edx. Остаток — это последняя цифра числа.</p>
-  <p><b>Разобрать:</b> 42 / 10 = 4 и 2 в остатке. К остатку прибавляем '0' и получаем код цифры. 4 / 10 = 0 и 4 в остатке — вторая цифра. Когда EAX стал нулём, цикл закончен. Цифры выходят с конца, поэтому буфер заполняется справа налево.</p>
-  <p><b>Спросить:</b> почему нельзя писать цифры слева направо? <b>Ответ:</b> деление даёт сначала младшую цифру: для 42 это 2, потом 4; при записи слева получилось бы «24».</p>
-  <p><b>Крайний случай:</b> для числа 0 цикл выполняется один раз и даёт цифру '0'. После цикла пишется LF, а длина — это число цифр плюс один байт. Префикс `Result: ` лежит в .rodata, цифры — в буфере .bss; в задании это два write: сначала префикс, затем цифры и LF.</p>
-</aside>
+<section class="slide slide--content" id="s-04" aria-label="Объясним каждый аргумент read." inert aria-hidden="true">
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Объясним каждый<br><span class="accent">аргумент read.</span></h2>
+<div class="columns"><pre class="code">xor edi, edi</pre><div class="stack"><p class="lead"><code>RDI = 0</code>: читать из стандартного ввода, обычно из терминала.</p><p class="caption">Байты команды: <code>31 FF</code>.</p></div></div><div class="columns"><pre class="code">lea rsi, [rel inbuf]</pre><div class="stack"><p class="lead"><code>RSI = адрес inbuf</code>: сюда Linux должен записать прочитанные байты.</p><p class="caption">Байты команды: <code>48 8D 35</code> + 4 байта смещения.</p></div></div><div class="columns"><pre class="code">mov edx, 32</pre><div class="stack"><p class="lead"><code>RDX = 32</code>: разрешено прочитать максимум 32 байта.</p><p class="caption">Байты команды: <code>BA 20 00 00 00</code>.</p></div></div>
+
+<aside class="notes"><p><b>Сказать:</b> Предыдущая команда уже установила RAX=0, то есть read. Теперь задаём откуда читать, куда и сколько. LEA вычисляет адрес и не читает память. rel означает адресацию относительно RIP; disp32 — четырёхбайтовое смещение, которое уточнит компоновщик. Это обозначение поля, а не готовые четыре байта. Число 32 — 0x20; непосредственный операнд MOV записан little-endian. Обнуляем EDI, и RDI тоже становится нулём.</p><p><b>Спросить:</b> RDX=32 означает, что обязательно придут 32 байта? <b>Ответ:</b> Нет. Это верхняя граница; действительное количество вернётся в RAX.</p></aside>
 </section>
 
-<section class="slide slide--content" id="s-05" aria-label="Соберите блоки — и программа готова." inert aria-hidden="true">
+<section class="slide slide--content" id="s-05" aria-label="syscall запускает подготовленный read." inert aria-hidden="true">
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2><code>syscall</code> запускает<br><span class="accent">подготовленный read.</span></h2>
+<div class="columns"><pre class="code">syscall</pre><div class="stack"><p class="lead">Linux читает ввод в <code>inbuf</code>. После возврата RAX содержит количество прочитанных байтов.</p><p class="caption">Байты команды: <code>0F 05</code>.</p></div></div><div class="columns"><div class="stack"><div class="panel-label">Перед вызовом</div><pre class="ascii">RAX = 0   read
+RDI = 0   stdin
+RSI → inbuf
+RDX = 32  максимум</pre></div><div class="stack"><div class="panel-label">После ввода 21 и Enter</div><pre class="ascii">inbuf: 32 31 0A  (hex)
+        2  1  LF
+RAX = 3 байта</pre></div></div>
+<p class="takeaway"><code>0F 05</code> — байты команды. <code>32 31 0A</code> — прочитанные данные.</p>
+<aside class="notes"><p><b>Сказать:</b> Это сохранённое состояние для корректного ввода 21 и LF одним успешным read. В RAX вернулось 3, а не 21. Число 21 ещё предстоит собрать. Linux read может получить меньше запрошенного или ошибку; в учебной модели считаем, что вся короткая строка с LF пришла сразу. В реальном терминале LF относится к обычному режиму Linux. Syscall также изменяет RCX и R11; к этому вернёмся при двух write.</p><p><b>Спросить:</b> В каком месте находится текст 21 после read? <b>Ответ:</b> В памяти inbuf; в RAX лежит только число прочитанных байтов.</p></aside>
+</section>
+
+<section class="slide slide--content" id="s-06" aria-label="Адрес байта и сам байт — разные вещи." inert aria-hidden="true">
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Адрес байта<br><span class="accent">и сам байт — разные вещи.</span></h2>
+<div class="columns"><pre class="code">lea rsi, [rel inbuf]</pre><div class="stack"><p class="lead">Положить в RSI <b>адрес</b> первого байта. Память не читаем.</p><p class="caption">Байты команды: <code>48 8D 35</code> + 4 байта смещения.</p></div></div><div class="columns"><pre class="code">movzx ecx, byte [rsi]</pre><div class="stack"><p class="lead">Взять <b>один байт из памяти</b> по этому адресу. Записать его в ECX, остальные биты заполнить нулями.</p><p class="caption">Байты команды: <code>0F B6 0E</code>.</p></div></div>
+<p class="takeaway">Если RSI указывает на символ <code>'2'</code>, после MOVZX: <code>ECX = 0x32 = 50</code>.</p>
+<aside class="notes"><p><b>Сказать:</b> Квадратные скобки в операнде MOVZX обозначают обращение к памяти. byte задаёт размер чтения: один байт. MOVZX расшифровывается как перенос с нулевым расширением: 0x32 становится 0x00000032 в ECX. RSI остаётся прежним: чтение само не передвигает указатель. LEA выглядит похоже, но вычисляет адрес без чтения памяти. Пробелы в записи адреса для NASM несущественны.</p><p><b>Спросить:</b> После movzx в ECX находится цифра 2? <b>Ответ:</b> Пока её код: 0x32, то есть 50. Значение 2 получим после вычитания кода нуля.</p></aside>
+</section>
+
+<section class="slide slide--content" id="s-07" aria-label="Перед циклом зададим начальное состояние." inert aria-hidden="true">
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Перед циклом<br><span class="accent">зададим начальное состояние.</span></h2>
+<div class="columns"><pre class="code">lea rsi, [rel inbuf]</pre><div class="stack"><p class="lead"><code>RSI</code> указывает на первый символ строки: сначала читаем <code>'2'</code>.</p><p class="caption">Байты команды: <code>48 8D 35</code> + 4 байта смещения.</p></div></div><div class="columns"><pre class="code">xor eax, eax</pre><div class="stack"><p class="lead"><code>EAX = 0</code>: накопленное число пока нулевое. Прежнее количество байтов больше не нужно.</p><p class="caption">Байты команды: <code>31 C0</code>.</p></div></div><div class="columns"><pre class="code">next:</pre><div class="stack"><p class="lead">Метка начала повторения. Сюда вернётся <code>jmp next</code>; сама метка ничего не выполняет.</p></div></div>
+
+<aside class="notes"><p><b>Сказать:</b> Не прячем подготовку в заметках: до первого чтения цифры указатель и накопитель должны быть определены. Один регистр может последовательно играть разные роли: до read RAX — номер вызова, после read — количество байтов, теперь EAX — собираемое число. В дальнейшем ECX будет текущим символом/цифрой. acc в формуле — обычное имя накопителя, а не дополнительный регистр.</p><p><b>Спросить:</b> Почему нельзя оставить в EAX число 3, вернувшееся из read? <b>Ответ:</b> Оно станет ошибочным начальным накопителем; разбор десятичного числа нужно начинать с нуля.</p></aside>
+</section>
+
+<section class="slide slide--content" id="s-08" aria-label="Перевод строки останавливает разбор." inert aria-hidden="true">
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Перевод строки<br><span class="accent">останавливает разбор.</span></h2>
+<div class="columns"><pre class="code">movzx ecx, byte [rsi]</pre><div class="stack"><p class="lead">Загрузить очередной байт в ECX. В конце строки это будет <code>0x0A</code>.</p><p class="caption">Байты команды: <code>0F B6 0E</code>.</p></div></div><div class="columns"><pre class="code">cmp ecx, 10</pre><div class="stack"><p class="lead">Сравнить байт с десятичным <code>10</code>, то есть с кодом LF <code>0x0A</code>. При равенстве ZF = 1.</p><p class="caption">Байты команды: <code>83 F9 0A</code>.</p></div></div><div class="columns"><pre class="code">je done</pre><div class="stack"><p class="lead">Если ZF = 1, перейти к метке <code>done</code> после цикла. Иначе выполнять следующую строку.</p><p class="caption">Байты команды: <code>74</code> + 1 байт смещения до метки.</p></div></div>
+
+<aside class="notes"><p><b>Сказать:</b> CMP не меняет ECX, а выставляет флаги. JE использует ZF от этого CMP. Десятичное 10 в сравнении — код LF, не символы «1» и «0». done — метка дальнейшего кода после цикла. rel8 обозначает однобайтовое знаковое смещение короткого перехода от конца команды: его значение зависит от расположения метки. Мы показываем упрощённый разбор гарантированно корректных цифр до LF; проверки CR и мусора не нужны по контракту.</p><p><b>Спросить:</b> Нужно ли вычитать код нуля из LF? <b>Ответ:</b> Нет. JE завершает цикл раньше, чем мы дойдём до вычитания.</p></aside>
+</section>
+
+<section class="slide slide--content" id="s-09" aria-label="Код символа превращаем в цифру." inert aria-hidden="true">
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Код символа<br><span class="accent">превращаем в цифру.</span></h2>
+<div class="columns"><pre class="code">sub ecx, &#x27;0&#x27;</pre><div class="stack"><p class="lead">Вычесть код символа <code>'0'</code>, равный <code>0x30</code>. Получаем значение цифры.</p><p class="caption">Байты команды: <code>83 E9 30</code>.</p></div></div><div class="columns"><div class="stack"><div class="panel-label">Первая цифра</div><pre class="ascii">&#x27;2&#x27;: 0x32 = 50
+50 − 48 = 2
+ECX: 50 → 2</pre></div><div class="stack"><div class="panel-label">Вторая цифра</div><pre class="ascii">&#x27;1&#x27;: 0x31 = 49
+49 − 48 = 1
+ECX: 49 → 1</pre></div></div>
+<p class="takeaway"><code>'0'</code> — код символа 48. Числовой ноль — это <code>0</code>.</p>
+<aside class="notes"><p><b>Сказать:</b> NASM подставляет значение символа в непосредственный операнд. У ASCII-цифр коды идут подряд от 0x30 до 0x39, поэтому вычитание 0x30 даёт 0…9. Исходный байт в памяти не меняется: SUB работает с ECX. Здесь особенно важно проговорить систему счисления: 0x32 — это десятичное 50, а не число 32 и не число 2.</p><p><b>Спросить:</b> Что получится для символа 7? <b>Ответ:</b> 0x37 − 0x30 = 7, и это значение окажется в ECX.</p></aside>
+</section>
+
+<section class="slide slide--content" id="s-10" aria-label="Три операнда IMUL: куда, что, на сколько." inert aria-hidden="true">
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Три операнда IMUL:<br><span class="accent">куда, что, на сколько.</span></h2>
+<div class="columns"><pre class="code">imul eax, eax, 10</pre><div class="stack"><p class="lead">Взять прежний EAX, умножить на 10 и записать результат в EAX.</p><p class="caption">Байты команды: <code>6B C0 0A</code>; <code>0A</code> — число 10.</p></div></div><div class="columns"><div class="stack"><div class="panel-label">Как читать запись</div><pre class="ascii">imul куда, что, на_сколько
+EAX = прежний EAX × 10</pre></div><div class="stack"><div class="panel-label">Перед второй цифрой</div><pre class="ascii">EAX: 2 → 20
+ECX = 1
+20 + 1 = 21</pre></div></div>
+<p class="takeaway">Умножаем накопленное число на 10, чтобы добавить следующую десятичную цифру.</p>
+<aside class="notes"><p><b>Сказать:</b> Два EAX обозначают источник и назначение. Это не EAX×EAX×10. На первом проходе 0×10=0, на втором 2×10=20. Трёхоперандная форма IMUL использует непосредственный множитель; 0A в машинных байтах — десятичное 10. Для входа 0…99 переполнение исключено. Это знаковое умножение; на наших небольших неотрицательных значениях результат обычный.</p><p><b>Спросить:</b> Что будет в EAX после этой строки, если было 7? <b>Ответ:</b> 70. Чтобы получилось 73, следующей командой нужно прибавить цифру 3.</p></aside>
+</section>
+
+<section class="slide slide--content" id="s-11" aria-label="Добавим цифру и перейдём к следующей." inert aria-hidden="true">
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Добавим цифру<br><span class="accent">и перейдём к следующей.</span></h2>
+<div class="columns"><pre class="code">add eax, ecx</pre><div class="stack"><p class="lead"><code>EAX = EAX + ECX</code>: после умножения <code>20 + 1 = 21</code>.</p><p class="caption">Байты команды: <code>01 C8</code>.</p></div></div><div class="columns"><pre class="code">inc rsi</pre><div class="stack"><p class="lead">Увеличить адрес на один байт: теперь RSI указывает на следующий символ.</p><p class="caption">Байты команды: <code>48 FF C6</code>.</p></div></div><div class="columns"><pre class="code">jmp next</pre><div class="stack"><p class="lead">Без условия вернуться к метке <code>next</code> и снова прочитать байт.</p><p class="caption">Байты команды: <code>EB</code> + 1 байт смещения до метки.</p></div></div>
+
+<aside class="notes"><p><b>Сказать:</b> INC меняет указатель, а не символ в памяти. Каждый проход потребляет один байт. Без INC мы бесконечно читали бы первую цифру. JMP безусловный: решение закончить цикл принимается в CMP/JE в начале. Для учебного короткого цикла показан короткий JMP: EB и байт смещения. Адрес метки и смещение вычисляет сборщик.</p><p><b>Спросить:</b> После обработки символа 1 в строке 21 куда указывает RSI? <b>Ответ:</b> На LF. На следующем проходе CMP/JE завершат разбор.</p></aside>
+</section>
+
+<section class="slide slide--sequence" id="s-12" aria-label="Проследим весь путь: байты 21 → число 21." inert aria-hidden="true">
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Проследим весь путь:<br><span class="accent">байты 21 → число 21.</span></h2>
+<div class="widget" data-widget="sequence"><div class="sequence-viewport"><div class="sequence-frame" data-frame data-caption="Начальное состояние: EAX=0, RSI указывает на первый байт. После первой цифры получаем 2."><div class="columns"><div class="stack"><div class="panel-label">Строки первого прохода</div><pre class="ascii">movzx ecx, byte [rsi]
+sub ecx, &#x27;0&#x27;
+imul eax, eax, 10
+add eax, ecx</pre></div><div class="stack"><div class="panel-label">Состояние после строк</div><pre class="ascii">ECX = 0x32 = 50
+ECX = 2
+EAX: 0 → 0
+EAX: 0 → 2</pre></div></div></div><div class="sequence-frame" data-frame data-caption="INC передвинул RSI на символ 1. Умножаем прежние 2 на 10, затем добавляем 1."><div class="columns"><div class="stack"><div class="panel-label">Строки второго прохода</div><pre class="ascii">movzx ecx, byte [rsi]
+sub ecx, &#x27;0&#x27;
+imul eax, eax, 10
+add eax, ecx</pre></div><div class="stack"><div class="panel-label">Состояние после строк</div><pre class="ascii">ECX = 0x31 = 49
+ECX = 1
+EAX: 2 → 20
+EAX: 20 → 21</pre></div></div></div><div class="sequence-frame" data-frame data-caption="Ещё один INC привёл к LF. Сравнение даёт равенство, JE выходит из цикла."><div class="columns"><div class="stack"><div class="panel-label">Строки третьего прохода</div><pre class="ascii">movzx ecx, byte [rsi]
+cmp ecx, 10
+je done</pre></div><div class="stack"><div class="panel-label">Результат</div><pre class="ascii">ECX = 0x0A = 10
+ZF = 1 → переход
+EAX остаётся 21</pre></div></div></div></div></div>
+
+<aside class="notes"><p><b>Сказать:</b> Сохранённая трасса, не исполнение кода в браузере. После MOVZX в первых двух проходах также выполняются CMP/JE: равенства с LF нет, поэтому продолжаем. INC/JMP между проходами уже разобраны отдельно. В каждом столбце результаты выровнены по строкам. Сначала попросить предсказать изменение, затем шагнуть. Пробел вперёд, Shift+пробел назад, R сброс. В конце остановиться.</p><p><b>Спросить:</b> Какая команда превращает 2 в 20? <b>Ответ:</b> IMUL. ADD только прибавляет следующую цифру.</p></aside>
+</section>
+
+<section class="slide slide--content" id="s-13" aria-label="Теперь удвоим полученное число." inert aria-hidden="true">
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Теперь удвоим<br><span class="accent">полученное число.</span></h2>
+<div class="columns"><pre class="code">add eax, eax</pre><div class="stack"><p class="lead">Сложить прежний EAX с самим собой и сохранить сумму в EAX.</p><p class="caption">Байты команды: <code>01 C0</code>.</p></div></div><div class="columns"><div class="stack"><div class="panel-label">Обычный пример</div><pre class="ascii">EAX: 21 → 42
+число 42 = 0x2A</pre></div><div class="stack"><div class="panel-label">Границы задания</div><pre class="ascii">0 → 0
+99 → 198</pre></div></div>
+<p class="takeaway">В регистре уже число 42. Для вывода ещё нужны байты символов <code>'4'</code> и <code>'2'</code>.</p>
+<aside class="notes"><p><b>Сказать:</b> ADD меняет числовое значение, но не превращает его в текст. 42 хранится как двоичное число, младший байт 0x2A. Если послать этот байт в терминал как символ, получится звёздочка, а не строка 42. Для 99 результат имеет уже три цифры, поэтому этот прогон обязателен. Диапазон результата 0…198 безопасен для EAX.</p><p><b>Спросить:</b> Можно ли напечатать один байт 0x2A и получить текст 42? <b>Ответ:</b> Нет. Текст 42 — это два байта 0x34 и 0x32.</p></aside>
+</section>
+
+<section class="slide slide--content" id="s-14" aria-label="Перед печатью подготовим буфер и счётчик." inert aria-hidden="true">
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Перед печатью<br><span class="accent">подготовим буфер и счётчик.</span></h2>
+<div class="columns"><pre class="code">lea rdi, [rel numbuf + 4]</pre><div class="stack"><p class="lead">RDI указывает на ячейку с индексом 4 в буфере из 5 байтов. Её оставим для LF.</p><p class="caption">Байты команды: <code>48 8D 3D</code> + 4 байта смещения.</p></div></div><div class="columns"><pre class="code">mov ebx, 10</pre><div class="stack"><p class="lead"><code>EBX = 10</code>: будем делить число на основание десятичной системы.</p><p class="caption">Байты команды: <code>BB 0A 00 00 00</code>.</p></div></div><div class="columns"><pre class="code">xor ecx, ecx</pre><div class="stack"><p class="lead"><code>ECX = 0</code>: пока не записали ни одной цифры.</p><p class="caption">Байты команды: <code>31 C9</code>.</p></div></div>
+
+<aside class="notes"><p><b>Сказать:</b> В .bss, рядом с inbuf, скелет уже объявляет numbuf: resb 5. Индексы ячеек 0…4. RDI сначала указывает на индекс 4, а перед каждой записью цифры уменьшится. Поэтому цифры займут индексы 3, 2 и при необходимости 1; LF в конце попадёт в индекс 4. EAX содержит результат удвоения. Старое значение ECX от разбора больше не нужно.</p><p><b>Спросить:</b> Где будет записана первая полученная цифра? <b>Ответ:</b> После DEC RDI — в ячейке с индексом 3, перед местом для LF.</p></aside>
+</section>
+
+<section class="slide slide--content" id="s-15" aria-label="div ebx даёт частное и остаток." inert aria-hidden="true">
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2><code>div ebx</code> даёт<br><span class="accent">частное и остаток.</span></h2>
+<div class="columns"><pre class="code">digits: xor edx, edx</pre><div class="stack"><p class="lead">Начало цикла: <code>EDX = 0</code>. Подготовить старшую половину делимого.</p><p class="caption">Байты команды: <code>31 D2</code>.</p></div></div><div class="columns"><pre class="code">div ebx</pre><div class="stack"><p class="lead">Разделить пару <code>EDX:EAX</code> на EBX. Частное → EAX, остаток → EDX.</p><p class="caption">Байты команды: <code>F7 F3</code>.</p></div></div><div class="columns"><div class="stack"><div class="panel-label">Перед DIV</div><pre class="ascii">EDX:EAX = 0:42
+EBX = 10</pre></div><div class="stack"><div class="panel-label">После DIV</div><pre class="ascii">EAX = 4
+EDX = 2</pre></div></div>
+
+<aside class="notes"><p><b>Сказать:</b> Двоеточие в EDX:EAX означает одну 64-битную величину из двух 32-битных половин. Когда EDX=0, делим именно число из EAX. Для 42 получается 4 целых и 2 в остатке. DIV — беззнаковое деление, подходящее для 0…198. Перед каждым повтором обнуляем EDX, потому что после предыдущего DIV там остаток, а после ADD DL ещё и код символа. Метка digits стоит именно перед XOR, чтобы возврат не пропустил подготовку.</p><p><b>Спросить:</b> Что получится при делении 4 на 10? <b>Ответ:</b> Частное EAX=0 и остаток EDX=4.</p></aside>
+</section>
+
+<section class="slide slide--content" id="s-16" aria-label="Остаток превратим в символ и запишем в память." inert aria-hidden="true">
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Остаток превратим в символ<br><span class="accent">и запишем в память.</span></h2>
+<div class="columns"><pre class="code">add dl, &#x27;0&#x27;</pre><div class="stack"><p class="lead"><code>DL: 2 → 50</code>, то есть <code>0x32</code> — код символа <code>'2'</code>.</p><p class="caption">Байты команды: <code>80 C2 30</code>.</p></div></div><div class="columns"><pre class="code">dec rdi</pre><div class="stack"><p class="lead">Сдвинуть адрес на один байт влево: с индекса 4 на индекс 3.</p><p class="caption">Байты команды: <code>48 FF CF</code>.</p></div></div><div class="columns"><pre class="code">mov byte [rdi], dl</pre><div class="stack"><p class="lead">Записать младший байт EDX в память по адресу RDI. В буфере появляется символ <code>'2'</code>.</p><p class="caption">Байты команды: <code>88 17</code>.</p></div></div>
+
+<aside class="notes"><p><b>Сказать:</b> DL — младшие восемь бит EDX; остаток от деления на 10 помещается в них. ADD прибавляет ASCII-код нуля, обратное действие к SUB при разборе. После ADD значение всего EDX стало 0x32, а не осталось 2. MOV здесь пишет в память: назначение в квадратных скобках стоит слева. byte задаёт размер записи. RDI — адрес, DL — записываемое значение. Буфер после первого прохода: _ _ _ 2 _.</p><p><b>Спросить:</b> Почему цифра 2 записывается раньше цифры 4? <b>Ответ:</b> Деление сначала даёт младший десятичный разряд. Поэтому и заполняем буфер справа налево.</p></aside>
+</section>
+
+<section class="slide slide--content" id="s-17" aria-label="Считаем цифры и повторяем деление." inert aria-hidden="true">
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Считаем цифры<br><span class="accent">и повторяем деление.</span></h2>
+<div class="columns"><pre class="code">inc ecx</pre><div class="stack"><p class="lead">Увеличить число записанных цифр: после первой записи <code>ECX = 1</code>.</p><p class="caption">Байты команды: <code>FF C1</code>.</p></div></div><div class="columns"><pre class="code">test eax, eax</pre><div class="stack"><p class="lead">Проверить, стало ли частное нулём. EAX не меняется; при нуле ZF = 1.</p><p class="caption">Байты команды: <code>85 C0</code>.</p></div></div><div class="columns"><pre class="code">jnz digits</pre><div class="stack"><p class="lead">Если ZF = 0, цифры ещё остались: вернуться к <code>xor edx, edx</code>.</p><p class="caption">Байты команды: <code>75</code> + 1 байт смещения до метки.</p></div></div>
+
+<p class="takeaway">Проверка стоит после тела: даже число 0 даст одну цифру <code>'0'</code>.</p>
+<aside class="notes"><p><b>Сказать:</b> После первого DIV для 42 в EAX остаётся 4: TEST даёт ZF=0, продолжаем. После второго DIV в EAX=0: ZF=1, JNZ не выполняется. Это цикл с проверкой после тела. Для исходного нуля тело всё равно один раз запишет символ 0; иначе получилась бы пустая строка. TEST выполняет AND для флагов, не записывая результат. Его смысл здесь — проверка на ноль.</p><p><b>Спросить:</b> Сколько раз тело выполнится, если результат равен нулю? <b>Ответ:</b> Один раз: получим цифру 0, затем завершим цикл.</p></aside>
+</section>
+
+<section class="slide slide--sequence" id="s-18" aria-label="Проследим печать: число 42 → два символа." inert aria-hidden="true">
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Проследим печать:<br><span class="accent">число 42 → два символа.</span></h2>
+<div class="widget" data-widget="sequence"><div class="sequence-viewport"><div class="sequence-frame" data-frame data-caption="Сохранённое начальное состояние: EAX=42, делитель 10, указатель на индекс 4, цифр пока нет."><div class="columns"><div class="stack"><div class="panel-label">Регистры</div><pre class="ascii">EAX = 42
+EBX = 10
+ECX = 0
+RDI → индекс 4</pre></div><div class="stack"><div class="panel-label">numbuf · индексы 0…4</div><pre class="ascii">0 1 2 3 4
+_ _ _ _ _
+        ↑</pre></div></div></div><div class="sequence-frame" data-frame data-caption="Первый проход: 42 / 10 даёт 4 и остаток 2. После добавления кода нуля DL=0x32, пишем символ 2."><div class="columns"><div class="stack"><div class="panel-label">После записи и счёта</div><pre class="ascii">EAX = 4
+EDX = 0x32
+ECX = 1
+RDI → индекс 3</pre></div><div class="stack"><div class="panel-label">numbuf</div><pre class="ascii">0 1 2 3 4
+_ _ _ 2 _
+      ↑</pre></div></div></div><div class="sequence-frame" data-frame data-caption="Перед вторым DIV снова обнулили EDX. 4 / 10 даёт 0 и остаток 4. Записали символ 4; цикл завершён."><div class="columns"><div class="stack"><div class="panel-label">После второго прохода</div><pre class="ascii">EAX = 0
+EDX = 0x34
+ECX = 2
+RDI → индекс 2</pre></div><div class="stack"><div class="panel-label">numbuf</div><pre class="ascii">0 1 2 3 4
+_ _ 4 2 _
+    ↑</pre></div></div></div></div></div>
+
+<aside class="notes"><p><b>Сказать:</b> Все состояния подготовлены, код в браузере не исполняется. В отличие от снимка сразу после DIV здесь показан конец прохода: EDX уже содержит ASCII-код после ADD DL. Проверить вперёд, назад, сброс и сохранение при листании. Ячейки с подчёркиванием ещё не входят в полезный текст; это не реальные значения байтов. LF пока не записан.</p><p><b>Спросить:</b> Почему в EDX после первого прохода 0x32, хотя остаток был 2? <b>Ответ:</b> После DIV мы выполнили ADD DL, 0x30 и получили код символа 2.</p></aside>
+</section>
+
+<section class="slide slide--content" id="s-19" aria-label="Добавим LF и сохраним адрес с длиной." inert aria-hidden="true">
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Добавим LF<br><span class="accent">и сохраним адрес с длиной.</span></h2>
+<div class="columns"><pre class="code">mov byte [rdi + rcx], 10</pre><div class="stack"><p class="lead">После двух цифр: индекс <code>2 + 2 = 4</code>. Записать туда LF, байт <code>0x0A</code>.</p><p class="caption">Байты команды: <code>C6 04 0F 0A</code>.</p></div></div><div class="columns"><pre class="code">mov r8, rdi</pre><div class="stack"><p class="lead">Сохранить адрес первой цифры в R8: для <code>42</code> это адрес ячейки с индексом 2.</p><p class="caption">Байты команды: <code>49 89 F8</code>.</p></div></div><div class="columns"><pre class="code">lea r9, [rcx + 1]</pre><div class="stack"><p class="lead">Сохранить длину текста в R9: две цифры и LF — <code>3</code> байта. LEA вычисляет сумму.</p><p class="caption">Байты команды: <code>4C 8D 49 01</code>.</p></div></div>
+
+<aside class="notes"><p><b>Сказать:</b> RCX содержит число цифр, а RDI — адрес первой. Их сумма всегда указывает на зарезервированную ячейку LF. LEA может вычислять арифметическое выражение без чтения памяти: здесь RCX+1. Адрес и длину сохраняем до первого WRITE, потому что SYSCALL меняет RCX и R11. R8 и R9 в этом Linux syscall-интерфейсе сохраняются. Полезный участок теперь 34 32 0A; начальные неиспользованные байты не выводим.</p><p><b>Спросить:</b> Почему нельзя использовать RCX как длину после первого syscall? <b>Ответ:</b> Syscall меняет RCX. Поэтому заранее сохраняем длину в R9.</p></aside>
+</section>
+
+<section class="slide slide--sequence" id="s-20" aria-label="Сначала печатаем префикс." inert aria-hidden="true">
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Сначала печатаем <span class="accent">префикс.</span></h2>
+<div class="widget" data-widget="sequence"><div class="sequence-viewport"><div class="sequence-frame" data-frame data-caption="В .rodata объявлено prefix: db &quot;Result: &quot;. Подготовим write в стандартный вывод."><div class="columns"><pre class="code">mov eax, 1</pre><div class="stack"><p class="lead"><code>RAX = 1</code>: выбрать системный вызов write.</p><p class="caption">Байты команды: <code>B8 01 00 00 00</code>.</p></div></div><div class="columns"><pre class="code">mov edi, 1</pre><div class="stack"><p class="lead"><code>RDI = 1</code>: писать в стандартный вывод, обычно в терминал.</p><p class="caption">Байты команды: <code>BF 01 00 00 00</code>.</p></div></div><div class="columns"><pre class="code">lea rsi, [rel prefix]</pre><div class="stack"><p class="lead"><code>RSI = адрес prefix</code>: начало байтов текста <code>Result: </code>.</p><p class="caption">Байты команды: <code>48 8D 35</code> + 4 байта смещения.</p></div></div></div><div class="sequence-frame" data-frame data-caption="Восемь байтов включают пробел после двоеточия. После вызова терминал получил префикс; R8 и R9 сохранились."><div class="columns"><pre class="code">mov edx, 8</pre><div class="stack"><p class="lead"><code>RDX = 8</code>: длина префикса вместе с пробелом.</p><p class="caption">Байты команды: <code>BA 08 00 00 00</code>.</p></div></div><div class="columns"><pre class="code">syscall</pre><div class="stack"><p class="lead">Выполнить write с подготовленными аргументами. В stdout появится <code>Result: </code>.</p><p class="caption">Байты команды: <code>0F 05</code>.</p></div></div></div></div></div>
+
+<aside class="notes"><p><b>Сказать:</b> Это сохранённый показ подготовки регистров, не настоящий терминал. Строка prefix: db "Result: " записывает в .rodata восемь байтов 52 65 73 75 6C 74 3A 20. Их в регистры не копируем: передаём адрес и длину. Код инструкции SYSCALL такой же, как у read; выбор действия определяется RAX. В модели предполагаем полную успешную запись. RCX и R11 после вызова больше не используем для длины.</p><p><b>Спросить:</b> Почему один и тот же syscall раньше читал, а теперь пишет? <b>Ответ:</b> Перед ним установлен другой номер в RAX: 0 для read и 1 для write.</p></aside>
+</section>
+
+<section class="slide slide--sequence" id="s-21" aria-label="Печатаем число и завершаем." inert aria-hidden="true">
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Печатаем число <span class="accent">и завершаем.</span></h2>
+<div class="widget" data-widget="sequence"><div class="sequence-viewport"><div class="sequence-frame" data-frame data-caption="Первый write уже вывел префикс. Снова подготовим номер вызова, stdout и адрес числа."><div class="columns"><pre class="code">mov eax, 1</pre><div class="stack"><p class="lead">Снова выбрать <code>write</code>: прежний RAX содержит результат первого вызова.</p><p class="caption">Байты команды: <code>B8 01 00 00 00</code>.</p></div></div><div class="columns"><pre class="code">mov edi, 1</pre><div class="stack"><p class="lead">Задать стандартный вывод: <code>RDI = 1</code>.</p><p class="caption">Байты команды: <code>BF 01 00 00 00</code>.</p></div></div><div class="columns"><pre class="code">mov rsi, r8</pre><div class="stack"><p class="lead">Восстановить в RSI сохранённый адрес первой цифры.</p><p class="caption">Байты команды: <code>4C 89 C6</code>.</p></div></div></div><div class="sequence-frame" data-frame data-caption="Адрес уже в RSI. Для числа 42 отправляем три байта: 34 32 0A. Вместе с префиксом получаем строку Result: 42 и LF."><div class="columns"><pre class="code">mov rdx, r9</pre><div class="stack"><p class="lead">Восстановить длину: <code>RDX = 3</code> для двух цифр и LF.</p><p class="caption">Байты команды: <code>4C 89 CA</code>.</p></div></div><div class="columns"><pre class="code">syscall</pre><div class="stack"><p class="lead">Записать цифры и LF в stdout. Неиспользованные байты буфера не выводятся.</p><p class="caption">Байты команды: <code>0F 05</code>.</p></div></div></div><div class="sequence-frame" data-frame data-caption="Теперь вывод закончен. exit(0) завершает процесс с кодом успеха."><div class="columns"><pre class="code">mov eax, 60</pre><div class="stack"><p class="lead"><code>RAX = 60</code>: выбрать системный вызов exit.</p><p class="caption">Байты команды: <code>B8 3C 00 00 00</code>.</p></div></div><div class="columns"><pre class="code">xor edi, edi</pre><div class="stack"><p class="lead"><code>RDI = 0</code>: задать код завершения 0.</p><p class="caption">Байты команды: <code>31 FF</code>.</p></div></div><div class="columns"><pre class="code">syscall</pre><div class="stack"><p class="lead">Завершить процесс. Этот успешный exit в программу уже не возвращается.</p><p class="caption">Байты команды: <code>0F 05</code>.</p></div></div></div></div></div>
+
+<aside class="notes"><p><b>Сказать:</b> Все строки объясняем до перехода к следующему кадру. При обычном вводе 21 полный stdout — 52 65 73 75 6C 74 3A 20 34 32 0A. Два write объединяются в поток байтов. Ни один не добавляет перевод строки автоматически: LF был заранее записан в numbuf. Ошибки и частичные записи за пределами учебной модели. В примерах нет CALL/RET и стека.</p><p><b>Спросить:</b> Откуда взялся перевод строки в терминале? <b>Ответ:</b> Мы явно записали байт 0x0A в буфер и включили его в длину второго write.</p></aside>
+</section>
+
+<section class="slide slide--content" id="s-22" aria-label="Соберите блоки — и программа готова." inert aria-hidden="true">
 <div class="tag">03 / сборка · домашнее задание</div>
 <h2>Соберите блоки —<br><span class="accent">и программа готова.</span></h2>
 <div class="flow">
@@ -175,7 +266,7 @@ write → Result: 42</pre></div>
   <a class="btn" href="../../assets/examples/asm/io/io-examples.zip" download="io-examples.zip">Скелет и ТЗ ↓</a>
 </div>
 <aside class="notes">
-  <p><b>Сказать:</b> программа состоит из пяти блоков, и каждый уже разобран. read приносит строку, разбор превращает цифры в число, add eax,eax удваивает, печать делит на 10 и складывает цифры с конца, exit завершает процесс.</p>
+  <p><b>Сказать:</b> программа состоит из пяти блоков; теперь каждая команда разобрана отдельно. read приносит строку, разбор превращает цифры в число, add eax,eax удваивает, печать делит на 10 и складывает цифры с конца, exit завершает процесс.</p>
   <p><b>Контракт:</b> на входе одна строка 0…99, на выходе ровно Result: N и перевод строки. Ведущих нулей нет: 0 печатается как Result: 0, 21 — как Result: 42, 99 — как Result: 198.</p>
   <p><b>Сдать:</b> исходник, прогоны 0, 1, 7, 21, 49, 99 и короткий отчёт по бинарю: где лежит Result:, где блок div и что находится в .bss. Скелет и полное ТЗ — по ссылкам; в скелете отмечены пять мест для кода. После каждого syscall RCX и R11 потеряны; длину числа перед write префикса сохраняем в R9, как указано в скелете.</p>
   <p><b>Граница:</b> отрицательные числа, мусор на входе, переполнение и повтор короткого чтения не требуются. Один read, линейный код, без функций и стека. Время на объяснение задания — 4–5 минут.</p>
@@ -183,7 +274,7 @@ write → Result: 42</pre></div>
 </section>
 </main>
 <footer class="deck-footer">
-<div class="nav-controls"><button data-prev aria-label="Предыдущий слайд">←</button><span id="counter" aria-live="polite">01 / 05</span><button data-next aria-label="Следующий слайд">→</button></div>
+<div class="nav-controls"><button data-prev aria-label="Предыдущий слайд">←</button><span id="counter" aria-live="polite">01 / 22</span><button data-next aria-label="Следующий слайд">→</button></div>
 <span id="interaction-hint">← → слайды</span>
 <div class="deck-tools"><button data-fullscreen title="Полный экран (F)">Экран <kbd>F</kbd></button><button data-dialog="help" aria-label="Клавиши управления">?</button></div>
 </footer>

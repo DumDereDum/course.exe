@@ -1,33 +1,8 @@
 <!-- type: content -->
-<div class="tag">03 / разбор · текст → число</div>
-<h2>Число собирается<br><span class="accent">из цифр слева направо.</span></h2>
-<div class="columns">
-  <div class="stack">
-    <div class="panel-label">Цикл разбора</div>
-    <pre class="code small">next: movzx ecx, byte [rsi]
-  cmp ecx, 10
-  je done
-  sub ecx, '0'
-  imul eax, eax, 10
-  add eax, ecx
-  inc rsi
-  jmp next
-done:</pre>
-  </div>
-  <div class="stack">
-    <div class="panel-label">Трасса · ввод 21⏎</div>
-    <pre class="ascii">байт  d   acc
-32    2   0 → 2
-31    1   2 → 21
-0A    —   стоп</pre>
-    <div class="panel"><p><code>acc = acc × 10 + d</code></p><p><code>d = байт − 0x30</code></p></div>
-  </div>
-</div>
-<p class="takeaway">Цикл: <code>d = байт − '0'</code>, затем <code>acc = acc × 10 + d</code>; LF останавливает разбор.</p>
-<aside class="notes">
-  <p><b>Подготовка:</b> перед циклом <code>lea rsi, [rel inbuf]</code> и <code>xor eax, eax</code> — указатель на первый байт и нулевой накопитель.</p>
-  <p><b>Сказать:</b> цифра в памяти — это код символа, а не число. «2» — байт 0x32, «1» — 0x31. Вычитание 0x30 превращает код в значение цифры.</p>
-  <p><b>Разобрать:</b> acc хранит уже собранное число. Для «2»: 0×10+2=2. Для следующей «1»: 2×10+1=21. Цикл идёт слева направо, поэтому старые цифры каждый раз сдвигаются на десятичный разряд.</p>
-  <p><b>Спросить:</b> почему нельзя просто сложить байты? <b>Ответ:</b> 0x32+0x31=0x63 — это код «c», а не 21. Нужно сначала вычесть 0x30, затем умножить накопленное на 10.</p>
-  <p><b>Граница:</b> проверки диапазона '0'…'9' в слайде нет: вход обещан корректным. В полном решении можно остановиться на любом нецифровом байте. Переполнение для 0…99 не возникает.</p>
-</aside>
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2><code>xor eax, eax</code><br><span class="accent">обнуляет регистр.</span></h2>
+<div class="columns"><pre class="code">xor eax, eax</pre><div class="stack"><p class="lead">XOR одинаковых битов даёт ноль. Поэтому любое значение EAX превращается в <code>0</code>.</p><p class="caption">Байты команды: <code>31 C0</code>.</p></div></div><div class="columns"><div class="stack"><div class="panel-label">До → после</div><pre class="ascii">EAX: любое → 0
+RAX: любое → 0</pre></div><div class="stack"><div class="panel-label">Зачем перед read</div><pre class="ascii">RAX = 0
+номер вызова read</pre></div></div>
+<p class="takeaway">Запись в EAX обнуляет верхние 32 бита RAX. Чтение начнётся только на <code>syscall</code>.</p>
+<aside class="notes"><p><b>Сказать:</b> EAX — младшие 32 бита 64-битного RAX. Запись в EAX очищает и старшую половину. То же правило действует для EDI/RDI и EDX/RDX. XOR с собой здесь даёт тот же результат в регистре, что mov eax, 0; изменения флагов пока не используем. Точка с запятой начинает комментарий: подпись «read» не меняет смысла XOR. 31 C0 — машинные байты инструкции NASM; 31 — операция XOR, C0 выбирает регистровые операнды EAX/EAX.</p><p><b>Спросить:</b> Что прочитано после xor eax, eax? <b>Ответ:</b> Пока ничего: в RAX только записан номер будущего системного вызова.</p></aside>

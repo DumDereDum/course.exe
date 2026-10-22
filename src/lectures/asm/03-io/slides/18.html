@@ -1,0 +1,21 @@
+<!-- type: sequence -->
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Проследим печать:<br><span class="accent">число 42 → два символа.</span></h2>
+<div class="widget" data-widget="sequence"><div class="sequence-viewport"><div class="sequence-frame" data-frame data-caption="Сохранённое начальное состояние: EAX=42, делитель 10, указатель на индекс 4, цифр пока нет."><div class="columns"><div class="stack"><div class="panel-label">Регистры</div><pre class="ascii">EAX = 42
+EBX = 10
+ECX = 0
+RDI → индекс 4</pre></div><div class="stack"><div class="panel-label">numbuf · индексы 0…4</div><pre class="ascii">0 1 2 3 4
+_ _ _ _ _
+        ↑</pre></div></div></div><div class="sequence-frame" data-frame data-caption="Первый проход: 42 / 10 даёт 4 и остаток 2. После добавления кода нуля DL=0x32, пишем символ 2."><div class="columns"><div class="stack"><div class="panel-label">После записи и счёта</div><pre class="ascii">EAX = 4
+EDX = 0x32
+ECX = 1
+RDI → индекс 3</pre></div><div class="stack"><div class="panel-label">numbuf</div><pre class="ascii">0 1 2 3 4
+_ _ _ 2 _
+      ↑</pre></div></div></div><div class="sequence-frame" data-frame data-caption="Перед вторым DIV снова обнулили EDX. 4 / 10 даёт 0 и остаток 4. Записали символ 4; цикл завершён."><div class="columns"><div class="stack"><div class="panel-label">После второго прохода</div><pre class="ascii">EAX = 0
+EDX = 0x34
+ECX = 2
+RDI → индекс 2</pre></div><div class="stack"><div class="panel-label">numbuf</div><pre class="ascii">0 1 2 3 4
+_ _ 4 2 _
+    ↑</pre></div></div></div></div></div>
+
+<aside class="notes"><p><b>Сказать:</b> Все состояния подготовлены, код в браузере не исполняется. В отличие от снимка сразу после DIV здесь показан конец прохода: EDX уже содержит ASCII-код после ADD DL. Проверить вперёд, назад, сброс и сохранение при листании. Ячейки с подчёркиванием ещё не входят в полезный текст; это не реальные значения байтов. LF пока не записан.</p><p><b>Спросить:</b> Почему в EDX после первого прохода 0x32, хотя остаток был 2? <b>Ответ:</b> После DIV мы выполнили ADD DL, 0x30 и получили код символа 2.</p></aside>

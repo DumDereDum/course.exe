@@ -1,30 +1,6 @@
 <!-- type: content -->
-<div class="tag">03 / ввод · read и буфер</div>
-<h2><code>read</code> кладёт байты<br><span class="accent">в память процесса.</span></h2>
-<div class="columns">
-  <div class="stack">
-    <div class="panel-label">NASM · Linux x86-64</div>
-    <pre class="code small">section .bss
-inbuf:  resb 32
-section .text
-  xor eax, eax      ; read
-  xor edi, edi      ; stdin
-  lea rsi, [rel inbuf]
-  mov edx, 32
-  syscall</pre>
-  </div>
-  <div class="stack">
-    <div class="panel-label">После ввода 21⏎</div>
-    <pre class="ascii">inbuf
-32 31 0A 00 00
-'2' '1' LF</pre>
-    <div class="panel"><p><code>RAX = 3</code> — прочитано три байта.</p></div>
-  </div>
-</div>
-<p class="takeaway"><code>read</code> возвращает число байтов, а не число. Enter — это байт <code>0A</code> в конце строки.</p>
-<aside class="notes">
-  <p><b>Сказать:</b> read — такой же syscall, как write, только данные едут в обратную сторону. RAX=0 выбирает read, RDI=0 — stdin, RSI — адрес буфера, RDX — максимум байтов. После возврата RAX содержит, сколько байтов ядро действительно записало в память.</p>
-  <p><b>Разобрать:</b> ввод 21 и Enter — это три байта: 32, 31, 0A. Числа 21 в памяти нет: есть две цифры и перевод строки. Секция .bss хранит только размер; в исполняемом файле этих нулей нет, они появляются при загрузке.</p>
-  <p><b>Спросить:</b> почему RDX=32, а не 3? <b>Ответ:</b> это максимум, который разрешено прочитать; сколько пришло, программа узнаёт из RAX. read может вернуть 0 (EOF) или меньше запрошенного.</p>
-  <p><b>Граница:</b> в учебных прогонах предполагаем, что один read успешно получает всю строку с LF. Размер буфера сам по себе этого не гарантирует: read может вернуть только часть строки. Цикл чтения и обработка ошибок в задаче не нужны.</p>
-</aside>
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Сначала выделим<br><span class="accent">место для ввода.</span></h2>
+<div class="columns"><pre class="code">section .bss</pre><div class="stack"><p class="lead">Начинаем область памяти для данных без начальных байтов в файле.</p></div></div><div class="columns"><pre class="code">inbuf: resb 32</pre><div class="stack"><p class="lead"><code>resb 32</code> резервирует 32 байта. Имя <code>inbuf</code> обозначает адрес начала.</p></div></div><div class="columns"><pre class="code">section .text</pre><div class="stack"><p class="lead">Дальше записываем инструкции, которые будет выполнять процессор.</p></div></div>
+<p class="takeaway">Это указания сборщику. Процессор не выполняет <code>section</code> и <code>resb</code>.</p>
+<aside class="notes"><p><b>Сказать:</b> Буфер — участок памяти. При загрузке Linux заполняет .bss нулями; 32 нулевых байта не хранятся в ELF. Метка — имя адреса, а не отдельная команда. В памяти есть место, но ввода ещё нет.</p><p><b>Спросить:</b> Какие байты уже прочитаны после resb 32? <b>Ответ:</b> Никакие. Мы только описали место для будущего ввода.</p></aside>

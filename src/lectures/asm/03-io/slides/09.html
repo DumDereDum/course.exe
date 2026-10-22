@@ -1,0 +1,10 @@
+<!-- type: content -->
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Код символа<br><span class="accent">превращаем в цифру.</span></h2>
+<div class="columns"><pre class="code">sub ecx, &#x27;0&#x27;</pre><div class="stack"><p class="lead">Вычесть код символа <code>'0'</code>, равный <code>0x30</code>. Получаем значение цифры.</p><p class="caption">Байты команды: <code>83 E9 30</code>.</p></div></div><div class="columns"><div class="stack"><div class="panel-label">Первая цифра</div><pre class="ascii">&#x27;2&#x27;: 0x32 = 50
+50 − 48 = 2
+ECX: 50 → 2</pre></div><div class="stack"><div class="panel-label">Вторая цифра</div><pre class="ascii">&#x27;1&#x27;: 0x31 = 49
+49 − 48 = 1
+ECX: 49 → 1</pre></div></div>
+<p class="takeaway"><code>'0'</code> — код символа 48. Числовой ноль — это <code>0</code>.</p>
+<aside class="notes"><p><b>Сказать:</b> NASM подставляет значение символа в непосредственный операнд. У ASCII-цифр коды идут подряд от 0x30 до 0x39, поэтому вычитание 0x30 даёт 0…9. Исходный байт в памяти не меняется: SUB работает с ECX. Здесь особенно важно проговорить систему счисления: 0x32 — это десятичное 50, а не число 32 и не число 2.</p><p><b>Спросить:</b> Что получится для символа 7? <b>Ответ:</b> 0x37 − 0x30 = 7, и это значение окажется в ECX.</p></aside>

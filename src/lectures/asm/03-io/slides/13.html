@@ -1,0 +1,8 @@
+<!-- type: content -->
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Теперь удвоим<br><span class="accent">полученное число.</span></h2>
+<div class="columns"><pre class="code">add eax, eax</pre><div class="stack"><p class="lead">Сложить прежний EAX с самим собой и сохранить сумму в EAX.</p><p class="caption">Байты команды: <code>01 C0</code>.</p></div></div><div class="columns"><div class="stack"><div class="panel-label">Обычный пример</div><pre class="ascii">EAX: 21 → 42
+число 42 = 0x2A</pre></div><div class="stack"><div class="panel-label">Границы задания</div><pre class="ascii">0 → 0
+99 → 198</pre></div></div>
+<p class="takeaway">В регистре уже число 42. Для вывода ещё нужны байты символов <code>'4'</code> и <code>'2'</code>.</p>
+<aside class="notes"><p><b>Сказать:</b> ADD меняет числовое значение, но не превращает его в текст. 42 хранится как двоичное число, младший байт 0x2A. Если послать этот байт в терминал как символ, получится звёздочка, а не строка 42. Для 99 результат имеет уже три цифры, поэтому этот прогон обязателен. Диапазон результата 0…198 безопасен для EAX.</p><p><b>Спросить:</b> Можно ли напечатать один байт 0x2A и получить текст 42? <b>Ответ:</b> Нет. Текст 42 — это два байта 0x34 и 0x32.</p></aside>

@@ -1,0 +1,22 @@
+<!-- type: sequence -->
+<div class="tag">03 / ввод, вывод и числа</div>
+<h2>Проследим весь путь:<br><span class="accent">байты 21 → число 21.</span></h2>
+<div class="widget" data-widget="sequence"><div class="sequence-viewport"><div class="sequence-frame" data-frame data-caption="Начальное состояние: EAX=0, RSI указывает на первый байт. После первой цифры получаем 2."><div class="columns"><div class="stack"><div class="panel-label">Строки первого прохода</div><pre class="ascii">movzx ecx, byte [rsi]
+sub ecx, &#x27;0&#x27;
+imul eax, eax, 10
+add eax, ecx</pre></div><div class="stack"><div class="panel-label">Состояние после строк</div><pre class="ascii">ECX = 0x32 = 50
+ECX = 2
+EAX: 0 → 0
+EAX: 0 → 2</pre></div></div></div><div class="sequence-frame" data-frame data-caption="INC передвинул RSI на символ 1. Умножаем прежние 2 на 10, затем добавляем 1."><div class="columns"><div class="stack"><div class="panel-label">Строки второго прохода</div><pre class="ascii">movzx ecx, byte [rsi]
+sub ecx, &#x27;0&#x27;
+imul eax, eax, 10
+add eax, ecx</pre></div><div class="stack"><div class="panel-label">Состояние после строк</div><pre class="ascii">ECX = 0x31 = 49
+ECX = 1
+EAX: 2 → 20
+EAX: 20 → 21</pre></div></div></div><div class="sequence-frame" data-frame data-caption="Ещё один INC привёл к LF. Сравнение даёт равенство, JE выходит из цикла."><div class="columns"><div class="stack"><div class="panel-label">Строки третьего прохода</div><pre class="ascii">movzx ecx, byte [rsi]
+cmp ecx, 10
+je done</pre></div><div class="stack"><div class="panel-label">Результат</div><pre class="ascii">ECX = 0x0A = 10
+ZF = 1 → переход
+EAX остаётся 21</pre></div></div></div></div></div>
+
+<aside class="notes"><p><b>Сказать:</b> Сохранённая трасса, не исполнение кода в браузере. После MOVZX в первых двух проходах также выполняются CMP/JE: равенства с LF нет, поэтому продолжаем. INC/JMP между проходами уже разобраны отдельно. В каждом столбце результаты выровнены по строкам. Сначала попросить предсказать изменение, затем шагнуть. Пробел вперёд, Shift+пробел назад, R сброс. В конце остановиться.</p><p><b>Спросить:</b> Какая команда превращает 2 в 20? <b>Ответ:</b> IMUL. ADD только прибавляет следующую цифру.</p></aside>
